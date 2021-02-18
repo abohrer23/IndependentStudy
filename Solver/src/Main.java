@@ -11,7 +11,6 @@
  * zlittlefield@gmail.com
  * 
  * 
- * 
  * Modified for use in Independent Study by
  * Lane Bohrer and Evin Jaff
  * a.bohrer@wustl.edu, evin@wustl.edu

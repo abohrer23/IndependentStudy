@@ -16,13 +16,11 @@
  */
 
 
-/* Current TODOs
+/* TODO
  * 
- * - probabilities are different and/or not updating
- * 		-values vs knownboard (~339)
- * 		-tempInt set up wrong (~320)
- * 		-accumulate vs accumulated :sob:
- * - better file selection (args processor chose file 131 assignment 4 style?) lane is willing
+ * - calculate point totals from answer board
+ * - check to see if game win (are there any 2s/3s still uncovered?)
+ * - implement coin counter
  * 
  * */
 
@@ -34,7 +32,7 @@ import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import javax.swing.*;
 
-//Evin's tool around
+//Evin and Lane's imports
 import cse131.ArgsProcessor;
 import boards.boardSimulationFiles;
 
@@ -71,6 +69,7 @@ public class Main extends JFrame
 	int[][] answer;
 	int[][] knownBoard;
 	double[][] currentVProbabilities;
+	final static int COVERED = -1; //special value for still covered spots on the board
 	
 	public static void main(String args[]) 
 	{
@@ -110,7 +109,7 @@ public class Main extends JFrame
 		knownBoard = new int[5][5];
 		for (int i = 0; i < 5; ++i) {
 			for (int j = 0; j < 5; ++j){
-				knownBoard[i][j] = -1; //flag for unknown, will print as a blank/black space
+				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/black space
 			}
 		}
 		
@@ -211,26 +210,34 @@ public class Main extends JFrame
 			//is doable in the future
 			// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
 			
-			int xcoord = ap.nextInt("x?");
-			int ycoord = ap.nextInt("y?");
+			//int xcoord = ap.nextInt("x?");
+			//int ycoord = ap.nextInt("y?");
 			
 			
 			/* Code in progress for autoplay
+			 * */
 			int xcoord = -1;
 			int ycoord = -1;
-			double lowProb = 1.0;
+			//double lowProb = 1.0;
 			
 			for (int i = 0; i < 5; ++i) {
 				for (int j = 0; j < 5; ++j) {
-					if (currentVProbabilities[i][j] < lowProb && knownBoard[i][j] == -1) {
+					if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
 						xcoord = i;
 						ycoord = j;
-						lowProb = currentVProbabilities[i][j];
+						break; //take out if changing to lowrisk instead of no risk
 					}
 				}
 			}
-			System.out.println("autochose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] );
-			 */
+			//System.out.println("After for loops: x: " + xcoord + ", y: "+ycoord);
+			
+			if (xcoord != -1) {
+				System.out.print("Autochose spot: (" + xcoord+","+ycoord+")" + "\t");
+			} else {
+				xcoord = ap.nextInt("x?");
+				ycoord = ap.nextInt("y?");
+				System.out.print("User chose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] + "\t");
+			}
 			
 			
 			//2. Flip. Check agains the board and call a game over if necessary
@@ -242,6 +249,8 @@ public class Main extends JFrame
 			//startCalculating();
 
 			update();
+			prettyprint();
+			System.out.println("\n");
 			
 
 			
@@ -298,7 +307,6 @@ public class Main extends JFrame
 				break;
 			}
 
-			prettyprint();
 
 	}
 
@@ -307,13 +315,17 @@ public class Main extends JFrame
 		
 		boolean withProb = true; //also prints probabilities
 		
-		System.out.println("Board State:");
+		System.out.print("Board State:");
+		if (withProb) {
+			System.out.print("\t\t\tProbability of Voltorb");
+		}
+		System.out.println();
 		System.out.println("   01234");
 		//System.out.println("   _____");
 		for (int i = 0; i < 5; ++i) {
 			System.out.print(i + " |");
 			for (int j = 0; j < 5; ++j) {
-				char val = (knownBoard[i][j] == -1 ? '▓': Character.forDigit(knownBoard[i][j],10)); 
+				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10)); 
 				System.out.print(val);
 			}
 			System.out.print(" " + rows[i] + " " + vrows[i]);
@@ -360,7 +372,7 @@ public class Main extends JFrame
 					//old
 					//if(!showValues[i][j].getText().equals(""))
 					//using knownBoard now
-					if (!(knownBoard[i][j] == -1))
+					if (!(knownBoard[i][j] == COVERED))
 					{
 						//old
 						//tempInt=Integer.parseInt(showValues[i][j].getText());
@@ -491,16 +503,16 @@ public class Main extends JFrame
 		 * */
 		
 		for (int i = 0; i < 5; i++) {
-			columns[i] = file.nextInt();
-		}
-		for (int i = 0; i < 5; ++i) {
 			rows[i] = file.nextInt();
 		}
 		for (int i = 0; i < 5; ++i) {
-			vcolumns[i] = file.nextInt();
-		}		
+			columns[i] = file.nextInt();
+		}
 		for (int i = 0; i < 5; ++i) {
 			vrows[i] = file.nextInt();
+		}		
+		for (int i = 0; i < 5; ++i) {
+			vcolumns[i] = file.nextInt();
 		}
 		for (int i = 0; i < 5; ++i) {
 			for (int j = 0; j < 5; ++j) {
@@ -508,7 +520,6 @@ public class Main extends JFrame
 			}
 		}
 		
-		prettyprint();
 
 		
 	}
@@ -966,6 +977,8 @@ public class Main extends JFrame
 		}
 		numStates.setText("Number of Possible States "+numberOfFinalStates);
 		
+		prettyprint();
+		System.out.println("\n");
 		
 	}
 	public boolean debugger(int values[])

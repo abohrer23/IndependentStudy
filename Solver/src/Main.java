@@ -1,31 +1,28 @@
 /*
  * Zakary Littlefield
  * March 28, 2010
- * 
- * 
+
  * Free to use this code for whatever purpose
  * 
  * There are no guarantees on success or failure
- * 
- * 
  * zlittlefield@gmail.com
+ * 
  * 
  * 
  * Modified for use in Independent Study by
  * Lane Bohrer and Evin Jaff
  * a.bohrer@wustl.edu, evin@wustl.edu
+ * Spring 2021
  */
 
 
 /* Current TODOs
  * 
- * - accumulate vs accumulated :sob:
- * - 'ed 
  * - probabilities are different and/or not updating
  * 		-values vs knownboard (~339)
  * 		-tempInt set up wrong (~320)
+ * 		-accumulate vs accumulated :sob:
  * - better file selection (args processor chose file 131 assignment 4 style?) lane is willing
- * 
  * 
  * */
 
@@ -65,9 +62,12 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
+	
+	//added
 	In file = new In("two.txt");
 	int[][] answer;
 	int[][] knownBoard;
+	double[][] currentVProbabilities;
 	
 	public static void main(String args[]) 
 	{
@@ -75,7 +75,7 @@ public class Main extends JFrame
 	}
 	Main(String[] args) 
 	{
-		ap = new ArgsProcessor(args);
+		ap = new ArgsProcessor(args); //new
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		states = new LinkedList<int[][]>();
 		numStates=new JLabel();
@@ -89,7 +89,7 @@ public class Main extends JFrame
 		start.setBounds(360, 60, 100, 40);
 		//update.setBounds(360,120,100,40);
 		//reset.setBounds(360,180,100,40);
-		play.setBounds(360,120,100,40);		
+		play.setBounds(360,120,100,40);	 //new	
 		values=new int[5][5];
 		nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
@@ -101,12 +101,17 @@ public class Main extends JFrame
 
 		//2-D Answer Board
 		answer = new int[5][5];
+		
+		//current known (flipped over) board
 		knownBoard = new int[5][5];
 		for (int i = 0; i < 5; ++i) {
 			for (int j = 0; j < 5; ++j){
 				knownBoard[i][j] = -1; //flag for unknown, will print as a blank/black space
 			}
 		}
+		
+		//current voltorb probabilities
+		currentVProbabilities = new double[5][5];
 		
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
@@ -269,6 +274,9 @@ public class Main extends JFrame
 
 	//Pretty-print the state of the board
 	public void prettyprint(){
+		
+		boolean withProb = true; //also prints probabilities
+		
 		System.out.println("Board State:");
 		System.out.println("   01234");
 		//System.out.println("   _____");
@@ -278,7 +286,11 @@ public class Main extends JFrame
 				char val = (knownBoard[i][j] == -1 ? '▓': Character.forDigit(knownBoard[i][j],10)); 
 				System.out.print(val);
 			}
-			System.out.println(" " + rows[i] + " " + vrows[i]);
+			System.out.print(" " + rows[i] + " " + vrows[i]);
+			if (withProb) {
+				System.out.print("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
+			}
+			System.out.println();
 		}
 		
 		System.out.print("   ");
@@ -315,10 +327,12 @@ public class Main extends JFrame
 			{
 				for(int j=0;j<5;j++)
 				{
-					if(!showValues[i][j].getText().equals(""))
+					//old
+					//if(!showValues[i][j].getText().equals(""))
+					//using knownBoard now
+					if (!(knownBoard[i][j] == -1))
 					{
 						//old
-						
 						//tempInt=Integer.parseInt(showValues[i][j].getText());
 
 						//updated to take in from known board
@@ -381,6 +395,7 @@ public class Main extends JFrame
 				else
 					probabilities[i][j].setForeground(Color.black);
 				probabilities[i][j].setText("<"+accumulated[0][i][j]+" , "+accumulated[1][i][j]+" , "+accumulated[2][i][j]+">\t");
+				currentVProbabilities[i][j] = accumulated[0][i][j];
 			}
 		}
 		numStates.setText("Number of Possible Games: "+newSize);
@@ -413,6 +428,8 @@ public class Main extends JFrame
 	}
 	public void setNumbers()
 	{
+		
+		
 		int size = file.readInt(); //not used yet but will let us do nxn
 		/*
 		for(int i=0;i<5;i++)
@@ -427,11 +444,11 @@ public class Main extends JFrame
 		
 		/*NEW text file setup:
 		 * Size(int, currently hardcoded to 5)
-		 * All column point values
-		 * All row point values
-		 * All column voltorb counts
-		 * All row voltorb counts
-		 * True board answers (25 ints)
+		 * All column point values (top down)
+		 * All row point values (left to right)
+		 * All column voltorb counts (top down)
+		 * All row voltorb counts (left to right)
+		 * True board answers (25 ints, top left to bottom right, across then down)
 		 * */
 		
 		for (int i = 0; i < 5; i++) {
@@ -905,6 +922,7 @@ public class Main extends JFrame
 			{
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
 				probabilities[i][j].setText("<"+Math.round(accumulated[0][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
+				currentVProbabilities[i][j] = Math.round(accumulated[0][i][j]/alpha*100)/100.0;
 			}
 		}
 		numStates.setText("Number of Possible States "+numberOfFinalStates);

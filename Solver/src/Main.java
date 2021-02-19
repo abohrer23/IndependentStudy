@@ -30,16 +30,19 @@
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import javax.swing.*;
 
 //Evin's tool around
 import cse131.ArgsProcessor;
+import boards.boardSimulationFiles;
 
 public class Main extends JFrame 
 {
 	private static final long serialVersionUID = 1L;
 	ArgsProcessor ap;
+	static String[] localArgs;
 	JTextField showValues[][];
 	JTextField Cols[];
 	JTextField Rows[];
@@ -71,11 +74,12 @@ public class Main extends JFrame
 	
 	public static void main(String args[]) 
 	{
-		new Main(args);
+		localArgs = args;
+		new Main();
 	}
-	Main(String[] args) 
+	Main() 
 	{
-		ap = new ArgsProcessor(args); //new
+		ap = new ArgsProcessor(localArgs); //new
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		states = new LinkedList<int[][]>();
 		numStates=new JLabel();
@@ -168,6 +172,13 @@ public class Main extends JFrame
 		reset.addActionListener(new actions());
 		play.addActionListener(new actions());
 		setVisible(true);
+		
+		
+		//auto starts - no need to press start
+		setNumbers();
+		startCalculating();
+		
+		
 	}
 	public class actions implements ActionListener
 	{
@@ -202,7 +213,26 @@ public class Main extends JFrame
 			
 			int xcoord = ap.nextInt("x?");
 			int ycoord = ap.nextInt("y?");
-
+			
+			
+			/* Code in progress for autoplay
+			int xcoord = -1;
+			int ycoord = -1;
+			double lowProb = 1.0;
+			
+			for (int i = 0; i < 5; ++i) {
+				for (int j = 0; j < 5; ++j) {
+					if (currentVProbabilities[i][j] < lowProb && knownBoard[i][j] == -1) {
+						xcoord = i;
+						ycoord = j;
+						lowProb = currentVProbabilities[i][j];
+					}
+				}
+			}
+			System.out.println("autochose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] );
+			 */
+			
+			
 			//2. Flip. Check agains the board and call a game over if necessary
 			
 			//Flipped over
@@ -429,8 +459,17 @@ public class Main extends JFrame
 	public void setNumbers()
 	{
 		
-		
-		int size = file.readInt(); //not used yet but will let us do nxn
+		/* ArgsProcessor file opening functionality is taken from Prof Cosgrove's 131 changes. He's the best
+		 * Modified by Lane Bohrer for use here
+		 * */
+		ArgsProcessor file = null;
+		try {
+			file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		int size = file.nextInt(); //not used yet but will let us do nxn
 		/*
 		for(int i=0;i<5;i++)
 		{
@@ -452,20 +491,20 @@ public class Main extends JFrame
 		 * */
 		
 		for (int i = 0; i < 5; i++) {
-			columns[i] = file.readInt();
+			columns[i] = file.nextInt();
 		}
 		for (int i = 0; i < 5; ++i) {
-			rows[i] = file.readInt();
+			rows[i] = file.nextInt();
 		}
 		for (int i = 0; i < 5; ++i) {
-			vcolumns[i] = file.readInt();
+			vcolumns[i] = file.nextInt();
 		}		
 		for (int i = 0; i < 5; ++i) {
-			vrows[i] = file.readInt();
+			vrows[i] = file.nextInt();
 		}
 		for (int i = 0; i < 5; ++i) {
 			for (int j = 0; j < 5; ++j) {
-				answer[i][j] = file.readInt();
+				answer[i][j] = file.nextInt();
 			}
 		}
 		

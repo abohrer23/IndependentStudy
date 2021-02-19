@@ -17,7 +17,17 @@
  */
 
 
-
+/* Current TODOs
+ * 
+ * - accumulate vs accumulated :sob:
+ * - 'ed 
+ * - probabilities are different and/or not updating
+ * 		-values vs knownboard (~339)
+ * 		-tempInt set up wrong (~320)
+ * - better file selection (args processor chose file 131 assignment 4 style?) lane is willing
+ * 
+ * 
+ * */
 
 
 import java.awt.Color;
@@ -26,9 +36,13 @@ import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import javax.swing.*;
 
+//Evin's tool around
+import cse131.ArgsProcessor;
+
 public class Main extends JFrame 
 {
 	private static final long serialVersionUID = 1L;
+	ArgsProcessor ap;
 	JTextField showValues[][];
 	JTextField Cols[];
 	JTextField Rows[];
@@ -39,6 +53,7 @@ public class Main extends JFrame
 	JButton start;
 	JButton update;
 	JButton reset;
+	JButton play;
 	JLabel numStates;
 	int values[][];
 	double accumulate[][];
@@ -50,13 +65,17 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
+	In file = new In("two.txt");
+	int[][] answer;
+	int[][] knownBoard;
 	
 	public static void main(String args[]) 
 	{
-		new Main();
+		new Main(args);
 	}
-	Main() 
+	Main(String[] args) 
 	{
+		ap = new ArgsProcessor(args);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		states = new LinkedList<int[][]>();
 		numStates=new JLabel();
@@ -64,11 +83,13 @@ public class Main extends JFrame
 		start=new JButton("Start");
 		update=new JButton("Update");
 		reset=new JButton("Reset");
+		play=new JButton("Play");
 		add(start);
 		add(update);
 		start.setBounds(360, 60, 100, 40);
-		update.setBounds(360,120,100,40);
-		reset.setBounds(360,180,100,40);
+		//update.setBounds(360,120,100,40);
+		//reset.setBounds(360,180,100,40);
+		play.setBounds(360,120,100,40);		
 		values=new int[5][5];
 		nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
@@ -77,12 +98,23 @@ public class Main extends JFrame
 		rows=new int[5];
 		vrows=new int[5];
 		accumulate=new double[5][5];
+
+		//2-D Answer Board
+		answer = new int[5][5];
+		knownBoard = new int[5][5];
+		for (int i = 0; i < 5; ++i) {
+			for (int j = 0; j < 5; ++j){
+				knownBoard[i][j] = -1; //flag for unknown, will print as a blank/black space
+			}
+		}
+		
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
 		Vcols=new JTextField[5];
 		Vrows=new JTextField[5];
 		place=new boolean[5];
 		probabilities=new JLabel[5][5];
+		
 		for(int i=0;i<5;i++)
 		{
 			Cols[i]=new JTextField("");
@@ -102,6 +134,7 @@ public class Main extends JFrame
 			vcolumns[i]=-1;
 			rows[i]=-1;
 			vrows[i]=-1;
+			//Setup for loop to initalize 2-D arrays inside existing for loop. Lane, you could possilby use this for loop to add scanned characters in
 			for(int j=0;j<5;j++)
 			{
 				accumulate[i][j]=0;
@@ -124,9 +157,11 @@ public class Main extends JFrame
 		setLayout(null);
 		setSize(600, 450);
 		add(reset);
+		add(play);
 		start.addActionListener(new actions());
 		update.addActionListener(new actions());
 		reset.addActionListener(new actions());
+		play.addActionListener(new actions());
 		setVisible(true);
 	}
 	public class actions implements ActionListener
@@ -139,6 +174,9 @@ public class Main extends JFrame
 				setNumbers();
 				startCalculating();
 			}
+			if(e.getSource() == play){
+				play();
+			}
 			if(e.getSource()==update)
 			{
 				update();
@@ -146,7 +184,115 @@ public class Main extends JFrame
 			if(e.getSource()==reset)
 				reset();
 		}
+
+		
 	}
+	/**
+	Play: Will run an input board
+	**/
+	public void play() {
+			//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
+			//is doable in the future
+			// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
+			
+			int xcoord = ap.nextInt("x?");
+			int ycoord = ap.nextInt("y?");
+
+			//2. Flip. Check agains the board and call a game over if necessary
+			
+			//Flipped over
+
+			boardify(answer[xcoord][ycoord], xcoord, ycoord);
+
+			//startCalculating();
+
+			update();
+			
+
+			
+			//3. Cleanup. Update the coin coint (TBA), exit the program if gameover, and finally update the text elements.
+
+
+			
+
+			
+			
+	}
+
+	/**
+	boardresult - tile value
+	x - x coordinate
+	y - y coordinate
+	**/
+
+	public void boardify(int boardResult, int x,  int y){
+
+		
+			switch(boardResult){
+				//Flipped a Voltorb - Trigger Game Over
+				case 0:
+					knownBoard[x][y] = 0;
+					values[x][y] = 0;
+					prettyprint();
+				reset();
+				System.out.println("BOMB!");
+				break;
+
+				//Flipped a 1 - Do nothing but just update board
+				case 1:
+					knownBoard[x][y] = 1;
+					values[x][y] = 1;
+					System.out.println("1 Flipped");
+				break;
+
+
+				//Flipped a 2 - Update Board and Coin Count
+				case 2:
+					knownBoard[x][y] = 2;
+					values[x][y] = 2;
+					System.out.println("2 Flipped");
+				
+				break;
+
+				//Flipped a 3 - Update Board and Coin Count
+				case 3:
+					knownBoard[x][y] = 3;
+					values[x][y] = 3;
+					System.out.println("3 Flipped!");
+				
+				break;
+			}
+
+			prettyprint();
+
+	}
+
+	//Pretty-print the state of the board
+	public void prettyprint(){
+		System.out.println("Board State:");
+		System.out.println("   01234");
+		//System.out.println("   _____");
+		for (int i = 0; i < 5; ++i) {
+			System.out.print(i + " |");
+			for (int j = 0; j < 5; ++j) {
+				char val = (knownBoard[i][j] == -1 ? '▓': Character.forDigit(knownBoard[i][j],10)); 
+				System.out.print(val);
+			}
+			System.out.println(" " + rows[i] + " " + vrows[i]);
+		}
+		
+		System.out.print("   ");
+		for (int i = 0; i < 5; ++i) {
+			System.out.print(columns[i]);
+		}
+		System.out.print("\n   ");
+		for (int i = 0; i < 5; ++i) {
+			System.out.print(vcolumns[i]);
+		}
+		System.out.println();
+	
+	}
+
 	public void update()
 	{
 		int numberOfFinalStates=states.size();
@@ -171,7 +317,12 @@ public class Main extends JFrame
 				{
 					if(!showValues[i][j].getText().equals(""))
 					{
-						tempInt=Integer.parseInt(showValues[i][j].getText());
+						//old
+						
+						//tempInt=Integer.parseInt(showValues[i][j].getText());
+
+						//updated to take in from known board
+						tempInt=knownBoard[i][j];
 						if(values[i][j]!=tempInt)
 							add=false;
 					}
@@ -262,21 +413,60 @@ public class Main extends JFrame
 	}
 	public void setNumbers()
 	{
+		int size = file.readInt(); //not used yet but will let us do nxn
+		/*
 		for(int i=0;i<5;i++)
 		{
+			
 			columns[i]=Integer.parseInt(Cols[i].getText());
 			vcolumns[i]=Integer.parseInt(Vcols[i].getText());
 			rows[i]=Integer.parseInt(Rows[i].getText());
 			vrows[i]=Integer.parseInt(Vrows[i].getText());
 		}
+		*/
+		
+		/*NEW text file setup:
+		 * Size(int, currently hardcoded to 5)
+		 * All column point values
+		 * All row point values
+		 * All column voltorb counts
+		 * All row voltorb counts
+		 * True board answers (25 ints)
+		 * */
+		
+		for (int i = 0; i < 5; i++) {
+			columns[i] = file.readInt();
+		}
+		for (int i = 0; i < 5; ++i) {
+			rows[i] = file.readInt();
+		}
+		for (int i = 0; i < 5; ++i) {
+			vcolumns[i] = file.readInt();
+		}		
+		for (int i = 0; i < 5; ++i) {
+			vrows[i] = file.readInt();
+		}
+		for (int i = 0; i < 5; ++i) {
+			for (int j = 0; j < 5; ++j) {
+				answer[i][j] = file.readInt();
+			}
+		}
+		
+		prettyprint();
+
+		
 	}
+	
+	//never called?
 	public void displayNumbers()
 	{
 		for(int i=0;i<5;i++)
 		{
 			for(int j=0;j<5;j++)
 			{
+				//old
 				showValues[i][j].setText(Integer.toString(values[i][j]));
+				//showValues[i][j].setText(Integer.toString(knownBoard[i][j]));
 			}
 		}
 	}
@@ -374,7 +564,7 @@ public class Main extends JFrame
 		{
 			for(int j=0;j<5;j++)
 			{
-				System.out.print((accumulate[i][j]/(count*1.0))+"\t");
+				System.out.print(	Math.round((accumulate[i][j]/(count*1.0))*10000)/10000.0	+"\t");
 				accumulate[i][j]=0;
 			}
 			System.out.println();
@@ -509,7 +699,7 @@ public class Main extends JFrame
 		{
 			for(int j=0;j<5;j++)
 			{
-				System.out.print(accumulate[i][j]/(numberOfStates*1.0)+"\t");
+				System.out.print(	Math.round(accumulate[i][j]/(numberOfStates*1.0)*10000)/10000.0	+"\t");
 			}
 			System.out.println();
 		}

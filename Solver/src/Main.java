@@ -35,6 +35,7 @@ import javax.swing.*;
 //Evin and Lane's imports
 import cse131.ArgsProcessor;
 import boards.boardSimulationFiles;
+import java.math.BigInteger;
 
 public class Main extends JFrame 
 {
@@ -70,6 +71,7 @@ public class Main extends JFrame
 	int[][] knownBoard;
 	double[][] currentVProbabilities;
 	final static int COVERED = -1; //special value for still covered spots on the board
+	static int SIZE;
 	
 	public static void main(String args[]) 
 	{
@@ -220,8 +222,8 @@ public class Main extends JFrame
 			int ycoord = -1;
 			//double lowProb = 1.0;
 			
-			for (int i = 0; i < 5; ++i) {
-				for (int j = 0; j < 5; ++j) {
+			for (int i = 0; i < SIZE; ++i) {
+				for (int j = 0; j < SIZE; ++j) {
 					if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
 						xcoord = i;
 						ycoord = j;
@@ -322,9 +324,9 @@ public class Main extends JFrame
 		System.out.println();
 		System.out.println("   01234");
 		//System.out.println("   _____");
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(i + " |");
-			for (int j = 0; j < 5; ++j) {
+			for (int j = 0; j < SIZE; ++j) {
 				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10)); 
 				System.out.print(val);
 			}
@@ -336,11 +338,11 @@ public class Main extends JFrame
 		}
 		
 		System.out.print("   ");
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(columns[i]);
 		}
 		System.out.print("\n   ");
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(vcolumns[i]);
 		}
 		System.out.println();
@@ -356,18 +358,18 @@ public class Main extends JFrame
 		int newSize=0;
 		int tempInt;
 		double accumulated[][][];
-		accumulated=new double[3][5][5];
+		accumulated=new double[3][SIZE][SIZE];
 		for(int i=0;i<3;i++)
-			for(int j=0;j<5;j++)
-				for(int k=0;k<5;k++)
+			for(int j=0;j<SIZE;j++)
+				for(int k=0;k<SIZE;k++)
 					accumulated[i][j][k]=0;
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
 			add=true;
 			values=states.get(k);
-			for(int i=0;i<5;i++)
+			for(int i=0;i<SIZE;i++)
 			{
-				for(int j=0;j<5;j++)
+				for(int j=0;j<SIZE;j++)
 				{
 					//old
 					//if(!showValues[i][j].getText().equals(""))
@@ -395,9 +397,9 @@ public class Main extends JFrame
 		for(int k=0;k<newSize;k++)
 		{
 			values=newStates.get(k);
-			for(int i=0;i<5;i++)
+			for(int i=0;i<SIZE;i++)
 			{
-				for(int j=0;j<5;j++)
+				for(int j=0;j<SIZE;j++)
 				{
 					if(values[i][j]==0)
 						accumulated[0][i][j]++;
@@ -411,9 +413,9 @@ public class Main extends JFrame
 		double alpha;
 		double maxscore=0;
 		double maxvoltorb=0;
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
 				accumulated[0][i][j]=Math.round(accumulated[0][i][j]/alpha*100)/100.0;
@@ -426,9 +428,9 @@ public class Main extends JFrame
 				//probabilities[i][j].setText("<"+Math.round(accumulated[0][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
 			}
 		}
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				if(accumulated[0][i][j]==maxvoltorb&&showValues[i][j].getText().equals(""))
 					probabilities[i][j].setForeground(Color.red);
@@ -445,7 +447,7 @@ public class Main extends JFrame
 	public void reset()
 	{
 		states.clear();
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
 			Cols[i].setText("");
 			Rows[i].setText("");
@@ -456,7 +458,7 @@ public class Main extends JFrame
 			vcolumns[i]=-1;
 			rows[i]=-1;
 			vrows[i]=-1;
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				accumulate[i][j]=0;
 				nextValue[i][j]=0;
@@ -481,55 +483,63 @@ public class Main extends JFrame
 			e.printStackTrace();
 		}
 
-		int size = file.nextInt(); //not used yet but will let us do nxn
-		/*
-		for(int i=0;i<5;i++)
-		{
-			
-			columns[i]=Integer.parseInt(Cols[i].getText());
-			vcolumns[i]=Integer.parseInt(Vcols[i].getText());
-			rows[i]=Integer.parseInt(Rows[i].getText());
-			vrows[i]=Integer.parseInt(Vrows[i].getText());
-		}
-		*/
 		
 		/*NEW text file setup:
 		 * Size(int, currently hardcoded to 5)
-		 * All column point values (top down)
-		 * All row point values (left to right)
-		 * All column voltorb counts (top down)
-		 * All row voltorb counts (left to right)
+
 		 * True board answers (25 ints, top left to bottom right, across then down)
 		 * */
+
 		
-		for (int i = 0; i < 5; i++) {
-			rows[i] = file.nextInt();
-		}
-		for (int i = 0; i < 5; ++i) {
-			columns[i] = file.nextInt();
-		}
-		for (int i = 0; i < 5; ++i) {
-			vrows[i] = file.nextInt();
-		}		
-		for (int i = 0; i < 5; ++i) {
-			vcolumns[i] = file.nextInt();
-		}
-		for (int i = 0; i < 5; ++i) {
-			for (int j = 0; j < 5; ++j) {
+		SIZE = file.nextInt(); //not used yet but will let us do nxn
+		
+
+		for (int i = 0; i < SIZE; ++i) {
+			for (int j = 0; j < SIZE; ++j) {
 				answer[i][j] = file.nextInt();
 			}
 		}
+		 
+		//calculate point and voltorb counts, going horizontal first
+		for (int i = 0; i < SIZE; ++i) {
+			int countPoints = 0;
+			int countVoltorbs = 0;
+			for (int j = 0; j < SIZE; ++j) {
+				if (answer[i][j] == 0) {
+					countVoltorbs++;
+				}
+				else {
+					countPoints += answer[i][j];
+				}
+			}
+			rows[i] = countPoints;
+			vrows[i] = countVoltorbs;
+		}
 		
-
+		//sums over columns (going up/down)
+		for (int i = 0; i < SIZE; ++i) {
+			int countPoints = 0;
+			int countVoltorbs = 0;
+			for (int j = 0; j < SIZE; ++j) {
+				if (answer[j][i] == 0) {
+					countVoltorbs++;
+				}
+				else {
+					countPoints += answer[j][i];
+				}
+			}
+			columns[i] = countPoints;
+			vcolumns[i] = countVoltorbs;
+		}
 		
 	}
 	
 	//never called?
 	public void displayNumbers()
 	{
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				//old
 				showValues[i][j].setText(Integer.toString(values[i][j]));
@@ -544,6 +554,10 @@ public class Main extends JFrame
 		numCombinations=new int[5];
 		for(int i=0;i<5;i++)
 		{
+			//need to replace these with (n choose vrows[i])
+			
+			//BigInteger perms = BigInteger.binom(SIZE,vrows[i]);
+			//numCombinations[i] = (int)(perms);
 			if(vrows[i]==0)
 				numCombinations[i]=1;
 			else if(vrows[i]==1)

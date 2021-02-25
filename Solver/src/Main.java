@@ -64,7 +64,7 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
-	
+
 	//added
 	In file = new In("two.txt");
 	int[][] answer;
@@ -72,7 +72,7 @@ public class Main extends JFrame
 	double[][] currentVProbabilities;
 	final static int COVERED = -1; //special value for still covered spots on the board
 	static int SIZE;
-	
+
 	public static void main(String args[]) 
 	{
 		localArgs = args;
@@ -106,7 +106,7 @@ public class Main extends JFrame
 
 		//2-D Answer Board
 		answer = new int[5][5];
-		
+
 		//current known (flipped over) board
 		knownBoard = new int[5][5];
 		for (int i = 0; i < 5; ++i) {
@@ -114,17 +114,17 @@ public class Main extends JFrame
 				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/black space
 			}
 		}
-		
+
 		//current voltorb probabilities
 		currentVProbabilities = new double[5][5];
-		
+
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
 		Vcols=new JTextField[5];
 		Vrows=new JTextField[5];
 		place=new boolean[5];
 		probabilities=new JLabel[5][5];
-		
+
 		for(int i=0;i<5;i++)
 		{
 			Cols[i]=new JTextField("");
@@ -173,13 +173,13 @@ public class Main extends JFrame
 		reset.addActionListener(new actions());
 		play.addActionListener(new actions());
 		setVisible(true);
-		
-		
+
+
 		//auto starts - no need to press start
 		setNumbers();
 		startCalculating();
-		
-		
+
+
 	}
 	public class actions implements ActionListener
 	{
@@ -202,121 +202,329 @@ public class Main extends JFrame
 				reset();
 		}
 
-		
+
 	}
 	/**
 	Play: Will run an input board
-	**/
+	 **/
+	/**
+	 * 
+	 */
 	public void play() {
-			//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
-			//is doable in the future
-			// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
-			
-			//int xcoord = ap.nextInt("x?");
-			//int ycoord = ap.nextInt("y?");
-			
-			
-			/* Code in progress for autoplay
-			 * */
-			int xcoord = -1;
-			int ycoord = -1;
-			//double lowProb = 1.0;
-			
-			for (int i = 0; i < SIZE; ++i) {
-				for (int j = 0; j < SIZE; ++j) {
-					if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
-						xcoord = i;
-						ycoord = j;
-						break; //take out if changing to lowrisk instead of no risk
-					}
+		//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
+		//is doable in the future
+		// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
+
+		//int xcoord = ap.nextInt("x?");
+		//int ycoord = ap.nextInt("y?");
+
+
+		/* Code in progress for autoplay
+		 * */
+		int xcoord = -1;
+		int ycoord = -1;
+		//double lowProb = 1.0;
+
+		for (int i = 0; i < SIZE; ++i) {
+			for (int j = 0; j < SIZE; ++j) {
+				if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
+					xcoord = i;
+					ycoord = j;
+					break; //take out if changing to lowrisk instead of no risk
 				}
 			}
-			//System.out.println("After for loops: x: " + xcoord + ", y: "+ycoord);
-			
-			if (xcoord != -1) {
-				System.out.print("Autochose spot: (" + xcoord+","+ycoord+")" + "\t");
-			} else {
-				xcoord = ap.nextInt("x?");
-				ycoord = ap.nextInt("y?");
-				System.out.print("User chose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] + "\t");
+		}
+
+		String strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+
+		Algorithm a;
+
+		//Parsing refactor
+
+		if( strategy.contains("minrisk") ) {
+			a = new MinRisk();
+		}
+		else if(strategy.contains("norisk")) {
+			a = new NoRisk();
+		}
+		else {
+			//default is norisk for now
+			a = new NoRisk();
+		}
+
+		//Autocode - Refactor to OOP eventually
+		//Loop until a game over
+		if(strategy.contains("-auto")) {
+
+
+			//keep running until you can
+			while(true) {
+
+
+				int[] solution = a.choosetile(currentVProbabilities, knownBoard);
+
+				if(solution != null) {
+					xcoord = solution[0];
+					ycoord = solution[1];
+					flip(xcoord, ycoord);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else {
+					//Cannot find a safe solution - withdraw
+					cleanup(false, false, true);
+					//fix returning later
+					System.exit(0);
+				}
+
+
 			}
-			
-			
-			//2. Flip. Check agains the board and call a game over if necessary
-			
-			//Flipped over
-
-			boardify(answer[xcoord][ycoord], xcoord, ycoord);
-
-			//startCalculating();
-
-			update();
-			prettyprint();
-			System.out.println("\n");
-			
-
-			
-			//3. Cleanup. Update the coin coint (TBA), exit the program if gameover, and finally update the text elements.
 
 
-			
+		}
 
-			
-			
+		else {
+			if( strategy.contains("Norisk") ) {
+				//keep running until you can
+
+				a = new NoRisk();
+
+				int[] solution = a.choosetile(currentVProbabilities, knownBoard);
+
+				if(solution != null) {
+					xcoord = solution[0];
+					ycoord = solution[1];
+					flip(xcoord, ycoord);
+				}
+				else {
+					//NoRisk cannot find a safe solution
+					cleanup(false, false, true);
+					//fix returning later
+					System.exit(0);
+				}
+			}
+
+		}
+
+
 	}
 
 	/**
-	boardresult - tile value
-	x - x coordinate
-	y - y coordinate
-	**/
+	 * @param xcoord
+	 * @param ycoord
+	 * @return
+	 */
+	public boolean flip(int xcoord, int ycoord) {
 
+
+		/*
+		//System.out.println("After for loops: x: " + xcoord + ", y: "+ycoord);
+
+		if (xcoord != -1) {
+			System.out.print("Autochose spot: (" + xcoord+","+ycoord+")" + "\t");
+		} else {
+			xcoord = ap.nextInt("x?");
+			ycoord = ap.nextInt("y?");
+			System.out.print("User chose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] + "\t");
+		}
+
+			boardify(answer[xcoord][ycoord], xcoord, ycoord);
+
+		//startCalculating();
+
+		update();
+		prettyprint();
+		System.out.println("\n");
+
+		 */
+		//2. Flip. Check against the board and call a game over if necessary
+
+
+
+
+
+		//Flipped over
+
+		boardify(answer[xcoord][ycoord], xcoord, ycoord);
+
+		//startCalculating();
+
+		update();
+
+		//check if the board is won/lost
+		boolean alldone = true;
+		boolean gameover = false;
+		for(int i=0;i<knownBoard.length;i++) {
+			for(int j=0;j<knownBoard.length;j++) {
+
+				if(knownBoard[i][j] == 0) {
+					gameover = true;
+					alldone = false;
+					break;
+				}
+
+				//should it be flipped over?
+
+				if( (answer[i][j] == 2 ||  answer[i][j] == 3) && (answer[i][j] != knownBoard[i][j]) ) {
+					alldone = false;
+					break;
+				}
+
+
+			}
+		}
+		//Game over is #1 Priority - check first
+		if(gameover) {
+			cleanup(false, false, false);
+		}
+		else if(alldone) {
+			cleanup(true, false, false);
+		}
+		else {
+			prettyprint();
+		}
+		System.out.println("\n");
+		return true;
+
+
+
+		//3. Cleanup. Update the coin coint (TBA), exit the program if gameover, and finally update the text elements.
+
+	}
+
+
+	/**
+	 * Gracefully exits a game at its close. Also will handle any sort of logging/autoplay for large simulations
+	 * @param win - is true if the gameboard is cleaned up becaue of a win, false if it is because of a loss
+	 */
+	public void cleanup(boolean win, boolean loop, boolean withdraw) {
+		
+		if(withdraw) {
+			System.out.println("Could not decide on another move, so chose to withdraw");
+		}
+		
+		if(win){
+			prettyprint();
+			System.out.println("        d8b        888                           \n" + 
+					"        Y8P        888                           \n" + 
+					"                   888                           \n" + 
+					"888  888888 .d8888b888888 .d88b. 888d888888  888 \n" + 
+					"888  888888d88P\"   888   d88\"\"88b888P\"  888  888 \n" + 
+					"Y88  88P888888     888   888  888888    888  888 \n" + 
+					" Y8bd8P 888Y88b.   Y88b. Y88..88P888    Y88b 888 \n" + 
+					"  Y88P  888 \"Y8888P \"Y888 \"Y88P\" 888     \"Y88888 \n" + 
+					"                                             888 \n" + 
+					"                                        Y8b d88P \n" + 
+					"                                         \"Y88P\"");
+			System.exit(0);
+		}
+		else {
+			prettyprint();
+			System.out.println("┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀\n" + 
+					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼\n" + 
+					"██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀\n" + 
+					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼\n" + 
+					"███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" + 
+					"███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼");
+
+			//exit of 1 because game over
+			System.exit(1);
+
+			//Future Automation code
+			/*
+
+			if(loop) {
+				System.exit(1);
+			}
+			else {
+				//future automation code here
+			}
+			 */
+		}
+
+	}
+
+
+	/**
+	 * boardify manages updating over the board with its given value and location
+	 * @param boardResult - The result of the flipped over tile. Either a -1, 0, 1, 2, or 3
+	 * @param x - The x-coordinate where the flip happens
+	 * @param y
+	 * @author evinjaff
+	 * 
+	 */
 	public void boardify(int boardResult, int x,  int y){
 
-		
-			switch(boardResult){
-				//Flipped a Voltorb - Trigger Game Over
-				case 0:
-					knownBoard[x][y] = 0;
-					values[x][y] = 0;
-					prettyprint();
-				reset();
-				System.out.println("BOMB!");
-				break;
 
-				//Flipped a 1 - Do nothing but just update board
-				case 1:
-					knownBoard[x][y] = 1;
-					values[x][y] = 1;
-					System.out.println("1 Flipped");
-				break;
+		switch(boardResult){
+		//Flipped a Voltorb - Trigger Game Over
+		case 0:
+			knownBoard[x][y] = 0;
+			values[x][y] = 0;
+			prettyprint();
+			reset();
+			System.out.println("BOMB!");
+			break;
+
+			//Flipped a 1 - Do nothing but just update board
+		case 1:
+			knownBoard[x][y] = 1;
+			values[x][y] = 1;
+			System.out.println("1 Flipped");
+			break;
 
 
-				//Flipped a 2 - Update Board and Coin Count
-				case 2:
-					knownBoard[x][y] = 2;
-					values[x][y] = 2;
-					System.out.println("2 Flipped");
-				
-				break;
+			//Flipped a 2 - Update Board and Coin Count
+		case 2:
+			knownBoard[x][y] = 2;
+			values[x][y] = 2;
+			System.out.println("2 Flipped");
 
-				//Flipped a 3 - Update Board and Coin Count
-				case 3:
-					knownBoard[x][y] = 3;
-					values[x][y] = 3;
-					System.out.println("3 Flipped!");
-				
-				break;
-			}
+			break;
+
+			//Flipped a 3 - Update Board and Coin Count
+		case 3:
+			knownBoard[x][y] = 3;
+			values[x][y] = 3;
+			System.out.println("3 Flipped!");
+
+			break;
+		}
 
 
 	}
 
 	//Pretty-print the state of the board
+	/**
+	 * 
+	 */
 	public void prettyprint(){
-		
+
 		boolean withProb = true; //also prints probabilities
-		
+
 		System.out.print("Board State:");
 		if (withProb) {
 			System.out.print("\t\t\tProbability of Voltorb");
@@ -336,7 +544,7 @@ public class Main extends JFrame
 			}
 			System.out.println();
 		}
-		
+
 		System.out.print("   ");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(columns[i]);
@@ -346,9 +554,12 @@ public class Main extends JFrame
 			System.out.print(vcolumns[i]);
 		}
 		System.out.println();
-	
+
 	}
 
+	/**
+	 * 
+	 */
 	public void update()
 	{
 		int numberOfFinalStates=states.size();
@@ -392,8 +603,8 @@ public class Main extends JFrame
 				newSize++;
 			}
 		}
-		
-		
+
+
 		for(int k=0;k<newSize;k++)
 		{
 			values=newStates.get(k);
@@ -444,6 +655,9 @@ public class Main extends JFrame
 		}
 		numStates.setText("Number of Possible Games: "+newSize);
 	}
+	/**
+	 * 
+	 */
 	public void reset()
 	{
 		states.clear();
@@ -470,9 +684,12 @@ public class Main extends JFrame
 			numStates.setText("");
 		}
 	}
+	/**
+	 * 
+	 */
 	public void setNumbers()
 	{
-		
+
 		/* ArgsProcessor file opening functionality is taken from Prof Cosgrove's 131 changes. He's the best
 		 * Modified by Lane Bohrer for use here
 		 * */
@@ -483,23 +700,23 @@ public class Main extends JFrame
 			e.printStackTrace();
 		}
 
-		
+
 		/*NEW text file setup:
 		 * Size(int, currently hardcoded to 5)
 
 		 * True board answers (25 ints, top left to bottom right, across then down)
 		 * */
 
-		
+
 		SIZE = file.nextInt(); //not used yet but will let us do nxn
-		
+
 
 		for (int i = 0; i < SIZE; ++i) {
 			for (int j = 0; j < SIZE; ++j) {
 				answer[i][j] = file.nextInt();
 			}
 		}
-		 
+
 		//calculate point and voltorb counts, going horizontal first
 		for (int i = 0; i < SIZE; ++i) {
 			int countPoints = 0;
@@ -515,7 +732,7 @@ public class Main extends JFrame
 			rows[i] = countPoints;
 			vrows[i] = countVoltorbs;
 		}
-		
+
 		//sums over columns (going up/down)
 		for (int i = 0; i < SIZE; ++i) {
 			int countPoints = 0;
@@ -531,10 +748,13 @@ public class Main extends JFrame
 			columns[i] = countPoints;
 			vcolumns[i] = countVoltorbs;
 		}
-		
+
 	}
-	
+
 	//never called?
+	/**
+	 * 
+	 */
 	public void displayNumbers()
 	{
 		for(int i=0;i<SIZE;i++)
@@ -547,6 +767,9 @@ public class Main extends JFrame
 			}
 		}
 	}
+	/**
+	 * 
+	 */
 	public void startCalculating()
 	{
 		int count=0;
@@ -555,7 +778,7 @@ public class Main extends JFrame
 		for(int i=0;i<5;i++)
 		{
 			//need to replace these with (n choose vrows[i])
-			
+
 			//BigInteger perms = BigInteger.binom(SIZE,vrows[i]);
 			//numCombinations[i] = (int)(perms);
 			if(vrows[i]==0)
@@ -784,10 +1007,10 @@ public class Main extends JFrame
 			}
 			System.out.println();
 		}
-		
+
 		//end of finding all possible assignments for greater than 1 slots/////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
+
 		//////now to actually compute real states
 		////////////////////////////////////////////////////////////////////////////////////////////////
 		int numberOfFinalStates=0;
@@ -797,7 +1020,7 @@ public class Main extends JFrame
 		int num3;
 		int num4;
 		int numCom[];
-		
+
 		numCom=new int[5];
 		for(int i=0;i<5;i++)
 			numCom[i]=0;
@@ -946,13 +1169,13 @@ public class Main extends JFrame
 					}
 				}
 			}
-			
+
 			numberOfStates--;
 		}
-		
-		
+
+
 		System.out.println("Final States "+numberOfFinalStates);
-		
+
 		//end of computations////now have a set of possible real states////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
 		//calculate the probabilities
@@ -962,7 +1185,7 @@ public class Main extends JFrame
 			for(int j=0;j<5;j++)
 				for(int k=0;k<5;k++)
 					accumulated[i][j][k]=0;
-		
+
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
 			values=states.get(k);
@@ -990,11 +1213,15 @@ public class Main extends JFrame
 			}
 		}
 		numStates.setText("Number of Possible States "+numberOfFinalStates);
-		
+
 		prettyprint();
 		System.out.println("\n");
-		
+
 	}
+	/**
+	 * @param values
+	 * @return
+	 */
 	public boolean debugger(int values[])
 	{
 		if(values[0]!=1)
@@ -1009,8 +1236,12 @@ public class Main extends JFrame
 			return false;
 		else
 			return true;
-		
+
 	}
+	/**
+	 * @param values
+	 * @param num
+	 */
 	public void changeToValues(int values[][],int num[])
 	{
 		for(int i=0;i<5;i++)
@@ -1027,6 +1258,11 @@ public class Main extends JFrame
 			}
 		}
 	}
+	/**
+	 * @param values
+	 * @param num
+	 * @return
+	 */
 	public boolean outOfBounds(int values[],int num)
 	{
 		int maxrows=0;
@@ -1038,6 +1274,11 @@ public class Main extends JFrame
 			return true;
 		return false;
 	}
+	/**
+	 * @param values
+	 * @param num
+	 * @return
+	 */
 	public boolean isValid(int values[],int num)
 	{
 		int maxrows=0;
@@ -1049,6 +1290,10 @@ public class Main extends JFrame
 			return true;
 		return false;
 	}
+	/**
+	 * @param values
+	 * @return
+	 */
 	public boolean testConstraints(int values[][])
 	{
 		int maxcol;
@@ -1070,6 +1315,10 @@ public class Main extends JFrame
 		}
 		return true;  
 	}
+	/**
+	 * @param values
+	 * @return
+	 */
 	public boolean testCols(int values[][])
 	{
 		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
@@ -1134,9 +1383,12 @@ public class Main extends JFrame
 		}
 		if(count<min4||count>max4)
 			return false;
-		
+
 		return true;
 	}
+	/**
+	 * @param values
+	 */
 	public void incrementValues(int values[][])
 	{
 		for(int i=0;i<5;i++)
@@ -1148,6 +1400,9 @@ public class Main extends JFrame
 			}
 		}
 	}
+	/**
+	 * @param values
+	 */
 	public void incrementValues2(int values[][])
 	{
 		for(int i=0;i<5;i++)
@@ -1159,6 +1414,10 @@ public class Main extends JFrame
 			}
 		}
 	}
+	/**
+	 * @param values
+	 * @return
+	 */
 	public boolean testVCols(int values[][])
 	{
 		int count;
@@ -1173,9 +1432,14 @@ public class Main extends JFrame
 			if(count!=vcolumns[i])
 				return false;
 		}
-			
+
 		return true;
 	}
+	/**
+	 * @param numMines
+	 * @param whichOne
+	 * @param place
+	 */
 	public void createPlacement(int numMines,int whichOne,boolean place[])
 	{
 		if(numMines==0)
@@ -1184,6 +1448,395 @@ public class Main extends JFrame
 		{
 			switch(whichOne)
 			{
+			case 0:
+				setPlaced(true,false,false,false,false,place);
+				break;
+			case 1:
+				setPlaced(false,true,false,false,false,place);
+				break;
+			case 2:
+				setPlaced(false,false,true,false,false,place);
+				break;
+			case 3:
+				setPlaced(false,false,false,true,false,place);
+				break;
+			case 4:
+				setPlaced(false,false,false,false,true,place);
+				break;
+			}
+		}
+		else if(numMines==2)
+		{
+			switch(whichOne)
+			{
+			case 0:
+				setPlaced(true,true,false,false,false,place);//11000
+				break;
+			case 1:
+				setPlaced(true,false,true,false,false,place);//10100
+				break;
+			case 2:
+				setPlaced(true,false,false,true,false,place);//10010
+				break;
+			case 3:
+				setPlaced(true,false,false,false,true,place);//10001
+				break;
+			case 4:
+				setPlaced(false,true,true,false,false,place);//01100
+				break;
+			case 5:
+				setPlaced(false,true,false,true,false,place);//01010
+				break;
+			case 6:
+				setPlaced(false,true,false,false,true,place);//01001
+				break;
+			case 7:
+				setPlaced(false,false,true,true,false,place);//00110
+				break;
+			case 8:
+				setPlaced(false,false,false,true,true,place);//00011
+				break;
+			case 9:
+				setPlaced(false,false,true,false,true,place);//00101
+				break;
+			}
+
+		}
+		else if(numMines==3)
+		{			
+			switch(whichOne)
+			{
+			case 0:
+				setPlaced(false,false,true,true,true,place);//11000
+				break;
+			case 1:
+				setPlaced(false,true,false,true,true,place);//10100
+				break;
+			case 2:
+				setPlaced(false,true,true,false,true,place);//10010
+				break;
+			case 3:
+				setPlaced(false,true,true,true,false,place);//10001
+				break;
+			case 4:
+				setPlaced(true,false,false,true,true,place);//01100
+				break;
+			case 5:
+				setPlaced(true,false,true,false,true,place);//01010
+				break;
+			case 6:
+				setPlaced(true,false,true,true,false,place);//01001
+				break;
+			case 7:
+				setPlaced(true,true,false,false,true,place);//00110
+				break;
+			case 8:
+				setPlaced(true,true,true,false,false,place);//00011
+				break;
+			case 9:
+				setPlaced(true,true,false,true,false,place);//00101
+				break;
+			}
+
+		}
+		else if(numMines==4)
+		{
+			switch(whichOne)
+			{
+			case 0:
+				setPlaced(false,true,true,true,true,place);
+				break;
+			case 1:
+				setPlaced(true,false,true,true,true,place);
+				break;
+			case 2:
+				setPlaced(true,true,false,true,true,place);
+				break;
+			case 3:
+				setPlaced(true,true,true,false,true,place);
+				break;
+			case 4:
+				setPlaced(true,true,true,true,false,place);
+				break;
+			}
+		}
+		else if(numMines==5)
+		{
+			setPlaced(true,true,true,true,true,place);
+		}
+	}
+	/**
+	 * @param b0
+	 * @param b1
+	 * @param b2
+	 * @param b3
+	 * @param b4
+	 * @param place
+	 */
+	public void setPlaced(boolean b0,boolean b1,boolean b2,boolean b3,boolean b4,boolean place[])
+	{
+		place[0]=b0;
+		place[1]=b1;
+		place[2]=b2;
+		place[3]=b3;
+		place[4]=b4;
+	}
+	/**
+	 * @param in
+	 * @param out
+	 */
+	public void copyMatrix(int in[][],int out[][])
+	{
+		for(int i=0;i<5;i++)
+		{
+			for(int j=0;j<5;j++)
+			{
+				out[i][j]=in[i][j];
+			}
+		}
+	}
+	/**
+	 * @param num
+	 * @return
+	 */
+	public int getNumberOnOff(int num)
+	{
+		return (int)Math.pow(2, num);
+	}
+	/**
+	 * @param num
+	 * @param curr
+	 * @param place
+	 */
+	public void getBinaryPlacement(int num,int curr,boolean place[])
+	{
+		if(num==1)
+		{
+			setPlaced(false,false,false,false,false,place);
+		}
+		else if(num==2)
+		{
+			if(curr==0)
+				setPlaced(false,false,false,false,false,place);
+			else if(curr==1)
+				setPlaced(true,false,false,false,false,place);
+		}
+		else if(num==4)
+		{
+			if(curr==0)
+				setPlaced(false,false,false,false,false,place);
+			else if(curr==1)
+				setPlaced(true,false,false,false,false,place);
+			else if(curr==2)
+				setPlaced(false,true,false,false,false,place);
+			else if(curr==3)
+				setPlaced(true,true,false,false,false,place);
+		}
+		else if(num==8)
+		{
+			switch(curr)
+			{
+			case 0:
+				setPlaced(false,false,false,false,false,place);
+				break;
+			case 1:
+				setPlaced(true,false,false,false,false,place);
+				break;
+			case 2:
+				setPlaced(false,true,false,false,false,place);
+				break;
+			case 3:
+				setPlaced(false,false,true,false,false,place);
+				break;
+			case 4:
+				setPlaced(true,true,false,false,false,place);
+				break;
+			case 5:
+				setPlaced(true,false,true,false,false,place);
+				break;
+			case 6:
+				setPlaced(false,true,true,false,false,place);
+				break;
+			case 7:
+				setPlaced(true,true,true,false,false,place);
+				break;
+			}
+		}
+		else if(num==16)
+		{
+			switch(curr)
+			{
+			case 0:
+				setPlaced(false,false,false,false,false,place);
+				break;
+			case 1:
+				setPlaced(true,false,false,false,false,place);
+				break;
+			case 2:
+				setPlaced(false,true,false,false,false,place);
+				break;
+			case 3:
+				setPlaced(false,false,true,false,false,place);
+				break;
+			case 4:
+				setPlaced(false,false,false,true,false,place);
+				break;
+			case 5:
+				setPlaced(true,true,false,false,false,place);
+				break;
+			case 6:
+				setPlaced(true,false,true,false,false,place);
+				break;
+			case 7:
+				setPlaced(true,false,false,true,false,place);
+				break;
+			case 8:
+				setPlaced(false,true,true,false,false,place);
+				break;
+			case 9:
+				setPlaced(false,true,false,true,false,place);
+				break;
+			case 10:
+				setPlaced(false,false,true,true,false,place);
+				break;
+			case 11:
+				setPlaced(true,true,true,false,false,place);
+				break;
+			case 12:
+				setPlaced(true,true,false,true,false,place);
+				break;
+			case 13:
+				setPlaced(true,false,true,true,false,place);
+				break;
+			case 14:
+				setPlaced(false,true,true,true,false,place);
+				break;
+			case 15:
+				setPlaced(true,true,true,true,false,place);
+				break;
+			}
+		}
+		else if(num==32)
+		{
+			switch(curr)
+			{
+			case 0:
+				setPlaced(false,false,false,false,false,place);
+				break;
+			case 1:
+				setPlaced(true,false,false,false,false,place);
+				break;
+			case 2:
+				setPlaced(false,true,false,false,false,place);
+				break;
+			case 3:
+				setPlaced(false,false,true,false,false,place);
+				break;
+			case 4:
+				setPlaced(false,false,false,true,false,place);
+				break;
+			case 5:
+				setPlaced(false,false,false,false,true,place);
+				break;
+			case 6:
+				setPlaced(true,true,false,false,false,place);
+				break;
+			case 7:
+				setPlaced(true,false,true,false,false,place);
+				break;
+			case 8:
+				setPlaced(true,false,false,true,false,place);
+				break;
+			case 9:
+				setPlaced(true,false,false,false,true,place);
+				break;
+			case 10:
+				setPlaced(false,true,true,false,false,place);
+				break;
+			case 11:
+				setPlaced(false,true,false,true,false,place);
+				break;
+			case 12:
+				setPlaced(false,true,false,false,true,place);
+				break;
+			case 13:
+				setPlaced(false,false,true,true,false,place);
+				break;
+			case 14:
+				setPlaced(false,false,true,false,true,place);
+				break;
+			case 15:
+				setPlaced(false,false,false,true,true,place);
+				break;
+			case 16:
+				setPlaced(true,true,true,false,false,place);
+				break;
+			case 17:
+				setPlaced(true,true,false,true,false,place);
+				break;
+			case 18:
+				setPlaced(true,true,false,false,true,place);
+				break;
+			case 19:
+				setPlaced(true,false,true,true,false,place);
+				break;
+			case 20:
+				setPlaced(true,false,true,false,true,place);
+				break;
+			case 21:
+				setPlaced(true,false,false,true,true,place);
+				break;
+			case 22:
+				setPlaced(false,true,true,true,false,place);
+				break;
+			case 23:
+				setPlaced(false,true,true,false,true,place);
+				break;
+			case 24:
+				setPlaced(false,true,false,true,true,place);
+				break;
+			case 25:
+				setPlaced(false,false,true,true,true,place);
+				break;
+			case 26:
+				setPlaced(true,true,true,true,false,place);
+				break;
+			case 27:
+				setPlaced(true,true,true,false,true,place);
+				break;
+			case 28:
+				setPlaced(true,true,false,true,true,place);
+				break;
+			case 29:
+				setPlaced(true,false,true,true,true,place);
+				break;
+			case 30:
+				setPlaced(false,true,true,true,true,place);
+				break;
+			case 31:
+				setPlaced(true,true,true,true,true,place);
+				break;
+			}
+		}
+	}
+	/**
+	 * @param n
+	 * @param V
+	 * @param index
+	 * @param place
+	 */
+	public void generate(int n,int V,int index,boolean place[])
+	{
+		if(V==0)
+		{
+			if(n==0)
+			{
+				setPlaced(false,false,false,false,false,place);
+			}
+			else if(n==1)
+			{
+				switch(index)
+				{
 				case 0:
 					setPlaced(true,false,false,false,false,place);
 					break;
@@ -1199,12 +1852,12 @@ public class Main extends JFrame
 				case 4:
 					setPlaced(false,false,false,false,true,place);
 					break;
+				}
 			}
-		}
-		else if(numMines==2)
-		{
-			switch(whichOne)
+			else if(n==2)
 			{
+				switch(index)
+				{
 				case 0:
 					setPlaced(true,true,false,false,false,place);//11000
 					break;
@@ -1235,13 +1888,12 @@ public class Main extends JFrame
 				case 9:
 					setPlaced(false,false,true,false,true,place);//00101
 					break;
+				}
 			}
-			
-		}
-		else if(numMines==3)
-		{			
-			switch(whichOne)
+			else if(n==3)
 			{
+				switch(index)
+				{
 				case 0:
 					setPlaced(false,false,true,true,true,place);//11000
 					break;
@@ -1272,388 +1924,27 @@ public class Main extends JFrame
 				case 9:
 					setPlaced(true,true,false,true,false,place);//00101
 					break;
-			}
-			
-		}
-		else if(numMines==4)
-		{
-			switch(whichOne)
-			{
-				case 0:
-					setPlaced(false,true,true,true,true,place);
-					break;
-				case 1:
-					setPlaced(true,false,true,true,true,place);
-					break;
-				case 2:
-					setPlaced(true,true,false,true,true,place);
-					break;
-				case 3:
-					setPlaced(true,true,true,false,true,place);
-					break;
-				case 4:
-					setPlaced(true,true,true,true,false,place);
-					break;
-			}
-		}
-		else if(numMines==5)
-		{
-			setPlaced(true,true,true,true,true,place);
-		}
-	}
-	public void setPlaced(boolean b0,boolean b1,boolean b2,boolean b3,boolean b4,boolean place[])
-	{
-		place[0]=b0;
-		place[1]=b1;
-		place[2]=b2;
-		place[3]=b3;
-		place[4]=b4;
-	}
-	public void copyMatrix(int in[][],int out[][])
-	{
-		for(int i=0;i<5;i++)
-		{
-			for(int j=0;j<5;j++)
-			{
-				out[i][j]=in[i][j];
-			}
-		}
-	}
-	public int getNumberOnOff(int num)
-	{
-		return (int)Math.pow(2, num);
-	}
-	public void getBinaryPlacement(int num,int curr,boolean place[])
-	{
-		if(num==1)
-		{
-			setPlaced(false,false,false,false,false,place);
-		}
-		else if(num==2)
-		{
-			if(curr==0)
-				setPlaced(false,false,false,false,false,place);
-			else if(curr==1)
-				setPlaced(true,false,false,false,false,place);
-		}
-		else if(num==4)
-		{
-			if(curr==0)
-				setPlaced(false,false,false,false,false,place);
-			else if(curr==1)
-				setPlaced(true,false,false,false,false,place);
-			else if(curr==2)
-				setPlaced(false,true,false,false,false,place);
-			else if(curr==3)
-				setPlaced(true,true,false,false,false,place);
-		}
-		else if(num==8)
-		{
-			switch(curr)
-			{
-				case 0:
-					setPlaced(false,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 3:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				case 4:
-					setPlaced(true,true,false,false,false,place);
-					break;
-				case 5:
-					setPlaced(true,false,true,false,false,place);
-					break;
-				case 6:
-					setPlaced(false,true,true,false,false,place);
-					break;
-				case 7:
-					setPlaced(true,true,true,false,false,place);
-					break;
-			}
-		}
-		else if(num==16)
-		{
-			switch(curr)
-			{
-				case 0:
-					setPlaced(false,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 3:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				case 4:
-					setPlaced(false,false,false,true,false,place);
-					break;
-				case 5:
-					setPlaced(true,true,false,false,false,place);
-					break;
-				case 6:
-					setPlaced(true,false,true,false,false,place);
-					break;
-				case 7:
-					setPlaced(true,false,false,true,false,place);
-					break;
-				case 8:
-					setPlaced(false,true,true,false,false,place);
-					break;
-				case 9:
-					setPlaced(false,true,false,true,false,place);
-					break;
-				case 10:
-					setPlaced(false,false,true,true,false,place);
-					break;
-				case 11:
-					setPlaced(true,true,true,false,false,place);
-					break;
-				case 12:
-					setPlaced(true,true,false,true,false,place);
-					break;
-				case 13:
-					setPlaced(true,false,true,true,false,place);
-					break;
-				case 14:
-					setPlaced(false,true,true,true,false,place);
-					break;
-				case 15:
-					setPlaced(true,true,true,true,false,place);
-					break;
-			}
-		}
-		else if(num==32)
-		{
-			switch(curr)
-			{
-				case 0:
-					setPlaced(false,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 3:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				case 4:
-					setPlaced(false,false,false,true,false,place);
-					break;
-				case 5:
-					setPlaced(false,false,false,false,true,place);
-					break;
-				case 6:
-					setPlaced(true,true,false,false,false,place);
-					break;
-				case 7:
-					setPlaced(true,false,true,false,false,place);
-					break;
-				case 8:
-					setPlaced(true,false,false,true,false,place);
-					break;
-				case 9:
-					setPlaced(true,false,false,false,true,place);
-					break;
-				case 10:
-					setPlaced(false,true,true,false,false,place);
-					break;
-				case 11:
-					setPlaced(false,true,false,true,false,place);
-					break;
-				case 12:
-					setPlaced(false,true,false,false,true,place);
-					break;
-				case 13:
-					setPlaced(false,false,true,true,false,place);
-					break;
-				case 14:
-					setPlaced(false,false,true,false,true,place);
-					break;
-				case 15:
-					setPlaced(false,false,false,true,true,place);
-					break;
-				case 16:
-					setPlaced(true,true,true,false,false,place);
-					break;
-				case 17:
-					setPlaced(true,true,false,true,false,place);
-					break;
-				case 18:
-					setPlaced(true,true,false,false,true,place);
-					break;
-				case 19:
-					setPlaced(true,false,true,true,false,place);
-					break;
-				case 20:
-					setPlaced(true,false,true,false,true,place);
-					break;
-				case 21:
-					setPlaced(true,false,false,true,true,place);
-					break;
-				case 22:
-					setPlaced(false,true,true,true,false,place);
-					break;
-				case 23:
-					setPlaced(false,true,true,false,true,place);
-					break;
-				case 24:
-					setPlaced(false,true,false,true,true,place);
-					break;
-				case 25:
-					setPlaced(false,false,true,true,true,place);
-					break;
-				case 26:
-					setPlaced(true,true,true,true,false,place);
-					break;
-				case 27:
-					setPlaced(true,true,true,false,true,place);
-					break;
-				case 28:
-					setPlaced(true,true,false,true,true,place);
-					break;
-				case 29:
-					setPlaced(true,false,true,true,true,place);
-					break;
-				case 30:
-					setPlaced(false,true,true,true,true,place);
-					break;
-				case 31:
-					setPlaced(true,true,true,true,true,place);
-					break;
-			}
-		}
-	}
-	public void generate(int n,int V,int index,boolean place[])
-	{
-		if(V==0)
-		{
-			if(n==0)
-			{
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(n==1)
-			{
-				switch(index)
-				{
-					case 0:
-						setPlaced(true,false,false,false,false,place);
-						break;
-					case 1:
-						setPlaced(false,true,false,false,false,place);
-						break;
-					case 2:
-						setPlaced(false,false,true,false,false,place);
-						break;
-					case 3:
-						setPlaced(false,false,false,true,false,place);
-						break;
-					case 4:
-						setPlaced(false,false,false,false,true,place);
-						break;
-				}
-			}
-			else if(n==2)
-			{
-				switch(index)
-				{
-					case 0:
-						setPlaced(true,true,false,false,false,place);//11000
-						break;
-					case 1:
-						setPlaced(true,false,true,false,false,place);//10100
-						break;
-					case 2:
-						setPlaced(true,false,false,true,false,place);//10010
-						break;
-					case 3:
-						setPlaced(true,false,false,false,true,place);//10001
-						break;
-					case 4:
-						setPlaced(false,true,true,false,false,place);//01100
-						break;
-					case 5:
-						setPlaced(false,true,false,true,false,place);//01010
-						break;
-					case 6:
-						setPlaced(false,true,false,false,true,place);//01001
-						break;
-					case 7:
-						setPlaced(false,false,true,true,false,place);//00110
-						break;
-					case 8:
-						setPlaced(false,false,false,true,true,place);//00011
-						break;
-					case 9:
-						setPlaced(false,false,true,false,true,place);//00101
-						break;
-				}
-			}
-			else if(n==3)
-			{
-				switch(index)
-				{
-					case 0:
-						setPlaced(false,false,true,true,true,place);//11000
-						break;
-					case 1:
-						setPlaced(false,true,false,true,true,place);//10100
-						break;
-					case 2:
-						setPlaced(false,true,true,false,true,place);//10010
-						break;
-					case 3:
-						setPlaced(false,true,true,true,false,place);//10001
-						break;
-					case 4:
-						setPlaced(true,false,false,true,true,place);//01100
-						break;
-					case 5:
-						setPlaced(true,false,true,false,true,place);//01010
-						break;
-					case 6:
-						setPlaced(true,false,true,true,false,place);//01001
-						break;
-					case 7:
-						setPlaced(true,true,false,false,true,place);//00110
-						break;
-					case 8:
-						setPlaced(true,true,true,false,false,place);//00011
-						break;
-					case 9:
-						setPlaced(true,true,false,true,false,place);//00101
-						break;
 				}
 			}
 			else if(n==4)
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(false,true,true,true,true,place);
-						break;
-					case 1:
-						setPlaced(true,false,true,true,true,place);
-						break;
-					case 2:
-						setPlaced(true,true,false,true,true,place);
-						break;
-					case 3:
-						setPlaced(true,true,true,false,true,place);
-						break;
-					case 4:
-						setPlaced(true,true,true,true,false,place);
-						break;
+				case 0:
+					setPlaced(false,true,true,true,true,place);
+					break;
+				case 1:
+					setPlaced(true,false,true,true,true,place);
+					break;
+				case 2:
+					setPlaced(true,true,false,true,true,place);
+					break;
+				case 3:
+					setPlaced(true,true,true,false,true,place);
+					break;
+				case 4:
+					setPlaced(true,true,true,true,false,place);
+					break;
 				}
 			}	
 			else if(n==5)
@@ -1671,60 +1962,60 @@ public class Main extends JFrame
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(true,false,false,false,false,place);
-						break;
-					case 1:
-						setPlaced(false,true,false,false,false,place);
-						break;
-					case 2:
-						setPlaced(false,false,true,false,false,place);
-						break;
-					case 3:
-						setPlaced(false,false,false,true,false,place);
-						break;
+				case 0:
+					setPlaced(true,false,false,false,false,place);
+					break;
+				case 1:
+					setPlaced(false,true,false,false,false,place);
+					break;
+				case 2:
+					setPlaced(false,false,true,false,false,place);
+					break;
+				case 3:
+					setPlaced(false,false,false,true,false,place);
+					break;
 				}
 			}
 			else if(n==2)
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(true,true,false,false,false,place);
-						break;
-					case 1:
-						setPlaced(true,false,true,false,false,place);
-						break;
-					case 2:
-						setPlaced(true,false,false,true,false,place);
-						break;
-					case 3:
-						setPlaced(false,true,true,false,false,place);
-						break;
-					case 4:
-						setPlaced(false,true,false,true,false,place);
-						break;
-					case 5:
-						setPlaced(false,false,true,true,false,place);
-						break;
+				case 0:
+					setPlaced(true,true,false,false,false,place);
+					break;
+				case 1:
+					setPlaced(true,false,true,false,false,place);
+					break;
+				case 2:
+					setPlaced(true,false,false,true,false,place);
+					break;
+				case 3:
+					setPlaced(false,true,true,false,false,place);
+					break;
+				case 4:
+					setPlaced(false,true,false,true,false,place);
+					break;
+				case 5:
+					setPlaced(false,false,true,true,false,place);
+					break;
 				}
 			}
 			else if(n==3)
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(true,true,true,false,false,place);
-						break;
-					case 1:
-						setPlaced(true,true,false,true,false,place);
-						break;
-					case 2:
-						setPlaced(true,false,true,true,false,place);
-						break;
-					case 3:
-						setPlaced(false,true,true,true,false,place);
-						break;
+				case 0:
+					setPlaced(true,true,true,false,false,place);
+					break;
+				case 1:
+					setPlaced(true,true,false,true,false,place);
+					break;
+				case 2:
+					setPlaced(true,false,true,true,false,place);
+					break;
+				case 3:
+					setPlaced(false,true,true,true,false,place);
+					break;
 				}
 			}
 			else if(n==4)
@@ -1742,30 +2033,30 @@ public class Main extends JFrame
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(true,false,false,false,false,place);
-						break;
-					case 1:
-						setPlaced(false,true,false,false,false,place);
-						break;
-					case 2:
-						setPlaced(false,false,true,false,false,place);
-						break;
+				case 0:
+					setPlaced(true,false,false,false,false,place);
+					break;
+				case 1:
+					setPlaced(false,true,false,false,false,place);
+					break;
+				case 2:
+					setPlaced(false,false,true,false,false,place);
+					break;
 				}
 			}
 			else if(n==2)
 			{
 				switch(index)
 				{
-					case 0:
-						setPlaced(true,true,false,false,false,place);
-						break;
-					case 1:
-						setPlaced(false,true,true,false,false,place);
-						break;
-					case 2:
-						setPlaced(true,false,true,false,false,place);
-						break;
+				case 0:
+					setPlaced(true,true,false,false,false,place);
+					break;
+				case 1:
+					setPlaced(false,true,true,false,false,place);
+					break;
+				case 2:
+					setPlaced(true,false,true,false,false,place);
+					break;
 				}
 			}
 			else if(n==3)
@@ -1814,6 +2105,11 @@ public class Main extends JFrame
 			}
 		}
 	}
+	/**
+	 * @param n
+	 * @param v
+	 * @return
+	 */
 	public int getNumCombinations(int n,int v)
 	{
 		if(n==0)

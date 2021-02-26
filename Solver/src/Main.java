@@ -17,8 +17,7 @@
 
 
 /* TODO
- * 
- * - calculate point totals from answer board
+ *
  * - check to see if game win (are there any 2s/3s still uncovered?)
  * - implement coin counter
  * 
@@ -53,6 +52,10 @@ public class Main extends JFrame
 	JButton update;
 	JButton reset;
 	JButton play;
+	
+	//Debug controsl
+	JButton minrisk;
+	
 	JLabel numStates;
 	int values[][];
 	double accumulate[][];
@@ -89,12 +92,22 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
+		
+		//Jbttons for quick access
+		minrisk=new JButton("minRisk -auto");
+		
+		
 		add(start);
 		add(update);
 		start.setBounds(360, 60, 100, 40);
 		//update.setBounds(360,120,100,40);
 		//reset.setBounds(360,180,100,40);
 		play.setBounds(360,120,100,40);	 //new	
+		minrisk.setBounds(360, 180, 100, 40);
+		
+		
+		
+		
 		values=new int[5][5];
 		nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
@@ -205,7 +218,7 @@ public class Main extends JFrame
 
 	}
 	/**
-	Play: Will run an input board
+	Play: Will play your move on the board
 	 **/
 	/**
 	 * 
@@ -239,8 +252,8 @@ public class Main extends JFrame
 
 		Algorithm a;
 
-		//Parsing refactor
-
+		
+		//Parse out which method is desired
 		if( strategy.contains("minrisk") ) {
 			a = new MinRisk();
 		}
@@ -254,6 +267,8 @@ public class Main extends JFrame
 
 		//Autocode - Refactor to OOP eventually
 		//Loop until a game over
+		
+		//Run auto if desired 
 		if(strategy.contains("-auto")) {
 
 
@@ -266,7 +281,13 @@ public class Main extends JFrame
 				if(solution != null) {
 					xcoord = solution[0];
 					ycoord = solution[1];
-					flip(xcoord, ycoord);
+					
+					//If a flip isn't successfull, stop
+					//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
+					if(flip(xcoord, ycoord) != 0) {
+						return;
+					}
+					
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -286,27 +307,29 @@ public class Main extends JFrame
 
 
 		}
-
+		
+		//If none of those flags are present, run normal
 		else {
-			if( strategy.contains("Norisk") ) {
-				//keep running until you can
-
-				a = new NoRisk();
 
 				int[] solution = a.choosetile(currentVProbabilities, knownBoard);
 
 				if(solution != null) {
 					xcoord = solution[0];
 					ycoord = solution[1];
-					flip(xcoord, ycoord);
+					//If a flip isn't successfull, stop
+					//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
+					if(flip(xcoord, ycoord) != 0) {
+						return;
+					}
 				}
 				else {
 					//NoRisk cannot find a safe solution
 					cleanup(false, false, true);
 					//fix returning later
-					System.exit(0);
+					return;
+					
 				}
-			}
+			
 
 		}
 
@@ -314,11 +337,11 @@ public class Main extends JFrame
 	}
 
 	/**
-	 * @param xcoord
-	 * @param ycoord
-	 * @return
+	 * @param xcoord - X-coordinate to flip
+	 * @param ycoord - Y-coordinate to flip
+	 * @return integer value based on outcome status 0 if you should keep playing, 1 you've won, 2 you've triggered a game over
 	 */
-	public boolean flip(int xcoord, int ycoord) {
+	public int flip(int xcoord, int ycoord) {
 
 
 		/*
@@ -380,15 +403,17 @@ public class Main extends JFrame
 		//Game over is #1 Priority - check first
 		if(gameover) {
 			cleanup(false, false, false);
+			return 2;
 		}
 		else if(alldone) {
 			cleanup(true, false, false);
+			return 1;
 		}
 		else {
 			prettyprint();
+			return 0;
 		}
-		System.out.println("\n");
-		return true;
+		
 
 
 
@@ -401,10 +426,14 @@ public class Main extends JFrame
 	 * Gracefully exits a game at its close. Also will handle any sort of logging/autoplay for large simulations
 	 * @param win - is true if the gameboard is cleaned up becaue of a win, false if it is because of a loss
 	 */
-	public void cleanup(boolean win, boolean loop, boolean withdraw) {
+	public int cleanup(boolean win, boolean loop, boolean withdraw) {
 		
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
+			System.exit(2);
+			
+			return 2;
+			// 2 denotes withdraw status
 		}
 		
 		if(win){
@@ -420,7 +449,8 @@ public class Main extends JFrame
 					"                                             888 \n" + 
 					"                                        Y8b d88P \n" + 
 					"                                         \"Y88P\"");
-			System.exit(0);
+			//System.exit(0);
+			return 0;
 		}
 		else {
 			prettyprint();
@@ -451,7 +481,8 @@ public class Main extends JFrame
 					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼");
 
 			//exit of 1 because game over
-			System.exit(1);
+			//System.exit(1);
+			return 1;
 
 			//Future Automation code
 			/*

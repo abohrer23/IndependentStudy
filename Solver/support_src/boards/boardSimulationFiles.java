@@ -10,6 +10,8 @@ import java.util.Scanner;
 import javax.swing.JFileChooser;
 
 import cse131.ArgsProcessor;
+import cse131.FileChoosers;
+import cse131.Scanners;
 
 /**
  * @author Dennis Cosgrove (http://www.cse.wustl.edu/~cosgroved/)
@@ -17,44 +19,17 @@ import cse131.ArgsProcessor;
  * Modified by Lane Bohrer for use in Independent Study Spring 2021
  */
 public class boardSimulationFiles {
-	public static ArgsProcessor createArgsProcessorFromFile(String[] argsFromMain)
-			throws FileNotFoundException {
+	public static ArgsProcessor createArgsProcessorFromFile(String[] argsFromMain) {
 		URL url = boardSimulationFiles.class.getResource("resources");
 		String directoryName = url.getFile();
 		File directory = new File(directoryName);
-		File file = null;
-		if (argsFromMain.length > 0) {
-			file = new File(argsFromMain[0]);
-			if( file.exists()) {
-				// pass
-			} else {
-				file = new File(directory, argsFromMain[0]);
-				if (file.exists()) {
-					// pass
-				} else {
-					file = null;
-				}
-			}
-		}
-		if (file == null) {
-			JFileChooser fc = new JFileChooser();
-			fc.setCurrentDirectory(directory);
-			fc.showOpenDialog(null);
-			file = fc.getSelectedFile();
-		}
-		if (file != null) {
-			List<String> list = new LinkedList<>();
-			Scanner scanner = new Scanner(file);
+		File file = FileChoosers.chooseFile(argsFromMain, directory);
+		if (file != null && file.exists()) {
 			try {
-				while (scanner.hasNext()) {
-					String s = scanner.next();
-					list.add(s);
-				}
-			} finally {
-				scanner.close();
+				return Scanners.createArgsProcessorFromFile(file);
+			} catch (FileNotFoundException fnfe) {
+				throw new Error(fnfe);
 			}
-			String[] argsForArgsProcessor = list.toArray(new String[list.size()]);
-			return new ArgsProcessor(argsForArgsProcessor);
 		} else {
 			return new ArgsProcessor(new String[] {});
 		}

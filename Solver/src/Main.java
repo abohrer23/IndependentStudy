@@ -260,7 +260,7 @@ public class Main extends JFrame
 		Algorithm a;
 		
 		interpretstrategy(strategy);
-
+		
 		reset();
 
 	}
@@ -527,6 +527,7 @@ public class Main extends JFrame
 				//future automation code here
 			}
 			 */
+			
 		}
 
 	}
@@ -775,11 +776,7 @@ public class Main extends JFrame
 		 * Modified by Lane Bohrer for use here
 		 * */
 		ArgsProcessor file = null;
-		try {
-			file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
 
 
 		/*NEW text file setup:

@@ -261,7 +261,7 @@ public class Main extends JFrame
 		
 		interpretstrategy(strategy);
 
-
+		reset();
 
 	}
 	
@@ -748,9 +748,22 @@ public class Main extends JFrame
 				showValues[i][j].setText("");	
 				probabilities[i][j].setForeground(Color.black);
 				probabilities[i][j].setText("");
+				
+				//added
+				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/black space
+				answer[i][j] = 0;
+				currentVProbabilities[i][j] = 0;
+				currentSProbabilities[i][j] = 0;
+				currentOProbabilities[i][j] = 0;
+
 			}
 			numStates.setText("");
+			
 		}
+		
+		//start next game
+		setNumbers();
+		startCalculating();		
 	}
 	/**
 	 * 
@@ -1322,6 +1335,8 @@ public class Main extends JFrame
 
 		prettyprint();
 		System.out.println("\n");
+		
+		play();
 
 	}
 	/**

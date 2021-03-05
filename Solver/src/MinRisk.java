@@ -1,9 +1,9 @@
-public class MinRisk implements Algorithm{
+public class MinRisk extends Strategy{
 
 	boolean autoplay; //Bool added for future proofing large simulations
 	
     //returns the proper x and y coordinates where index 0 = x and index 1 = y
-    public int[] choosetile(double[][] probabilities, int knownBoard [][]){
+    public int[] choosetile(double[][] probabilities, double[][] currentOProbabilities, double[][] currentSProbabilities, int knownBoard [][]){
         int [] ans = new int[2];
         
         double minprobabaility = 1.0;

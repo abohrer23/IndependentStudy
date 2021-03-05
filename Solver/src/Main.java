@@ -73,6 +73,9 @@ public class Main extends JFrame
 	int[][] answer;
 	int[][] knownBoard;
 	double[][] currentVProbabilities;
+	double[][] currentSProbabilities;
+	double[][] currentOProbabilities;
+	
 	final static int COVERED = -1; //special value for still covered spots on the board
 	static int SIZE;
 
@@ -130,6 +133,10 @@ public class Main extends JFrame
 
 		//current voltorb probabilities
 		currentVProbabilities = new double[5][5];
+		//current scoring probabilites
+		currentSProbabilities = new double[5][5];
+		//current one-tile probabilites
+		currentOProbabilities = new double[5][5];
 
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
@@ -251,6 +258,24 @@ public class Main extends JFrame
 		String strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
 
 		Algorithm a;
+		
+		interpretstrategy(strategy);
+
+
+
+	}
+	
+	/**
+	 * Interprets command string to pick strategy
+	 * @param strategy The command string input
+	 */
+	private void interpretstrategy(String strategy) {
+		// TODO Auto-generated method stub
+		
+		int xcoord = -1;
+		int ycoord = -1;
+		
+		Algorithm a;
 
 		
 		//Parse out which method is desired
@@ -260,15 +285,26 @@ public class Main extends JFrame
 		else if(strategy.contains("norisk")) {
 			a = new NoRisk();
 		}
+		else if(strategy.contains("scorefirst")) {
+			a = new ScoreFirst();
+		}
+		else if(strategy.contains("bogoflip")) {
+			a = new Bogoflip();
+		}
+		else if(strategy.contains("cutoffn")) {
+			int turncount = ap.nextInt("Switch from lowest Voltorb to highest scoring after how many turns?");
+			a = new CutoffN(turncount);
+		}
 		else {
 			//default is norisk for now
 			a = new NoRisk();
 		}
 
-		//Autocode - Refactor to OOP eventually
-		//Loop until a game over
+		
 		
 		//Run auto if desired 
+		//Loop until a game over/tie
+		
 		if(strategy.contains("-auto")) {
 
 
@@ -276,7 +312,7 @@ public class Main extends JFrame
 			while(true) {
 
 
-				int[] solution = a.choosetile(currentVProbabilities, knownBoard);
+				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
 
 				if(solution != null) {
 					xcoord = solution[0];
@@ -311,7 +347,7 @@ public class Main extends JFrame
 		//If none of those flags are present, run normal
 		else {
 
-				int[] solution = a.choosetile(currentVProbabilities, knownBoard);
+				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
 
 				if(solution != null) {
 					xcoord = solution[0];
@@ -332,10 +368,7 @@ public class Main extends JFrame
 			
 
 		}
-
-
 	}
-
 	/**
 	 * @param xcoord - X-coordinate to flip
 	 * @param ycoord - Y-coordinate to flip
@@ -572,6 +605,8 @@ public class Main extends JFrame
 			System.out.print(" " + rows[i] + " " + vrows[i]);
 			if (withProb) {
 				System.out.print("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
+				//System.out.println("\nScoring Prob:");
+				//System.out.print("\t\t\t" + currentSProbabilities[i][0] + "\t" + currentSProbabilities[i][1] + "\t" + currentSProbabilities[i][2]+ "\t" + currentSProbabilities[i][3] + "\t" + currentSProbabilities[i][4]);
 			}
 			System.out.println();
 		}
@@ -682,6 +717,8 @@ public class Main extends JFrame
 					probabilities[i][j].setForeground(Color.black);
 				probabilities[i][j].setText("<"+accumulated[0][i][j]+" , "+accumulated[1][i][j]+" , "+accumulated[2][i][j]+">\t");
 				currentVProbabilities[i][j] = accumulated[0][i][j];
+				currentOProbabilities[i][j] = accumulated[1][i][j];
+				currentSProbabilities[i][j] = accumulated[2][i][j];
 			}
 		}
 		numStates.setText("Number of Possible Games: "+newSize);
@@ -805,13 +842,15 @@ public class Main extends JFrame
 	{
 		int count=0;
 		int numCombinations[];
-		numCombinations=new int[5];
-		for(int i=0;i<5;i++)
+		numCombinations=new int[SIZE];
+		for(int i=0;i<SIZE;i++)
 		{
-			//need to replace these with (n choose vrows[i])
 
-			//BigInteger perms = BigInteger.binom(SIZE,vrows[i]);
-			//numCombinations[i] = (int)(perms);
+			numCombinations[i] = ncr(SIZE, vrows[i]);
+		
+			//genericized to an ncr call
+			
+			/*
 			if(vrows[i]==0)
 				numCombinations[i]=1;
 			else if(vrows[i]==1)
@@ -824,13 +863,17 @@ public class Main extends JFrame
 				numCombinations[i]=5;
 			else if(vrows[i]==5)
 				numCombinations[i]=1;
+			*/
+			
 		}
 		//determine possible placements of voltorbs////////////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////////
+		
+		//TODO
 		for(int first=0;first<numCombinations[0];first++)
 		{
 			createPlacement(vrows[0],first,place);
-			for(int i=0;i<5;i++)
+			for(int i=0;i<SIZE;i++)
 			{
 				if(place[i]==true)
 					values[0][i]=0;
@@ -840,7 +883,7 @@ public class Main extends JFrame
 			for(int second=0;second<numCombinations[1];second++)
 			{
 				createPlacement(vrows[1],second,place);
-				for(int i=0;i<5;i++)
+				for(int i=0;i<SIZE;i++)
 				{
 					if(place[i]==true)
 						values[1][i]=0;
@@ -850,7 +893,7 @@ public class Main extends JFrame
 				for(int third=0;third<numCombinations[2];third++)
 				{
 					createPlacement(vrows[2],third,place);
-					for(int i=0;i<5;i++)
+					for(int i=0;i<SIZE;i++)
 					{
 						if(place[i]==true)
 							values[2][i]=0;
@@ -860,7 +903,7 @@ public class Main extends JFrame
 					for(int fourth=0;fourth<numCombinations[3];fourth++)
 					{
 						createPlacement(vrows[3],fourth,place);
-						for(int i=0;i<5;i++)
+						for(int i=0;i<SIZE;i++)
 						{
 							if(place[i]==true)
 								values[3][i]=0;
@@ -895,9 +938,9 @@ public class Main extends JFrame
 		//////////////////////////////////////////////////////////////////////////////////////
 		System.out.println("Number of possible states before adding cards: "+count);
 		System.out.println("Probabilities of Voltorbs:");
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				System.out.print(	Math.round((accumulate[i][j]/(count*1.0))*10000)/10000.0	+"\t");
 				accumulate[i][j]=0;
@@ -907,6 +950,21 @@ public class Main extends JFrame
 		//start of finding all possible assignments///////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
 		int numberOfStates=0;
+
+		int[] max = new int[SIZE];
+		int[] min = new int[SIZE];
+		int[] outertemps = new int[SIZE];
+		int iterator = 0;
+
+		for (int i = 0; i < SIZE; ++i){
+			min[i] = (rows[i]+vrows[i]-SIZE-1)/2;
+			max[i] = (rows[i]+vrows[i]-SIZE);
+			if(max[i]>(SIZE-vrows[i])){
+				max[i]=SIZE-vrows[i];
+			}
+		}
+
+		// Replaced by for loop above
 		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
 		min0=(rows[0]+vrows[0]-4)/2;
 		min1=(rows[1]+vrows[1]-4)/2;
@@ -928,9 +986,21 @@ public class Main extends JFrame
 		max4=(rows[4]+vrows[4]-5);
 		if(max4>(5-vrows[4]))
 			max4=5-vrows[4];
+		
+
+
+		//new code
+		
+		/*while(count>0){
+			values=states.pop();
+			copyMatrix(values,nextValue);
+			numberOfStates = findPossibleAssignments(max,min,outertemps,iterator, numberOfStates);
+			count--;
+		}*/
+
+		/*old code*/
 		int counter;
-		while(count>0)
-		{
+		while(count>0){
 			values=states.pop();
 			copyMatrix(values,nextValue);
 			for(int firstouter=min0;firstouter<=max0;firstouter++)
@@ -1028,11 +1098,13 @@ public class Main extends JFrame
 			}
 			count--;
 		}
+		
+
 		System.out.println("New number of states  "+numberOfStates);
 		System.out.println("Probability of Scoring:");
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				System.out.print(	Math.round(accumulate[i][j]/(numberOfStates*1.0)*10000)/10000.0	+"\t");
 			}
@@ -1239,8 +1311,11 @@ public class Main extends JFrame
 			for(int j=0;j<5;j++)
 			{
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
-				probabilities[i][j].setText("<"+Math.round(accumulated[0][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
+				probabilities[i][j].setText("<"/*+Math.round(accumulated[0][i][j]/alpha*100)/100.0*/+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
+				//Update data-feeding arrays
 				currentVProbabilities[i][j] = Math.round(accumulated[0][i][j]/alpha*100)/100.0;
+				currentOProbabilities[i][j] = Math.round(accumulated[1][i][j]/alpha*100)/100.0;
+				currentSProbabilities[i][j] = Math.round(accumulated[2][i][j]/alpha*100)/100.0;
 			}
 		}
 		numStates.setText("Number of Possible States "+numberOfFinalStates);
@@ -1417,14 +1492,43 @@ public class Main extends JFrame
 
 		return true;
 	}
+	
+/*
+		int[] max = new int[SIZE];
+		int[] min = new int[SIZE];
+
+		for (int i = 0; i < SIZE; ++i){
+			min[i] = (columns[i]+vcolumns[i]-SIZE-1)/2;
+			max[i] = (rows[i]+vrows[i]-SIZE);
+			if(max[i]>(SIZE-vcolumns[i])){
+				max[i]=SIZE-vcolumns[i];
+			}
+		}
+
+		for (int i = 0; i < SIZE; ++i) {
+			int count=0;
+			for(int j=0;j<SIZE;j++){
+				if(values[j][i]==5){
+					count++;
+				}
+			}
+			if(count<min[i]||count>max[i])
+				return false;
+			} 
+		
+
+		return true;
+		
+	}*/
+
 	/**
 	 * @param values
 	 */
 	public void incrementValues(int values[][])
 	{
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				if(values[i][j]==0)
 					accumulate[i][j]++;
@@ -1436,11 +1540,11 @@ public class Main extends JFrame
 	 */
 	public void incrementValues2(int values[][])
 	{
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
-				if(values[i][j]==5)
+				if(values[i][j]==5) // flag value = 5?
 					accumulate[i][j]++;
 			}
 		}
@@ -2193,11 +2297,74 @@ public class Main extends JFrame
 		}
 		return -1;
 	}
+	
+	/** Factorial method to call in ncr,
+	gotten from https://www.geeksforgeeks.org/java-program-for-factorial-of-a-number/
+	*/
+	static int factorial(int n){ 
+	    if (n == 0) 
+	        return 1; 
+	          
+	    return n*factorial(n-1); 
+	} 
+	
+	/** ncr calculator
+	@param n integer n
+	@param k integer k
+	@return n choose k
+	*/
+	static int ncr(int n, int k){
+		int num = factorial(n);
+		int denom = (factorial(k))*(factorial(n-k));
+		return (num/denom);
+	}
+	
+	/**
+	@param max array of max vals
+	@param min array of min vals
+	@param outertemps temporary iterators used in method
+	@param iterator keeps track of level of recursion
+	@param numberOfStates count of how many states have been found
+	*/
+	int findPossibleAssignments(int[] max, int[] min, int[] outertemps, int iterator, int numberOfStates){		
+		
+		for(outertemps[iterator]=min[iterator]; outertemps[iterator]<=max[iterator]; outertemps[iterator]++){
+			for(int comboCount = 0; comboCount<getNumCombinations(outertemps[iterator],vrows[iterator]); comboCount++){
+				generate(outertemps[iterator],vrows[iterator],comboCount,place);
+				int counter=0;
+
+				for(int i=0;i<SIZE;i++)
+						if(nextValue[iterator][i]!=0)
+						{
+							if(place[counter])
+								nextValue[iterator][i]=5; //5 is a magic num?
+							else
+								nextValue[iterator][i]=-1; //-1 as well
+							counter++;
+						}
+
+					if (iterator == SIZE-1){
+						if(testCols(nextValue)){
+							numberOfStates++;
+							tempValues=new int[5][5];
+							copyMatrix(nextValue,tempValues);
+							incrementValues2(nextValue);
+							states.add(tempValues);
+						}
+						return numberOfStates;
+					}else{
+					//recurse 
+						numberOfStates = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
+					}
+			}
+
+		}
+		return numberOfStates;
+
+		
+	}
+	
 }
-
-
-
-
 
 
 

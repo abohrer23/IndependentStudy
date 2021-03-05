@@ -1,7 +1,7 @@
-public class NoRisk implements Algorithm{
+public class NoRisk extends Strategy{
 
     //returns the proper x and y coordinates where index 0 = x and index 1 = y
-    public int[] choosetile(double[][] probabilities, int knownBoard [][]){
+    public int[] choosetile(double[][] probabilities, double[][] currentOProbabilities, double[][] currentSProbabilities, int knownBoard [][]){
         int [] ans = new int[2];
         for (int i = 0; i < probabilities.length; ++i) {
 				for (int j = 0; j < probabilities[i].length; ++j) {

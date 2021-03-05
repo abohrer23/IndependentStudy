@@ -20,8 +20,6 @@ public class MakeBoard {
 	//TODO add level scaling
 	public void makeboard(int quantity, int level) {
 
-		//int [][] masteralloc;
-
 		int batch = 0;
 		//Get Batch #
 		try {

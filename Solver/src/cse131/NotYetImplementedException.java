@@ -1,4 +1,4 @@
-package cse131;
+package support.cse131;
 
 /**
  * @author Dennis Cosgrove (http://www.cse.wustl.edu/~cosgroved/)

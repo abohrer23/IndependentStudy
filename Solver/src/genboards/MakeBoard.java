@@ -1,36 +1,81 @@
 package genboards;
 
 import java.util.Arrays;
+import java.util.Scanner;
 import java.io.File; 
 import java.io.IOException;
 import java.io.FileWriter;
 
 
 public class MakeBoard {
-	
-	String directory;
-	
-	public MakeBoard(String Destination) {
-		this.directory = Destination;
+
+
+	private int sample;
+
+	//Default constructor 
+	public MakeBoard() {
+		this.sample = 0;
 	}
-	
+
 	//TODO add level scaling
 	public void makeboard(int quantity, int level) {
 
 		//int [][] masteralloc;
 
-		
+		int batch = 0;
+		//Get Batch #
+		try {
+			Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
 
-			//Pick from hardcoded options
+			batch = Integer.parseInt(scanner.nextLine());
 
-			//Index 1: Options
-			//Index 2: 0=Voltorbs, 1=2s, 2=3s
+			scanner.close();
+		}
+		catch (Exception e){
+			//Boardconfig not found - Make it!
 
-			int[][] masteralloc  = { {6, 3, 1} , {6, 0, 3} , {6, 5, 0}, {6, 2, 2}, {6, 4, 1}};
+			//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
+			try {
+				FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
 
+				String defaultin = "0\n0";
+
+				myWriter.write("0");
+
+
+				myWriter.close();
+
+				System.out.println(".boardconfig not found - created new boardconfig");
+
+				Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
+
+				batch = Integer.parseInt(scanner.nextLine());
+
+				scanner.close();
+
+
+			} 
+			catch (IOException ex) {
+				System.out.println("The .boardconfig is incorrect. Delete the file and retry");
+				e.printStackTrace();
+			} 
+
+
+		}
+
+
+		//Pick from hardcoded options
+
+		//Index 1: Options
+		//Index 2: 0=Voltorbs, 1=2s, 2=3s
+
+		int[][] masteralloc  = { {6, 3, 1} , {6, 0, 3} , {6, 5, 0}, {6, 2, 2}, {6, 4, 1}};
+
+		//run for the number requested
+		for(int ii=0;ii<quantity;ii++) {
 			int[] fillinfo = masteralloc[(int)Math.floor(Math.random()*masteralloc.length)];
 
-			
+
 
 			int[][] board = new int[5][5];
 
@@ -47,7 +92,7 @@ public class MakeBoard {
 				do {
 					proposed[0] = (int)(Math.random()*5.0);
 					proposed[1] = (int)(Math.random()*5.0);
-			
+
 				} while(board[proposed[0]][proposed[1]] != -1);
 
 				board[proposed[0]][proposed[1]] = 0;
@@ -60,7 +105,7 @@ public class MakeBoard {
 				do {
 					proposed[0] = (int)(Math.random()*5.0);
 					proposed[1] = (int)(Math.random()*5.0);
-			
+
 				} while(board[proposed[0]][proposed[1]] != -1);
 
 				board[proposed[0]][proposed[1]] = 2;
@@ -72,7 +117,7 @@ public class MakeBoard {
 				do {
 					proposed[0] = (int)(Math.random()*5.0);
 					proposed[1] = (int)(Math.random()*5.0);
-			
+
 				} while(board[proposed[0]][proposed[1]] != -1);
 
 				board[proposed[0]][proposed[1]] = 3;
@@ -87,52 +132,87 @@ public class MakeBoard {
 					}
 				}
 			}
-			
-	
 
-		writefile(board);
+
+
+			writefile(board, batch);
+		}
+
+		//update the batch #
+
+
+		try {
+
+			System.out.println("Bump .boardconfig");
+
+			batch++;
+
+			FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
+
+			myWriter.write(Integer.toString(batch));
+
+
+			myWriter.close();
+
+
+		} 
+		catch (IOException ex) {
+			System.out.println("The .boardconfig is incorrect. Delete the file and retry");
+			ex.printStackTrace();
+		} 
+
+
+
 		return;
 	}
 
-	private void writefile(int[][] board){
+	private void writefile(int[][] board, int batch){
+
+
+
+		//Boardconfig not found - Make it
+
 
 		String content = "5\n";
 
 		//concat board entries onto string
 		for(int i=0;i<board.length;i++){
-				for(int j=0;j<board.length;j++){
-						content += board[i][j] + " ";
-				}
-				content += "\n";
+			for(int j=0;j<board.length;j++){
+				content += board[i][j] + " ";
 			}
+			content += "\n";
+		}
 
 		//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 		try {
-      FileWriter myWriter = new FileWriter("src/gennedboard.txt");
-      
-	  
-	  myWriter.write(content);
+			String destination = "bin/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
+			FileWriter myWriter = new FileWriter(destination);
 
 
-      myWriter.close();
-      System.out.println("Successfully wrote to the file.");
-    } catch (IOException e) {
-      System.out.println("An error occurred.");
-      e.printStackTrace();
-    } 
+			myWriter.write(content);
+
+			this.sample++;
+
+			myWriter.close();
+			System.out.println("Successfully wrote to the file.");
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		} 
+
 
 		return;
 
 	}
 
-	
-	
+
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-		MakeBoard m = new MakeBoard("outputs");
-		m.makeboard(0, 0);
-		
+
+		MakeBoard m = new MakeBoard();
+		m.makeboard(500, 0);
+
 	}
 
 }
@@ -191,4 +271,4 @@ Level 8
 2 	6 	10 	
 7 	3 	10 	
 
-*/
+ */

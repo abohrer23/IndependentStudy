@@ -1,4 +1,4 @@
-package support.cse131;
+package cse131;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;

@@ -1,4 +1,4 @@
-package support.cse131;
+package cse131;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

@@ -53,6 +53,8 @@ public class Main extends JFrame
 	JButton reset;
 	JButton play;
 	
+	MoveLogger logger;
+	
 	//Debug controsl
 	JButton minrisk;
 	
@@ -67,6 +69,7 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
+	String globalstrat;
 
 	//added
 	In file = new In("two.txt");
@@ -95,6 +98,7 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
+		logger = new MoveLogger();
 		
 		//Jbttons for quick access
 		minrisk=new JButton("minRisk -auto");
@@ -119,7 +123,9 @@ public class Main extends JFrame
 		rows=new int[5];
 		vrows=new int[5];
 		accumulate=new double[5][5];
-
+		
+		globalstrat = "";
+		
 		//2-D Answer Board
 		answer = new int[5][5];
 
@@ -254,8 +260,15 @@ public class Main extends JFrame
 				}
 			}
 		}
+		String strategy;
+		if(globalstrat.equals("")) {
+			strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+		}
+		else {
+			strategy = globalstrat;
+		}
 
-		String strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+		
 
 		Algorithm a;
 		
@@ -299,7 +312,17 @@ public class Main extends JFrame
 			//default is norisk for now
 			a = new NoRisk();
 		}
-
+		
+		if(strategy.contains("-global")) {
+			
+			String tempstrat = strategy;
+			//Stash the strategy as the global strategy and remove flag
+			
+			globalstrat = tempstrat.replace("-global", "");
+			
+			
+		}
+			
 		
 		
 		//Run auto if desired 
@@ -319,8 +342,10 @@ public class Main extends JFrame
 					ycoord = solution[1];
 					
 					//If a flip isn't successfull, stop
-					//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
-					if(flip(xcoord, ycoord) != 0) {
+					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
+					int tilevalue = flip(xcoord, ycoord);
+					if(tilevalue != 0) {
+						
 						return;
 					}
 					
@@ -443,7 +468,8 @@ public class Main extends JFrame
 			return 1;
 		}
 		else {
-			prettyprint();
+			logger.log(answer[xcoord][ycoord], prettyprint());
+			
 			return 0;
 		}
 		
@@ -586,41 +612,56 @@ public class Main extends JFrame
 	/**
 	 * 
 	 */
-	public void prettyprint(){
+	public String prettyprint(){
 
 		boolean withProb = true; //also prints probabilities
-
+		String state = "";
 		System.out.print("Board State:");
+		state.concat("Board State:");
 		if (withProb) {
 			System.out.print("\t\t\tProbability of Voltorb");
+			state.concat("\t\t\tProbability of Voltorb");
 		}
 		System.out.println();
 		System.out.println("   01234");
+		state.concat("\n\n   01234");
 		//System.out.println("   _____");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(i + " |");
+			state.concat(i + " |");
 			for (int j = 0; j < SIZE; ++j) {
 				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10)); 
+				state.concat(Character.toString(val));
 				System.out.print(val);
 			}
 			System.out.print(" " + rows[i] + " " + vrows[i]);
+			state.concat(" " + rows[i] + " " + vrows[i]);
 			if (withProb) {
 				System.out.print("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
+				state.concat("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
 				//System.out.println("\nScoring Prob:");
 				//System.out.print("\t\t\t" + currentSProbabilities[i][0] + "\t" + currentSProbabilities[i][1] + "\t" + currentSProbabilities[i][2]+ "\t" + currentSProbabilities[i][3] + "\t" + currentSProbabilities[i][4]);
 			}
+			state.concat("\n");
 			System.out.println();
 		}
 
 		System.out.print("   ");
+		state.concat("   ");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(columns[i]);
+			state.concat(Integer.toString(columns[i]));
 		}
 		System.out.print("\n   ");
+		state.concat("\n   ");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(vcolumns[i]);
+			state.concat(Integer.toString(vcolumns[i]));
 		}
 		System.out.println();
+		state.concat("\n");
+		
+		return state;
 
 	}
 
@@ -729,6 +770,9 @@ public class Main extends JFrame
 	 */
 	public void reset()
 	{
+		logger.consoleprint();
+		//Make new logger object
+		logger = new MoveLogger();
 		states.clear();
 		for(int i=0;i<SIZE;i++)
 		{

@@ -14,7 +14,7 @@ public class MoveLogger {
 	private LinkedList<Integer> tilesequence;
 	
 	//stores the exit status of the game
-	private int exitstatus;
+	private int exitstatus; // 1=win, 2=gameover
 	
 	//keeps track of the number of turns
 	private int turncounter;
@@ -35,6 +35,10 @@ public class MoveLogger {
 		turncounter++;
 	}
 	
+	public void setExit(int s) {
+		exitstatus = s;
+	}
+	
 	/** TODO implement
 	 * @return A string formatted in a text-based style for a file to log actions
 	 */
@@ -46,10 +50,14 @@ public class MoveLogger {
 	/**
 	 * TODO implement
 	 * @return A string formatted for a Comma-Separarated-Value file
+	 * 
 	 */
 	public String csvprint() {
+		String csv = "";
 		
-		return null;
+		
+		
+		return csv;
 	}
 	
 	public void consoleprint() {

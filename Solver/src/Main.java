@@ -224,8 +224,8 @@ public class Main extends JFrame
 			{
 				update();
 			}
-			if(e.getSource()==reset)
-				reset();
+			//if(e.getSource()==reset)
+			//	reset();
 		}
 
 
@@ -341,9 +341,10 @@ public class Main extends JFrame
 					xcoord = solution[0];
 					ycoord = solution[1];
 					
-					//If a flip isn't successfull, stop
+					//If a flip isn't successful, stop
 					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
 					int tilevalue = flip(xcoord, ycoord);
+					
 					if(tilevalue != 0) {
 						
 						return;
@@ -401,38 +402,9 @@ public class Main extends JFrame
 	 */
 	public int flip(int xcoord, int ycoord) {
 
-
-		/*
-		//System.out.println("After for loops: x: " + xcoord + ", y: "+ycoord);
-
-		if (xcoord != -1) {
-			System.out.print("Autochose spot: (" + xcoord+","+ycoord+")" + "\t");
-		} else {
-			xcoord = ap.nextInt("x?");
-			ycoord = ap.nextInt("y?");
-			System.out.print("User chose spot: (" + xcoord+","+ycoord+") with prob: " +currentVProbabilities[xcoord][ycoord] + "\t");
-		}
-
-			boardify(answer[xcoord][ycoord], xcoord, ycoord);
-
-		//startCalculating();
-
-		update();
-		prettyprint();
-		System.out.println("\n");
-
-		 */
-		//2. Flip. Check against the board and call a game over if necessary
-
-
-
-
-
 		//Flipped over
 
 		boardify(answer[xcoord][ycoord], xcoord, ycoord);
-
-		//startCalculating();
 
 		update();
 
@@ -461,20 +433,19 @@ public class Main extends JFrame
 		//Game over is #1 Priority - check first
 		if(gameover) {
 			cleanup(false, false, false);
+			logger.setExit(2);
 			return 2;
 		}
 		else if(alldone) {
 			cleanup(true, false, false);
+			logger.setExit(1);
 			return 1;
 		}
 		else {
-			logger.log(answer[xcoord][ycoord], prettyprint());
-			
+			Integer flippedTile = answer[xcoord][ycoord]; // evin has board gen bug , can we run sims on boards w/o prompting? iterate through files?
+			logger.log(flippedTile, prettyprint());
 			return 0;
 		}
-		
-
-
 
 		//3. Cleanup. Update the coin coint (TBA), exit the program if gameover, and finally update the text elements.
 
@@ -543,16 +514,6 @@ public class Main extends JFrame
 			//System.exit(1);
 			return 1;
 
-			//Future Automation code
-			/*
-
-			if(loop) {
-				System.exit(1);
-			}
-			else {
-				//future automation code here
-			}
-			 */
 			
 		}
 
@@ -576,7 +537,6 @@ public class Main extends JFrame
 			knownBoard[x][y] = 0;
 			values[x][y] = 0;
 			prettyprint();
-			reset();
 			System.out.println("BOMB!");
 			break;
 
@@ -615,51 +575,52 @@ public class Main extends JFrame
 	public String prettyprint(){
 
 		boolean withProb = true; //also prints probabilities
+		
 		String state = "";
 		System.out.print("Board State:");
-		state.concat("Board State:");
+		state = state.concat("Board State:");
 		if (withProb) {
 			System.out.print("\t\t\tProbability of Voltorb");
-			state.concat("\t\t\tProbability of Voltorb");
+			state = state.concat("\t\t\tProbability of Voltorb");
 		}
 		System.out.println();
-		System.out.println("   01234");
-		state.concat("\n\n   01234");
+		System.out.println("   01234\n");
+		state = state.concat("\n\n   01234");
 		//System.out.println("   _____");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(i + " |");
-			state.concat(i + " |");
+			state = state.concat(i + " |");
 			for (int j = 0; j < SIZE; ++j) {
 				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10)); 
-				state.concat(Character.toString(val));
+				state = state.concat(Character.toString(val));
 				System.out.print(val);
 			}
 			System.out.print(" " + rows[i] + " " + vrows[i]);
-			state.concat(" " + rows[i] + " " + vrows[i]);
+			state = state.concat(" " + rows[i] + " " + vrows[i]);
 			if (withProb) {
 				System.out.print("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
-				state.concat("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
+				state = state.concat("\t\t\t" + currentVProbabilities[i][0] + "\t" + currentVProbabilities[i][1] + "\t" + currentVProbabilities[i][2]+ "\t" + currentVProbabilities[i][3] + "\t" + currentVProbabilities[i][4]);
 				//System.out.println("\nScoring Prob:");
 				//System.out.print("\t\t\t" + currentSProbabilities[i][0] + "\t" + currentSProbabilities[i][1] + "\t" + currentSProbabilities[i][2]+ "\t" + currentSProbabilities[i][3] + "\t" + currentSProbabilities[i][4]);
 			}
-			state.concat("\n");
+			state = state.concat("\n");
 			System.out.println();
 		}
 
 		System.out.print("   ");
-		state.concat("   ");
+		state = state.concat("   ");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(columns[i]);
-			state.concat(Integer.toString(columns[i]));
+			state = state.concat(Integer.toString(columns[i]));
 		}
 		System.out.print("\n   ");
-		state.concat("\n   ");
+		state = state.concat("\n   ");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(vcolumns[i]);
-			state.concat(Integer.toString(vcolumns[i]));
+			state = state.concat(Integer.toString(vcolumns[i]));
 		}
 		System.out.println();
-		state.concat("\n");
+		state = state.concat("\n");
 		
 		return state;
 
@@ -770,7 +731,8 @@ public class Main extends JFrame
 	 */
 	public void reset()
 	{
-		logger.consoleprint();
+		//logger.consoleprint();
+		
 		//Make new logger object
 		logger = new MoveLogger();
 		states.clear();

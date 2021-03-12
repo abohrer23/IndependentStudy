@@ -322,8 +322,12 @@ public class Main extends JFrame
 			
 			
 		}
-			
 		
+		String loggerAlgo = strategy.replace("-auto", "");
+
+		
+		logger.setAlgorithm(loggerAlgo);
+			
 		
 		//Run auto if desired 
 		//Loop until a game over/tie
@@ -442,8 +446,9 @@ public class Main extends JFrame
 			return 1;
 		}
 		else {
+			prettyprint();
 			Integer flippedTile = answer[xcoord][ycoord]; // evin has board gen bug , can we run sims on boards w/o prompting? iterate through files?
-			logger.log(flippedTile, prettyprint());
+			logger.log(flippedTile, getBoardState());
 			return 0;
 		}
 
@@ -454,7 +459,7 @@ public class Main extends JFrame
 
 	/**
 	 * Gracefully exits a game at its close. Also will handle any sort of logging/autoplay for large simulations
-	 * @param win - is true if the gameboard is cleaned up becaue of a win, false if it is because of a loss
+	 * @param win - is true if the gameboard is cleaned up because of a win, false if it is because of a loss
 	 */
 	public int cleanup(boolean win, boolean loop, boolean withdraw) {
 		
@@ -585,7 +590,7 @@ public class Main extends JFrame
 		}
 		System.out.println();
 		System.out.println("   01234\n");
-		state = state.concat("\n\n   01234");
+		state = state.concat("\n   01234\n");
 		//System.out.println("   _____");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(i + " |");
@@ -624,6 +629,33 @@ public class Main extends JFrame
 		
 		return state;
 
+	}
+	
+	public String getBoardState() {
+		String state = "";
+		//state = state.concat("Board State:\n");
+		//state = state.concat("   01234\n");
+		for (int i = 0; i < SIZE; ++i) {
+			//state = state.concat(i + " |");
+			for (int j = 0; j < SIZE; ++j) {
+				char val = (knownBoard[i][j] == COVERED ? ' ': Character.forDigit(knownBoard[i][j],10)); 
+				state = state.concat(Character.toString(val));
+			}
+			//state = state.concat(" " + rows[i] + " " + vrows[i]);
+			//state = state.concat("\n");
+		}
+
+		//state = state.concat("   ");
+		for (int i = 0; i < SIZE; ++i) {
+			//state = state.concat(Integer.toString(columns[i]));
+		}
+		//state = state.concat("\n   ");
+		for (int i = 0; i < SIZE; ++i) {
+			//state = state.concat(Integer.toString(vcolumns[i]));
+		}
+		//state = state.concat("\n");
+		
+		return state;
 	}
 
 	/**
@@ -731,7 +763,9 @@ public class Main extends JFrame
 	 */
 	public void reset()
 	{
-		//logger.consoleprint();
+		logger.consoleprint();
+		logger.createCSV();
+		logger.createTXT();
 		
 		//Make new logger object
 		logger = new MoveLogger();

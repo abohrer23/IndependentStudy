@@ -24,13 +24,16 @@ public class MoveLogger {
 	//name of algorithm ran (will have global and auto flags i think but idk)
 	private String algo;
 	
+	private int fileNumber;
 	
-	public MoveLogger() {
+	
+	public MoveLogger(int fileNumber) {
 		//start from zero
 		turnCounter = 0;
 		exitStatus = 0;
 		boardStates = new LinkedList<String>();
 		tileSequence = new LinkedList<Integer>();
+		this.fileNumber = fileNumber;
 		
 	}
 	
@@ -101,7 +104,7 @@ public class MoveLogger {
 	 * This method creates a CSV file
 	 */
 	public void createCSV() {
-		String filename = "testOutput.csv"; //TODO: figure out how to pick file names
+		String filename = "testOutput"+fileNumber+".csv"; //TODO: figure out how to pick file names
 		Out o = new Out(filename);
 		o.print(csvprint());
 		
@@ -113,7 +116,7 @@ public class MoveLogger {
 	 * This method creates a txt file
 	 */
 	public void createTXT() {
-		String filename = "testOutput.txt"; //TODO: figure out how to pick file names
+		String filename = "testOutput"+fileNumber+".txt"; //TODO: figure out how to pick file names
 		Out o = new Out(filename);
 		o.print(csvprint());
 		
@@ -123,9 +126,11 @@ public class MoveLogger {
 	
 	/**
 	 * Prints boardStates
+	 *TODO this looks kinda ugly ngl
 	 */
 	public void consoleprint() {
 		System.out.println("consoleprint:");
+		System.out.println("algorithm:" + algo);
 		for (String temp : boardStates) {
 		    System.out.println(temp);
 		}	

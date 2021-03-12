@@ -70,6 +70,9 @@ public class Main extends JFrame
 	boolean place[];
 	LinkedList<int[][]> states;
 	String globalstrat;
+	int simCounter;
+	int totalSims;
+	String globalfilename;
 
 	//added
 	In file = new In("two.txt");
@@ -98,7 +101,9 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
-		logger = new MoveLogger();
+		totalSims = 0;
+		simCounter = 0;
+		logger = new MoveLogger(simCounter);
 		
 		//Jbttons for quick access
 		minrisk=new JButton("minRisk -auto");
@@ -125,6 +130,7 @@ public class Main extends JFrame
 		accumulate=new double[5][5];
 		
 		globalstrat = "";
+		globalfilename = "";
 		
 		//2-D Answer Board
 		answer = new int[5][5];
@@ -202,8 +208,7 @@ public class Main extends JFrame
 
 
 		//auto starts - no need to press start
-		setNumbers();
-		startCalculating();
+		play();
 
 
 	}
@@ -214,8 +219,7 @@ public class Main extends JFrame
 			if(e.getSource()==start)
 			{
 				//start the stuff
-				setNumbers();
-				startCalculating();
+				play();
 			}
 			if(e.getSource() == play){
 				play();
@@ -260,22 +264,42 @@ public class Main extends JFrame
 				}
 			}
 		}
+		
+		
+
 		String strategy;
 		if(globalstrat.equals("")) {
 			strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+		
+			Algorithm a;
+			
+			setNumbers();
+			startCalculating();	
+			
+			
+			interpretstrategy(strategy);
+			
+			reset();
 		}
-		else {
+		else if (simCounter < totalSims){
+			//simCounter++;
 			strategy = globalstrat;
+		
+			Algorithm a;
+			
+			setNumbers();
+			startCalculating();	
+			
+			
+			interpretstrategy(strategy);
+			
+			reset();
 		}
 
 		
 
-		Algorithm a;
-		
-		interpretstrategy(strategy);
-		
-		reset();
-
+	
+		return;
 	}
 	
 	/**
@@ -283,7 +307,7 @@ public class Main extends JFrame
 	 * @param strategy The command string input
 	 */
 	private void interpretstrategy(String strategy) {
-		// TODO Auto-generated method stub
+		//  Auto-generated method stub
 		
 		int xcoord = -1;
 		int ycoord = -1;
@@ -317,6 +341,9 @@ public class Main extends JFrame
 			
 			String tempstrat = strategy;
 			//Stash the strategy as the global strategy and remove flag
+			
+			String slice = tempstrat.substring(tempstrat.indexOf("-global")+7);
+			totalSims = Integer.parseInt(slice);
 			
 			globalstrat = tempstrat.replace("-global", "");
 			
@@ -447,7 +474,7 @@ public class Main extends JFrame
 		}
 		else {
 			prettyprint();
-			Integer flippedTile = answer[xcoord][ycoord]; // evin has board gen bug , can we run sims on boards w/o prompting? iterate through files?
+			Integer flippedTile = answer[xcoord][ycoord];
 			logger.log(flippedTile, getBoardState());
 			return 0;
 		}
@@ -768,7 +795,7 @@ public class Main extends JFrame
 		logger.createTXT();
 		
 		//Make new logger object
-		logger = new MoveLogger();
+		logger = new MoveLogger(simCounter++);
 		states.clear();
 		for(int i=0;i<SIZE;i++)
 		{
@@ -803,8 +830,7 @@ public class Main extends JFrame
 		}
 		
 		//start next game
-		setNumbers();
-		startCalculating();		
+		play();	
 	}
 	/**
 	 * 
@@ -816,8 +842,16 @@ public class Main extends JFrame
 		 * Modified by Lane Bohrer for use here
 		 * */
 		ArgsProcessor file = null;
-		file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
 
+		if(globalfilename.equals("")) {
+
+			//globalfilename = localArgs[0];
+			file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
+			
+		} else {
+			String[] filename = {globalfilename + simCounter};
+			file = boardSimulationFiles.createArgsProcessorFromFile(filename);
+		}
 
 		/*NEW text file setup:
 		 * Size(int, currently hardcoded to 5)
@@ -1373,7 +1407,6 @@ public class Main extends JFrame
 		prettyprint();
 		System.out.println("\n");
 		
-		play();
 
 	}
 	/**

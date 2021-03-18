@@ -27,6 +27,8 @@
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import javax.swing.*;
@@ -842,10 +844,39 @@ public class Main extends JFrame
 		 * Modified by Lane Bohrer for use here
 		 * */
 		ArgsProcessor file = null;
+		
+		try {
+            File parentFile = new File("support_src/boards/resources"); 
+            
+           
+            FileFilter filter = new FileFilter() { 
+            	  
+                public boolean accept(File parentFile) 
+                { 
+                	//return true;
+                	
+                	//for batch #, could do something like
+                	// return parentFile.getName().contains("-"+batchnum+"-");
+                	
+                    return parentFile.getName().endsWith("txt"); 
+                } 
+            }; 
+            
+            File[] files = parentFile.listFiles(filter); 
+            
+            for (File f : files) {
+            	System.out.println(f);
+            }
+            
+			} catch (Exception e) { 
+	            System.err.println(e.getMessage()); 
+	        } 
 
 		if(globalfilename.equals("")) {
+			
+			
 
-			//globalfilename = localArgs[0];
+			//globalfileename = localArgs[0];
 			file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
 			
 		} else {

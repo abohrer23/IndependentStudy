@@ -20,6 +20,11 @@ public class MoveLogger {
 	
 	//keeps track of the number of turns
 	private int turnCounter;
+
+	//Keeps track of the values flipped
+	private int ones;
+	private int twos;
+	private int threes;
 	
 	//name of algorithm ran (will have global and auto flags i think but idk)
 	private String algo;
@@ -30,7 +35,11 @@ public class MoveLogger {
 	public MoveLogger(int fileNumber) {
 		//start from zero
 		turnCounter = 0;
-		exitStatus = 0;
+		//0 - default (quit or not finished)
+		//1 - win
+		//2 - gameover
+		
+		exitStatus = 3;
 		boardStates = new LinkedList<String>();
 		tileSequence = new LinkedList<Integer>();
 		this.fileNumber = fileNumber;
@@ -38,6 +47,21 @@ public class MoveLogger {
 	}
 	
 	public void log(Integer tilevalue, String Boardstate) {
+
+		switch(tilevalue.intValue()){
+
+			case 1:
+				this.ones++;
+				break;
+			case 2:
+				this.twos++;
+				break;
+			case 3:
+				this.threes++;
+				break;
+
+		}
+
 		tileSequence.add(tilevalue);
 		boardStates.add(Boardstate);
 		turnCounter++;
@@ -169,6 +193,26 @@ public class MoveLogger {
 			s += i;
 			s += ", ";
 		}
+		
+		return s;
+	}
+
+	/**
+	* 
+	* CSV Format: algo, Number of turns, Exit status, # of 1s flipped, # of 2's flipped
+	* @return a string formatted with brief quantitative sumnmaries of the game for quick and dirty analysis
+	**/
+	public String csvSummaryPrint(LinkedList<String> list) {
+		String s = "";
+
+		s += this.algo + ",";
+		s += this.turnCounter + ",";
+		s += this.exitStatus + ",";
+		s += this.ones + ",";
+		s += this.twos + ",";
+		s += this.threes + ",";
+
+
 		
 		return s;
 	}

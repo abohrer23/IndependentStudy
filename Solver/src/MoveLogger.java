@@ -39,7 +39,7 @@ public class MoveLogger {
 		//1 - win
 		//2 - gameover
 		
-		exitStatus = 3;
+		exitStatus = 0;
 		boardStates = new LinkedList<String>();
 		tileSequence = new LinkedList<Integer>();
 		this.fileNumber = fileNumber;
@@ -202,7 +202,7 @@ public class MoveLogger {
 	* CSV Format: algo, Number of turns, Exit status, # of 1s flipped, # of 2's flipped
 	* @return a string formatted with brief quantitative sumnmaries of the game for quick and dirty analysis
 	**/
-	public String csvSummaryPrint(LinkedList<String> list) {
+	public String csvSummaryPrint() {
 		String s = "";
 
 		s += this.algo + ",";

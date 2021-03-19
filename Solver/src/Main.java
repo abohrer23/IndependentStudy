@@ -30,13 +30,18 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Scanner;
+
 import javax.swing.*;
 
 //Evin and Lane's imports
 import cse131.ArgsProcessor;
-import boards.boardSimulationFiles;
-import java.math.BigInteger;
+//import boards.boardSimulationFiles;
+//import java.math.BigInteger;
 
 public class Main extends JFrame 
 {
@@ -71,10 +76,16 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
+	
+	LinkedList<String> stats;
+	
 	String globalstrat;
 	int simCounter;
 	int totalSims;
-	String globalfilename;
+	//String globalfilename;
+	File[] files;
+	Scanner in;
+	boolean runningGlobal;
 
 	//added
 	In file = new In("two.txt");
@@ -94,6 +105,7 @@ public class Main extends JFrame
 	}
 	Main() 
 	{
+		stats = new LinkedList<String>();
 		ap = new ArgsProcessor(localArgs); //new
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		states = new LinkedList<int[][]>();
@@ -106,6 +118,7 @@ public class Main extends JFrame
 		totalSims = 0;
 		simCounter = 0;
 		logger = new MoveLogger(simCounter);
+		files = new File[0];
 		
 		//Jbttons for quick access
 		minrisk=new JButton("minRisk -auto");
@@ -132,7 +145,9 @@ public class Main extends JFrame
 		accumulate=new double[5][5];
 		
 		globalstrat = "";
-		globalfilename = "";
+		//globalfilename = "";
+		//files = new File[0];
+		runningGlobal = false;
 		
 		//2-D Answer Board
 		answer = new int[5][5];
@@ -275,8 +290,7 @@ public class Main extends JFrame
 		
 			Algorithm a;
 			
-			setNumbers();
-			startCalculating();	
+
 			
 			
 			interpretstrategy(strategy);
@@ -297,11 +311,37 @@ public class Main extends JFrame
 			
 			reset();
 		}
+		else {
+			csvstats(stats);
+		}
 
 		
 
 	
 		return;
+	}
+	
+	private void csvstats(LinkedList<String> list) {
+		
+		String s = "Algorithm, Turns, Exit Status, Number of Ones, Number of Twos, Number of Threes\n";
+		for (String d : list) {
+			s += d + "\n";
+		}
+		
+		FileWriter myWriter;
+		try {
+			myWriter = new FileWriter("src/stats.csv");
+			System.out.print(s);
+			myWriter.write(s);
+			myWriter.close();
+		} catch (IOException e) {
+			System.out.println("File io error");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
 	}
 	
 	/**
@@ -349,6 +389,8 @@ public class Main extends JFrame
 			
 			globalstrat = tempstrat.replace("-global", "");
 			
+			runningGlobal = true;
+			
 			
 		}
 		
@@ -357,6 +399,8 @@ public class Main extends JFrame
 		
 		logger.setAlgorithm(loggerAlgo);
 			
+		setNumbers();
+		startCalculating();	
 		
 		//Run auto if desired 
 		//Loop until a game over/tie
@@ -384,7 +428,7 @@ public class Main extends JFrame
 					}
 					
 					try {
-						Thread.sleep(100);
+						Thread.sleep(5);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -796,6 +840,8 @@ public class Main extends JFrame
 		logger.createCSV();
 		logger.createTXT();
 		
+		stats.add(logger.csvSummaryPrint());
+		
 		//Make new logger object
 		logger = new MoveLogger(simCounter++);
 		states.clear();
@@ -835,6 +881,7 @@ public class Main extends JFrame
 		play();	
 	}
 	/**
+	 *  
 	 * 
 	 */
 	public void setNumbers()
@@ -843,12 +890,13 @@ public class Main extends JFrame
 		/* ArgsProcessor file opening functionality is taken from Prof Cosgrove's 131 changes. He's the best
 		 * Modified by Lane Bohrer for use here
 		 * */
-		ArgsProcessor file = null;
 		
-		try {
+		if(runningGlobal) {
+
+		//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
+		
             File parentFile = new File("support_src/boards/resources"); 
             
-           
             FileFilter filter = new FileFilter() { 
             	  
                 public boolean accept(File parentFile) 
@@ -856,32 +904,45 @@ public class Main extends JFrame
                 	//return true;
                 	
                 	//for batch #, could do something like
-                	// return parentFile.getName().contains("-"+batchnum+"-");
+                	return parentFile.getName().contains("-"+(totalSims)+"-");
                 	
-                    return parentFile.getName().endsWith("txt"); 
                 } 
             }; 
+            System.out.print("-"+(totalSims)+"-");
+           // System.out.println(parentFile.listFiles(filter));
+            //File[] newfiles = parentFile.listFiles(filter);
+           
             
-            File[] files = parentFile.listFiles(filter); 
+            files = parentFile.listFiles(filter); 
+            totalSims = files.length;
+            
+            Arrays.parallelSort(files);
             
             for (File f : files) {
             	System.out.println(f);
             }
             
-			} catch (Exception e) { 
-	            System.err.println(e.getMessage()); 
-	        } 
-
-		if(globalfilename.equals("")) {
+		
 			
+			try {
+				in = new Scanner(files[0]);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("oopsies");
+			}
 			
-
-			//globalfileename = localArgs[0];
-			file = boardSimulationFiles.createArgsProcessorFromFile(localArgs);
+			runningGlobal = false;
 			
 		} else {
-			String[] filename = {globalfilename + simCounter};
-			file = boardSimulationFiles.createArgsProcessorFromFile(filename);
+			try {
+				in = new Scanner(files[simCounter]);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("oopsies");
+			}
+
 		}
 
 		/*NEW text file setup:
@@ -891,12 +952,12 @@ public class Main extends JFrame
 		 * */
 
 
-		SIZE = file.nextInt(); //not used yet but will let us do nxn
+		SIZE = in.nextInt(); //not used yet but will let us do nxn
 
 
 		for (int i = 0; i < SIZE; ++i) {
 			for (int j = 0; j < SIZE; ++j) {
-				answer[i][j] = file.nextInt();
+				answer[i][j] = in.nextInt();
 			}
 		}
 

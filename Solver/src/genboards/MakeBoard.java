@@ -183,7 +183,7 @@ public class MakeBoard {
 
 		//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 		try {
-			String destination = "bin/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
+			String destination = "support_src/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
 			FileWriter myWriter = new FileWriter(destination);
 
 
@@ -209,7 +209,7 @@ public class MakeBoard {
 		// TODO Auto-generated method stub
 
 		MakeBoard m = new MakeBoard();
-		m.makeboard(500, 0);
+		m.makeboard(200, 0);
 
 	}
 
@@ -222,28 +222,24 @@ Level 1
 5 	0 	6 	32
 2 	2 	6 	36
 4 	1 	6 	48
-
 Level 2
 1 	3 	7 	54
 6 	0 	7 	64
 3 	2 	7 	72
 0 	4 	7 	81
 5 	1 	7 	96
-
 Level 3
 2 	3 	8 	108
 7 	0 	8 	128
 4 	2 	8 	144
 1 	4 	8 	162
 6 	1 	8 	192
-
 Level 4
 3 	3 	8 	216
 0 	5 	8 	243
 8 	0 	10 	256
 5 	2 	10 	288
 2 	4 	10 	324
-
 Level 5
 7 	1 	10 	384
 4 	3 	10 	432
@@ -268,5 +264,4 @@ Level 8
 5 	4 	10 	
 2 	6 	10 	
 7 	3 	10 	
-
  */

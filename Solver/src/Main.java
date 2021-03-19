@@ -438,7 +438,8 @@ public class Main extends JFrame
 					//Cannot find a safe solution - withdraw
 					cleanup(false, false, true);
 					//fix returning later
-					System.exit(0);
+					//System.exit(0);
+					return;
 				}
 
 
@@ -538,7 +539,7 @@ public class Main extends JFrame
 		
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
-			System.exit(2);
+			//System.exit(2);
 			
 			return 2;
 			// 2 denotes withdraw status
@@ -908,7 +909,7 @@ public class Main extends JFrame
                 	
                 } 
             }; 
-            System.out.print("-"+(totalSims)+"-");
+            //System.out.print("-"+(totalSims)+"-");
            // System.out.println(parentFile.listFiles(filter));
             //File[] newfiles = parentFile.listFiles(filter);
            

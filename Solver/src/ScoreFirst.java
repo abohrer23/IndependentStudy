@@ -17,14 +17,17 @@ public class ScoreFirst extends Strategy {
 		double max = 0.0;
 		for (int i = 0; i < currentSProbabilities.length; ++i) {
 			for (int j = 0; j < currentSProbabilities[i].length; ++j) {
-				if (currentSProbabilities[i][j] > max && knownBoard[i][j] == -1) {
+				if (currentSProbabilities[i][j] > max && knownBoard[i][j] == -1 && currentVProbabilities[i][j]!= 1.0) {
 					ans[0] = i;
 					ans[1] = j;
 					max = currentSProbabilities[i][j];
 				}
 			}
 		}
-		return ans;
+		if (ans[0] != -1 && ans[1] != -1) {
+			return ans;
+		}
+		return null;
 	}
 
 	@Override

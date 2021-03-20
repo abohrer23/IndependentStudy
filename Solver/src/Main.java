@@ -59,12 +59,12 @@ public class Main extends JFrame
 	JButton update;
 	JButton reset;
 	JButton play;
-	
+
 	MoveLogger logger;
-	
+
 	//Debug controsl
 	JButton minrisk;
-	
+
 	JLabel numStates;
 	int values[][];
 	double accumulate[][];
@@ -76,9 +76,9 @@ public class Main extends JFrame
 	int vrows[];
 	boolean place[];
 	LinkedList<int[][]> states;
-	
+
 	LinkedList<String> stats;
-	
+
 	String globalstrat;
 	int simCounter;
 	int totalSims;
@@ -94,16 +94,45 @@ public class Main extends JFrame
 	double[][] currentVProbabilities;
 	double[][] currentSProbabilities;
 	double[][] currentOProbabilities;
-	
+
 	final static int COVERED = -1; //special value for still covered spots on the board
 	static int SIZE;
 
 	public static void main(String args[]) 
 	{
+		//Thank you HackerRank
+		//https://www.hackerrank.com/challenges/java-stdin-and-stdout-1/problem
+		
+		Scanner scanner = new Scanner(System.in);
+		
+		/*
+		System.out.print("Choose strategy");
+		String myString = scanner.next();
+		while(scanner.hasNext()) {
+			String val = scanner.next();
+			System.out.println(9 + ": " + val );
+			myString += val;
+			
+		}
+		scanner.close();
+		*/
+		
+		System.out.println("Please enter your Strategy: (type \"GUI\" if you want to use the GUI)");
+        String input = scanner.nextLine();
+        System.out.println("User Input from console: " + input);
+		
 		localArgs = args;
-		new Main();
+        
+        if(input.equals("") || input.equals("GUI")){
+        	new Main("");
+        }
+        else {
+        	new Main(input);
+        }
+        
+		
 	}
-	Main() 
+	Main(String args) 
 	{
 		stats = new LinkedList<String>();
 		ap = new ArgsProcessor(localArgs); //new
@@ -115,15 +144,17 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
+		
+		
 		totalSims = 0;
 		simCounter = 0;
 		logger = new MoveLogger(simCounter);
 		files = new File[0];
-		
+
 		//Jbttons for quick access
 		minrisk=new JButton("minRisk -auto");
-		
-		
+
+
 		add(start);
 		add(update);
 		start.setBounds(360, 60, 100, 40);
@@ -131,10 +162,10 @@ public class Main extends JFrame
 		//reset.setBounds(360,180,100,40);
 		play.setBounds(360,120,100,40);	 //new	
 		minrisk.setBounds(360, 180, 100, 40);
-		
-		
-		
-		
+
+
+
+
 		values=new int[5][5];
 		nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
@@ -143,12 +174,12 @@ public class Main extends JFrame
 		rows=new int[5];
 		vrows=new int[5];
 		accumulate=new double[5][5];
-		
+
 		globalstrat = "";
 		//globalfilename = "";
 		//files = new File[0];
 		runningGlobal = false;
-		
+
 		//2-D Answer Board
 		answer = new int[5][5];
 
@@ -212,6 +243,7 @@ public class Main extends JFrame
 		prob.setBounds(10,200,400,30);
 		add(numStates);
 		numStates.setBounds(10,175,400,30);
+		/*
 		setTitle("Voltorb Flip");
 		setLayout(null);
 		setSize(600, 450);
@@ -221,13 +253,85 @@ public class Main extends JFrame
 		update.addActionListener(new actions());
 		reset.addActionListener(new actions());
 		play.addActionListener(new actions());
-		setVisible(true);
+		setVisible(true)*/
+		/*
+		for (int i = 0; i < SIZE; ++i) {
+			for (int j = 0; j < SIZE; ++j) {
+				if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
+					xcoord = i;
+					ycoord = j;
+					break; //take out if changing to lowrisk instead of no risk
+				}
+			}
+		}
+		 */
 
+		Algorithm a = null;
+
+		String strategy;
+		
+		do {
+		if(globalstrat.equals("")) {
+			//Use GUI if no command line input
+			if( args == "" ) {
+			strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+			}
+			else {
+				strategy = args;
+			}
+			String slice = globalconfig(strategy); 
+
+			System.out.println(slice);
+
+			a = choosestrategy(strategy);
+			
+			
+		}
+		
+		//Global Execution
+			play(a);
+			reset();
+		
+		
+		System.out.print(simCounter + " = " + totalSims);
+		
+		} while(simCounter < totalSims );
+		
+		csvstats(stats);
 
 		//auto starts - no need to press start
-		play();
+		//play();
+
+		
 
 
+	}
+
+	public String globalconfig(String strategy) {
+		// TODO Auto-generated method stub
+		
+		Algorithm a;
+		
+		if(strategy.contains("-global")) {
+
+			String tempstrat = strategy;
+			//Stash the strategy as the global strategy and remove flag
+
+			String slice = tempstrat.substring(tempstrat.indexOf("-global")+7);
+			totalSims = Integer.parseInt(slice);
+
+			globalstrat = tempstrat.replace("-global", "");
+
+			runningGlobal = true;
+			
+			return slice;
+
+
+		}
+		else {
+			return null;
+		}
+		
 	}
 	public class actions implements ActionListener
 	{
@@ -236,10 +340,10 @@ public class Main extends JFrame
 			if(e.getSource()==start)
 			{
 				//start the stuff
-				play();
+				//play();
 			}
 			if(e.getSource() == play){
-				play();
+				//play();
 			}
 			if(e.getSource()==update)
 			{
@@ -257,7 +361,7 @@ public class Main extends JFrame
 	/**
 	 * 
 	 */
-	public void play() {
+	public void play(Algorithm a) {
 		//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
 		//is doable in the future
 		// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
@@ -272,62 +376,110 @@ public class Main extends JFrame
 		int ycoord = -1;
 		//double lowProb = 1.0;
 
-		for (int i = 0; i < SIZE; ++i) {
-			for (int j = 0; j < SIZE; ++j) {
-				if (currentVProbabilities[i][j] == 0 && knownBoard[i][j] == COVERED) {
-					xcoord = i;
-					ycoord = j;
-					break; //take out if changing to lowrisk instead of no risk
+
+		//simCounter++;
+		String strategy = globalstrat;
+
+		//Algorithm a;
+
+		//setNumbers();
+		//startCalculating();	
+
+
+		choosestrategy(strategy);
+
+		
+
+		String loggerAlgo = strategy.replace("-auto", "");
+
+
+		logger.setAlgorithm(loggerAlgo);
+
+		setNumbers();
+		startCalculating();	
+
+		//Run auto if desired 
+		//Loop until a game over/tie
+
+		if(strategy.contains("-auto")) {
+
+
+			//keep running until you can
+			while(true) {
+
+
+				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
+
+				if(solution != null) {
+					xcoord = solution[0];
+					ycoord = solution[1];
+
+					//If a flip isn't successful, stop
+					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
+					int tilevalue = flip(xcoord, ycoord);
+
+					if(tilevalue != 0) {
+
+						return;
+					}
+					/*
+					try {
+						Thread.sleep(5);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					 */
+				}
+				else {
+					//Cannot find a safe solution - withdraw
+					cleanup(false, false, true);
+					//fix returning later
+					return;
+				}
+
+
+			}
+
+
+		}
+
+		//If none of those flags are present, run normal
+		else {
+
+			int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
+
+			if(solution != null) {
+				xcoord = solution[0];
+				ycoord = solution[1];
+				//If a flip isn't successfull, stop
+				//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
+				if(flip(xcoord, ycoord) != 0) {
+					return;
 				}
 			}
-		}
-		
-		
+			else {
+				//NoRisk cannot find a safe solution
+				cleanup(false, false, true);
+				//fix returning later
+				return;
 
-		String strategy;
-		if(globalstrat.equals("")) {
-			strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
-		
-			Algorithm a;
-			
+			}
 
-			
-			
-			interpretstrategy(strategy);
-			
-			reset();
-		}
-		else if (simCounter < totalSims){
-			//simCounter++;
-			strategy = globalstrat;
-		
-			Algorithm a;
-			
-			setNumbers();
-			startCalculating();	
-			
-			
-			interpretstrategy(strategy);
-			
-			reset();
-		}
-		else {
-			csvstats(stats);
+
 		}
 
-		
 
-	
 		return;
 	}
-	
+
 	private void csvstats(LinkedList<String> list) {
-		
+
 		String s = "Algorithm, Turns, Exit Status, Number of Ones, Number of Twos, Number of Threes\n";
 		for (String d : list) {
 			s += d + "\n";
 		}
-		
+
 		FileWriter myWriter;
 		try {
 			myWriter = new FileWriter("src/stats.csv");
@@ -340,23 +492,23 @@ public class Main extends JFrame
 			e.printStackTrace();
 		}
 
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Interprets command string to pick strategy
 	 * @param strategy The command string input
 	 */
-	private void interpretstrategy(String strategy) {
+	private Algorithm choosestrategy(String strategy) {
 		//  Auto-generated method stub
-		
+
 		int xcoord = -1;
 		int ycoord = -1;
-		
+
 		Algorithm a;
 
-		
+
 		//Parse out which method is desired
 		if( strategy.contains("minrisk") ) {
 			a = new MinRisk();
@@ -378,99 +530,10 @@ public class Main extends JFrame
 			//default is norisk for now
 			a = new NoRisk();
 		}
-		
-		if(strategy.contains("-global")) {
-			
-			String tempstrat = strategy;
-			//Stash the strategy as the global strategy and remove flag
-			
-			String slice = tempstrat.substring(tempstrat.indexOf("-global")+7);
-			totalSims = Integer.parseInt(slice);
-			
-			globalstrat = tempstrat.replace("-global", "");
-			
-			runningGlobal = true;
-			
-			
-		}
-		
-		String loggerAlgo = strategy.replace("-auto", "");
 
-		
-		logger.setAlgorithm(loggerAlgo);
-			
-		setNumbers();
-		startCalculating();	
-		
-		//Run auto if desired 
-		//Loop until a game over/tie
-		
-		if(strategy.contains("-auto")) {
+		return a;
 
 
-			//keep running until you can
-			while(true) {
-
-
-				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
-
-				if(solution != null) {
-					xcoord = solution[0];
-					ycoord = solution[1];
-					
-					//If a flip isn't successful, stop
-					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
-					int tilevalue = flip(xcoord, ycoord);
-					
-					if(tilevalue != 0) {
-						
-						return;
-					}
-					
-					try {
-						Thread.sleep(5);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				else {
-					//Cannot find a safe solution - withdraw
-					cleanup(false, false, true);
-					//fix returning later
-					System.exit(0);
-				}
-
-
-			}
-
-
-		}
-		
-		//If none of those flags are present, run normal
-		else {
-
-				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
-
-				if(solution != null) {
-					xcoord = solution[0];
-					ycoord = solution[1];
-					//If a flip isn't successfull, stop
-					//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
-					if(flip(xcoord, ycoord) != 0) {
-						return;
-					}
-				}
-				else {
-					//NoRisk cannot find a safe solution
-					cleanup(false, false, true);
-					//fix returning later
-					return;
-					
-				}
-			
-
-		}
 	}
 	/**
 	 * @param xcoord - X-coordinate to flip
@@ -535,15 +598,15 @@ public class Main extends JFrame
 	 * @param win - is true if the gameboard is cleaned up because of a win, false if it is because of a loss
 	 */
 	public int cleanup(boolean win, boolean loop, boolean withdraw) {
-		
+
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
 			System.exit(2);
-			
+
 			return 2;
 			// 2 denotes withdraw status
 		}
-		
+
 		if(win){
 			prettyprint();
 			System.out.println("        d8b        888                           \n" + 
@@ -592,7 +655,7 @@ public class Main extends JFrame
 			//System.exit(1);
 			return 1;
 
-			
+
 		}
 
 	}
@@ -653,7 +716,7 @@ public class Main extends JFrame
 	public String prettyprint(){
 
 		boolean withProb = true; //also prints probabilities
-		
+
 		String state = "";
 		System.out.print("Board State:");
 		state = state.concat("Board State:");
@@ -699,11 +762,11 @@ public class Main extends JFrame
 		}
 		System.out.println();
 		state = state.concat("\n");
-		
+
 		return state;
 
 	}
-	
+
 	public String getBoardState() {
 		String state = "";
 		//state = state.concat("Board State:\n");
@@ -727,7 +790,7 @@ public class Main extends JFrame
 			//state = state.concat(Integer.toString(vcolumns[i]));
 		}
 		//state = state.concat("\n");
-		
+
 		return state;
 	}
 
@@ -839,9 +902,9 @@ public class Main extends JFrame
 		logger.consoleprint();
 		logger.createCSV();
 		logger.createTXT();
-		
+
 		stats.add(logger.csvSummaryPrint());
-		
+
 		//Make new logger object
 		logger = new MoveLogger(simCounter++);
 		states.clear();
@@ -864,7 +927,7 @@ public class Main extends JFrame
 				showValues[i][j].setText("");	
 				probabilities[i][j].setForeground(Color.black);
 				probabilities[i][j].setText("");
-				
+
 				//added
 				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/black space
 				answer[i][j] = 0;
@@ -874,11 +937,15 @@ public class Main extends JFrame
 
 			}
 			numStates.setText("");
-			
+
 		}
-		
+
+		/*
 		//start next game
-		play();	
+		play();
+		 */
+		//Recursion bad
+		return;
 	}
 	/**
 	 *  
@@ -890,40 +957,44 @@ public class Main extends JFrame
 		/* ArgsProcessor file opening functionality is taken from Prof Cosgrove's 131 changes. He's the best
 		 * Modified by Lane Bohrer for use here
 		 * */
-		
+
 		if(runningGlobal) {
 
-		//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
-		
-            File parentFile = new File("support_src/boards/resources"); 
-            
-            FileFilter filter = new FileFilter() { 
-            	  
-                public boolean accept(File parentFile) 
-                { 
-                	//return true;
-                	
-                	//for batch #, could do something like
-                	return parentFile.getName().contains("-"+(totalSims)+"-");
-                	
-                } 
-            }; 
-            System.out.print("-"+(totalSims)+"-");
-           // System.out.println(parentFile.listFiles(filter));
-            //File[] newfiles = parentFile.listFiles(filter);
-           
-            
-            files = parentFile.listFiles(filter); 
-            totalSims = files.length;
-            
-            Arrays.parallelSort(files);
-            
-            for (File f : files) {
-            	System.out.println(f);
-            }
-            
-		
+			//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
+
+			File parentFile = new File("support_src/boards/resources"); 
 			
+
+			FileFilter filter = new FileFilter() { 
+
+				public boolean accept(File parentFile) 
+				{ 
+					//return true;
+
+					//for batch #, could do something like
+					return parentFile.getName().contains("-"+(totalSims)+"-");
+
+				} 
+			}; 
+			System.out.print("-"+(totalSims)+"-");
+			// System.out.println(parentFile.listFiles(filter));
+			//File[] newfiles = parentFile.listFiles(filter);
+
+
+			files = parentFile.listFiles(filter); 
+			
+			System.out.print("files" + files);
+			
+			totalSims = files.length;
+
+			Arrays.parallelSort(files);
+
+			for (File f : files) {
+				System.out.println(f);
+			}
+
+
+
 			try {
 				in = new Scanner(files[0]);
 			} catch (FileNotFoundException e) {
@@ -931,9 +1002,9 @@ public class Main extends JFrame
 				e.printStackTrace();
 				System.out.println("oopsies");
 			}
-			
+
 			runningGlobal = false;
-			
+
 		} else {
 			try {
 				in = new Scanner(files[simCounter]);
@@ -1023,9 +1094,9 @@ public class Main extends JFrame
 		{
 
 			numCombinations[i] = ncr(SIZE, vrows[i]);
-		
+
 			//genericized to an ncr call
-			
+
 			/*
 			if(vrows[i]==0)
 				numCombinations[i]=1;
@@ -1039,12 +1110,12 @@ public class Main extends JFrame
 				numCombinations[i]=5;
 			else if(vrows[i]==5)
 				numCombinations[i]=1;
-			*/
-			
+			 */
+
 		}
 		//determine possible placements of voltorbs////////////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////////
-		
+
 		//TODO
 		for(int first=0;first<numCombinations[0];first++)
 		{
@@ -1162,11 +1233,11 @@ public class Main extends JFrame
 		max4=(rows[4]+vrows[4]-5);
 		if(max4>(5-vrows[4]))
 			max4=5-vrows[4];
-		
+
 
 
 		//new code
-		
+
 		/*while(count>0){
 			values=states.pop();
 			copyMatrix(values,nextValue);
@@ -1274,7 +1345,7 @@ public class Main extends JFrame
 			}
 			count--;
 		}
-		
+
 
 		System.out.println("New number of states  "+numberOfStates);
 		System.out.println("Probability of Scoring:");
@@ -1498,7 +1569,7 @@ public class Main extends JFrame
 
 		prettyprint();
 		System.out.println("\n");
-		
+
 
 	}
 	/**
@@ -1669,8 +1740,8 @@ public class Main extends JFrame
 
 		return true;
 	}
-	
-/*
+
+	/*
 		int[] max = new int[SIZE];
 		int[] min = new int[SIZE];
 
@@ -1692,10 +1763,10 @@ public class Main extends JFrame
 			if(count<min[i]||count>max[i])
 				return false;
 			} 
-		
+
 
 		return true;
-		
+
 	}*/
 
 	/**
@@ -2474,73 +2545,73 @@ public class Main extends JFrame
 		}
 		return -1;
 	}
-	
+
 	/** Factorial method to call in ncr,
 	gotten from https://www.geeksforgeeks.org/java-program-for-factorial-of-a-number/
-	*/
+	 */
 	static int factorial(int n){ 
-	    if (n == 0) 
-	        return 1; 
-	          
-	    return n*factorial(n-1); 
+		if (n == 0) 
+			return 1; 
+
+		return n*factorial(n-1); 
 	} 
-	
+
 	/** ncr calculator
 	@param n integer n
 	@param k integer k
 	@return n choose k
-	*/
+	 */
 	static int ncr(int n, int k){
 		int num = factorial(n);
 		int denom = (factorial(k))*(factorial(n-k));
 		return (num/denom);
 	}
-	
+
 	/**
 	@param max array of max vals
 	@param min array of min vals
 	@param outertemps temporary iterators used in method
 	@param iterator keeps track of level of recursion
 	@param numberOfStates count of how many states have been found
-	*/
+	 */
 	int findPossibleAssignments(int[] max, int[] min, int[] outertemps, int iterator, int numberOfStates){		
-		
+
 		for(outertemps[iterator]=min[iterator]; outertemps[iterator]<=max[iterator]; outertemps[iterator]++){
 			for(int comboCount = 0; comboCount<getNumCombinations(outertemps[iterator],vrows[iterator]); comboCount++){
 				generate(outertemps[iterator],vrows[iterator],comboCount,place);
 				int counter=0;
 
 				for(int i=0;i<SIZE;i++)
-						if(nextValue[iterator][i]!=0)
-						{
-							if(place[counter])
-								nextValue[iterator][i]=5; //5 is a magic num?
-							else
-								nextValue[iterator][i]=-1; //-1 as well
-							counter++;
-						}
-
-					if (iterator == SIZE-1){
-						if(testCols(nextValue)){
-							numberOfStates++;
-							tempValues=new int[5][5];
-							copyMatrix(nextValue,tempValues);
-							incrementValues2(nextValue);
-							states.add(tempValues);
-						}
-						return numberOfStates;
-					}else{
-					//recurse 
-						numberOfStates = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
+					if(nextValue[iterator][i]!=0)
+					{
+						if(place[counter])
+							nextValue[iterator][i]=5; //5 is a magic num?
+						else
+							nextValue[iterator][i]=-1; //-1 as well
+						counter++;
 					}
+
+				if (iterator == SIZE-1){
+					if(testCols(nextValue)){
+						numberOfStates++;
+						tempValues=new int[5][5];
+						copyMatrix(nextValue,tempValues);
+						incrementValues2(nextValue);
+						states.add(tempValues);
+					}
+					return numberOfStates;
+				}else{
+					//recurse 
+					numberOfStates = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
+				}
 			}
 
 		}
 		return numberOfStates;
 
-		
+
 	}
-	
+
 }
 
 

@@ -544,6 +544,7 @@ public class Main extends JFrame
 
 		//Flipped over
 
+		System.out.println("answer="+answer[xcoord][ycoord]);
 		boardify(answer[xcoord][ycoord], xcoord, ycoord);
 
 		update();
@@ -564,7 +565,7 @@ public class Main extends JFrame
 
 				if( (answer[i][j] == 2 ||  answer[i][j] == 3) && (answer[i][j] != knownBoard[i][j]) ) {
 					alldone = false;
-					break;
+					//break; //the dirty sneaky culprit
 				}
 
 
@@ -601,7 +602,7 @@ public class Main extends JFrame
 
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
-			System.exit(2);
+			//System.exit(2);
 
 			return 2;
 			// 2 denotes withdraw status
@@ -976,7 +977,7 @@ public class Main extends JFrame
 
 				} 
 			}; 
-			System.out.print("-"+(totalSims)+"-");
+			//System.out.print("-"+(totalSims)+"-");
 			// System.out.println(parentFile.listFiles(filter));
 			//File[] newfiles = parentFile.listFiles(filter);
 
@@ -989,9 +990,9 @@ public class Main extends JFrame
 
 			Arrays.parallelSort(files);
 
-			for (File f : files) {
-				System.out.println(f);
-			}
+			//for (File f : files) {
+			//	System.out.println(f);
+			//}
 
 
 

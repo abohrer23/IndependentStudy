@@ -209,7 +209,8 @@ public class MakeBoard {
 		// TODO Auto-generated method stub
 
 		MakeBoard m = new MakeBoard();
-		m.makeboard(5000, 0);
+		//quantity,level
+		m.makeboard(1, 0);
 
 	}
 

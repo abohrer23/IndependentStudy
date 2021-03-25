@@ -69,6 +69,7 @@ public class MoveLogger {
 	
 	public void setExit(int s) {
 		exitStatus = s;
+		turnCounter++; //fixes an off-by-one error
 	}
 	
 	public void setAlgorithm(String a) {

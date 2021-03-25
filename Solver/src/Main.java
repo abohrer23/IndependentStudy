@@ -3,12 +3,12 @@
  * March 28, 2010
 
  * Free to use this code for whatever purpose
- *
+ * 
  * There are no guarantees on success or failure
  * zlittlefield@gmail.com
- *
- *
- *
+ * 
+ * 
+ * 
  * Modified for use in Independent Study by
  * Lane Bohrer and Evin Jaff
  * a.bohrer@wustl.edu, evin@wustl.edu
@@ -20,7 +20,7 @@
  *
  * - check to see if game win (are there any 2s/3s still uncovered?)
  * - implement coin counter
- *
+ * 
  * */
 
 
@@ -43,7 +43,7 @@ import cse131.ArgsProcessor;
 //import boards.boardSimulationFiles;
 //import java.math.BigInteger;
 
-public class Main extends JFrame
+public class Main extends JFrame 
 {
 	private static final long serialVersionUID = 1L;
 	ArgsProcessor ap;
@@ -98,13 +98,13 @@ public class Main extends JFrame
 	final static int COVERED = -1; //special value for still covered spots on the board
 	static int SIZE;
 
-	public static void main(String args[])
+	public static void main(String args[]) 
 	{
 		//Thank you HackerRank
 		//https://www.hackerrank.com/challenges/java-stdin-and-stdout-1/problem
-
+		
 		Scanner scanner = new Scanner(System.in);
-
+		
 		/*
 		System.out.print("Choose strategy");
 		String myString = scanner.next();
@@ -112,27 +112,27 @@ public class Main extends JFrame
 			String val = scanner.next();
 			System.out.println(9 + ": " + val );
 			myString += val;
-
+			
 		}
 		scanner.close();
 		*/
-
+		
 		System.out.println("Please enter your Strategy: (type \"GUI\" if you want to use the GUI)");
         String input = scanner.nextLine();
         System.out.println("User Input from console: " + input);
-
+		
 		localArgs = args;
-
+        
         if(input.equals("") || input.equals("GUI")){
         	new Main("");
         }
         else {
         	new Main(input);
         }
-
-
+        
+		
 	}
-	Main(String args)
+	Main(String args) 
 	{
 		stats = new LinkedList<String>();
 		ap = new ArgsProcessor(localArgs); //new
@@ -144,8 +144,8 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
-
-
+		
+		
 		totalSims = 0;
 		simCounter = 0;
 		logger = new MoveLogger(simCounter);
@@ -160,7 +160,7 @@ public class Main extends JFrame
 		start.setBounds(360, 60, 100, 40);
 		//update.setBounds(360,120,100,40);
 		//reset.setBounds(360,180,100,40);
-		play.setBounds(360,120,100,40);	 //new
+		play.setBounds(360,120,100,40);	 //new	
 		minrisk.setBounds(360, 180, 100, 40);
 
 
@@ -236,7 +236,7 @@ public class Main extends JFrame
 				probabilities[i][j]=new JLabel("");
 				add(probabilities[i][j]);
 				probabilities[i][j].setBounds(120*j,230+34*i,120,32);
-				showValues[i][j].setText("");
+				showValues[i][j].setText("");			
 			}
 		}
 		add(prob);
@@ -269,7 +269,7 @@ public class Main extends JFrame
 		Algorithm a = null;
 
 		String strategy;
-
+		
 		do {
 		if(globalstrat.equals("")) {
 			//Use GUI if no command line input
@@ -279,39 +279,39 @@ public class Main extends JFrame
 			else {
 				strategy = args;
 			}
-			String slice = globalconfig(strategy);
+			String slice = globalconfig(strategy); 
 
 			System.out.println(slice);
 
 			a = choosestrategy(strategy);
-
-
+			
+			
 		}
-
+		
 		//Global Execution
 			play(a);
 			reset();
-
-
+		
+		
 		System.out.print(simCounter + " = " + totalSims);
-
+		
 		} while(simCounter < totalSims );
-
+		
 		csvstats(stats);
 
 		//auto starts - no need to press start
 		//play();
 
-
+		
 
 
 	}
 
 	public String globalconfig(String strategy) {
 		// TODO Auto-generated method stub
-
+		
 		Algorithm a;
-
+		
 		if(strategy.contains("-global")) {
 
 			String tempstrat = strategy;
@@ -323,7 +323,7 @@ public class Main extends JFrame
 			globalstrat = tempstrat.replace("-global", "");
 
 			runningGlobal = true;
-
+			
 			return slice;
 
 
@@ -331,11 +331,11 @@ public class Main extends JFrame
 		else {
 			return null;
 		}
-
+		
 	}
 	public class actions implements ActionListener
 	{
-		public void actionPerformed(ActionEvent e)
+		public void actionPerformed(ActionEvent e) 
 		{
 			if(e.getSource()==start)
 			{
@@ -359,7 +359,7 @@ public class Main extends JFrame
 	Play: Will play your move on the board
 	 **/
 	/**
-	 *
+	 * 
 	 */
 	public void play(Algorithm a) {
 		//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
@@ -383,12 +383,12 @@ public class Main extends JFrame
 		//Algorithm a;
 
 		//setNumbers();
-		//startCalculating();
+		//startCalculating();	
 
 
 		choosestrategy(strategy);
 
-
+		
 
 		String loggerAlgo = strategy.replace("-auto", "");
 
@@ -396,9 +396,9 @@ public class Main extends JFrame
 		logger.setAlgorithm(loggerAlgo);
 
 		setNumbers();
-		startCalculating();
+		startCalculating();	
 
-		//Run auto if desired
+		//Run auto if desired 
 		//Loop until a game over/tie
 
 		if(strategy.contains("-auto")) {
@@ -482,7 +482,7 @@ public class Main extends JFrame
 
 		FileWriter myWriter;
 		try {
-			myWriter = new FileWriter("stats.csv");
+			myWriter = new FileWriter("src/stats.csv");
 			System.out.print(s);
 			myWriter.write(s);
 			myWriter.close();
@@ -544,6 +544,7 @@ public class Main extends JFrame
 
 		//Flipped over
 
+		System.out.println("answer="+answer[xcoord][ycoord]);
 		boardify(answer[xcoord][ycoord], xcoord, ycoord);
 
 		update();
@@ -564,7 +565,7 @@ public class Main extends JFrame
 
 				if( (answer[i][j] == 2 ||  answer[i][j] == 3) && (answer[i][j] != knownBoard[i][j]) ) {
 					alldone = false;
-					break;
+					//break; //the dirty sneaky culprit
 				}
 
 
@@ -601,7 +602,7 @@ public class Main extends JFrame
 
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
-			System.exit(2);
+			//System.exit(2);
 
 			return 2;
 			// 2 denotes withdraw status
@@ -609,46 +610,46 @@ public class Main extends JFrame
 
 		if(win){
 			prettyprint();
-			System.out.println("        d8b        888                           \n" +
-					"        Y8P        888                           \n" +
-					"                   888                           \n" +
-					"888  888888 .d8888b888888 .d88b. 888d888888  888 \n" +
-					"888  888888d88P\"   888   d88\"\"88b888P\"  888  888 \n" +
-					"Y88  88P888888     888   888  888888    888  888 \n" +
-					" Y8bd8P 888Y88b.   Y88b. Y88..88P888    Y88b 888 \n" +
-					"  Y88P  888 \"Y8888P \"Y888 \"Y88P\" 888     \"Y88888 \n" +
-					"                                             888 \n" +
-					"                                        Y8b d88P \n" +
+			System.out.println("        d8b        888                           \n" + 
+					"        Y8P        888                           \n" + 
+					"                   888                           \n" + 
+					"888  888888 .d8888b888888 .d88b. 888d888888  888 \n" + 
+					"888  888888d88P\"   888   d88\"\"88b888P\"  888  888 \n" + 
+					"Y88  88P888888     888   888  888888    888  888 \n" + 
+					" Y8bd8P 888Y88b.   Y88b. Y88..88P888    Y88b 888 \n" + 
+					"  Y88P  888 \"Y8888P \"Y888 \"Y88P\" 888     \"Y88888 \n" + 
+					"                                             888 \n" + 
+					"                                        Y8b d88P \n" + 
 					"                                         \"Y88P\"");
 			//System.exit(0);
 			return 0;
 		}
 		else {
 			prettyprint();
-			System.out.println("┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀\n" +
-					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼\n" +
-					"██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀\n" +
-					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼\n" +
-					"███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼\n" +
-					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" +
-					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼\n" +
-					"██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" +
-					"███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼\n" +
-					"┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼\n" +
+			System.out.println("┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀\n" + 
+					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼\n" + 
+					"██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀\n" + 
+					"██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼\n" + 
+					"███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼\n" + 
+					"██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼\n" + 
+					"███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼\n" + 
+					"┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼\n" + 
 					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼");
 
 			//exit of 1 because game over
@@ -667,7 +668,7 @@ public class Main extends JFrame
 	 * @param x - The x-coordinate where the flip happens
 	 * @param y
 	 * @author evinjaff
-	 *
+	 * 
 	 */
 	public void boardify(int boardResult, int x,  int y){
 
@@ -711,7 +712,7 @@ public class Main extends JFrame
 
 	//Pretty-print the state of the board
 	/**
-	 *
+	 * 
 	 */
 	public String prettyprint(){
 
@@ -732,7 +733,7 @@ public class Main extends JFrame
 			System.out.print(i + " |");
 			state = state.concat(i + " |");
 			for (int j = 0; j < SIZE; ++j) {
-				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10));
+				char val = (knownBoard[i][j] == COVERED ? '▓': Character.forDigit(knownBoard[i][j],10)); 
 				state = state.concat(Character.toString(val));
 				System.out.print(val);
 			}
@@ -774,7 +775,7 @@ public class Main extends JFrame
 		for (int i = 0; i < SIZE; ++i) {
 			//state = state.concat(i + " |");
 			for (int j = 0; j < SIZE; ++j) {
-				char val = (knownBoard[i][j] == COVERED ? ' ': Character.forDigit(knownBoard[i][j],10));
+				char val = (knownBoard[i][j] == COVERED ? ' ': Character.forDigit(knownBoard[i][j],10)); 
 				state = state.concat(Character.toString(val));
 			}
 			//state = state.concat(" " + rows[i] + " " + vrows[i]);
@@ -795,7 +796,7 @@ public class Main extends JFrame
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	public void update()
 	{
@@ -895,13 +896,13 @@ public class Main extends JFrame
 		numStates.setText("Number of Possible Games: "+newSize);
 	}
 	/**
-	 *
+	 * 
 	 */
 	public void reset()
 	{
 		logger.consoleprint();
 		//logger.createCSV();
-		//logger.createTXT();
+		logger.createTXT();
 
 		stats.add(logger.csvSummaryPrint());
 
@@ -924,7 +925,7 @@ public class Main extends JFrame
 				accumulate[i][j]=0;
 				nextValue[i][j]=0;
 				values[i][j]=0;
-				showValues[i][j].setText("");
+				showValues[i][j].setText("");	
 				probabilities[i][j].setForeground(Color.black);
 				probabilities[i][j].setText("");
 
@@ -948,8 +949,8 @@ public class Main extends JFrame
 		return;
 	}
 	/**
-	 *
-	 *
+	 *  
+	 * 
 	 */
 	public void setNumbers()
 	{
@@ -962,37 +963,36 @@ public class Main extends JFrame
 
 			//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
 
+			File parentFile = new File("support_src/boards/resources"); 
+			
 
-			File parentFile = new File("genboards/outputs");
+			FileFilter filter = new FileFilter() { 
 
-
-			FileFilter filter = new FileFilter() {
-
-				public boolean accept(File parentFile)
-				{
+				public boolean accept(File parentFile) 
+				{ 
 					//return true;
 
 					//for batch #, could do something like
 					return parentFile.getName().contains("-"+(totalSims)+"-");
 
-				}
-			};
-			System.out.print("-"+(totalSims)+"-");
+				} 
+			}; 
+			//System.out.print("-"+(totalSims)+"-");
 			// System.out.println(parentFile.listFiles(filter));
 			//File[] newfiles = parentFile.listFiles(filter);
 
 
-			files = parentFile.listFiles(filter);
-
+			files = parentFile.listFiles(filter); 
+			
 			System.out.print("files" + files);
-
+			
 			totalSims = files.length;
 
 			Arrays.parallelSort(files);
 
-			for (File f : files) {
-				System.out.println(f);
-			}
+			//for (File f : files) {
+			//	System.out.println(f);
+			//}
 
 
 
@@ -1069,7 +1069,7 @@ public class Main extends JFrame
 
 	//never called?
 	/**
-	 *
+	 * 
 	 */
 	public void displayNumbers()
 	{
@@ -1084,7 +1084,7 @@ public class Main extends JFrame
 		}
 	}
 	/**
-	 *
+	 * 
 	 */
 	public void startCalculating()
 	{
@@ -1335,13 +1335,13 @@ public class Main extends JFrame
 														states.add(tempValues);
 													}
 												}
-											}
+											}	
 										}
-									}
+									}									
 								}
-							}
+							}	
 						}
-					}
+					}							
 				}
 			}
 			count--;
@@ -1622,7 +1622,7 @@ public class Main extends JFrame
 	{
 		int maxrows=0;
 		for(int i=0;i<5;i++)
-		{
+		{	
 			maxrows+=values[i];
 		}
 		if(maxrows>rows[num])
@@ -1638,7 +1638,7 @@ public class Main extends JFrame
 	{
 		int maxrows=0;
 		for(int i=0;i<5;i++)
-		{
+		{	
 			maxrows+=values[i];
 		}
 		if(maxrows==rows[num])
@@ -1664,11 +1664,11 @@ public class Main extends JFrame
 				}
 				if(maxcol!=columns[j])
 				{
-					return false;
+					return false;			
 				}
-			}
+			}			
 		}
-		return true;
+		return true;  
 	}
 	/**
 	 * @param values
@@ -1763,7 +1763,7 @@ public class Main extends JFrame
 			}
 			if(count<min[i]||count>max[i])
 				return false;
-			}
+			} 
 
 
 		return true;
@@ -1887,7 +1887,7 @@ public class Main extends JFrame
 
 		}
 		else if(numMines==3)
-		{
+		{			
 			switch(whichOne)
 			{
 			case 0:
@@ -2330,7 +2330,7 @@ public class Main extends JFrame
 					setPlaced(true,true,true,true,false,place);
 					break;
 				}
-			}
+			}	
 			else if(n==5)
 			{
 				setPlaced(true,true,true,true,true,place);
@@ -2405,7 +2405,7 @@ public class Main extends JFrame
 			else if(n==4)
 			{
 				setPlaced(true,true,true,true,false,place);
-			}
+			}			
 		}
 		else if(V==2)
 		{
@@ -2550,12 +2550,12 @@ public class Main extends JFrame
 	/** Factorial method to call in ncr,
 	gotten from https://www.geeksforgeeks.org/java-program-for-factorial-of-a-number/
 	 */
-	static int factorial(int n){
-		if (n == 0)
-			return 1;
+	static int factorial(int n){ 
+		if (n == 0) 
+			return 1; 
 
-		return n*factorial(n-1);
-	}
+		return n*factorial(n-1); 
+	} 
 
 	/** ncr calculator
 	@param n integer n
@@ -2575,7 +2575,7 @@ public class Main extends JFrame
 	@param iterator keeps track of level of recursion
 	@param numberOfStates count of how many states have been found
 	 */
-	int findPossibleAssignments(int[] max, int[] min, int[] outertemps, int iterator, int numberOfStates){
+	int findPossibleAssignments(int[] max, int[] min, int[] outertemps, int iterator, int numberOfStates){		
 
 		for(outertemps[iterator]=min[iterator]; outertemps[iterator]<=max[iterator]; outertemps[iterator]++){
 			for(int comboCount = 0; comboCount<getNumCombinations(outertemps[iterator],vrows[iterator]); comboCount++){
@@ -2602,7 +2602,7 @@ public class Main extends JFrame
 					}
 					return numberOfStates;
 				}else{
-					//recurse
+					//recurse 
 					numberOfStates = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
 				}
 			}
@@ -2614,3 +2614,7 @@ public class Main extends JFrame
 	}
 
 }
+
+
+
+

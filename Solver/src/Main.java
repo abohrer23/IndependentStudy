@@ -40,11 +40,22 @@ import javax.swing.*;
 
 //Evin and Lane's imports
 import cse131.ArgsProcessor;
+import timing.Ticker;
 //import boards.boardSimulationFiles;
 //import java.math.BigInteger;
 
 public class Main extends JFrame 
 {
+	public Ticker ticker; //= new Ticker();
+	
+	//ticker.tick();
+	
+	long startTime;// = System.nanoTime();
+	//methodToTime();
+	long endTime;// = System.nanoTime();
+
+	//long duration = (endTime - startTime); 
+	
 	private static final long serialVersionUID = 1L;
 	ArgsProcessor ap;
 	static String[] localArgs;
@@ -134,6 +145,15 @@ public class Main extends JFrame
 	}
 	Main(String args) 
 	{
+		
+		Ticker ticker = new Ticker();
+		
+		long startTime = System.currentTimeMillis();
+		//methodToTime();
+		//long endTime;// = System.nanoTime();
+
+		//long duration = (endTime - startTime);
+		
 		stats = new LinkedList<String>();
 		ap = new ArgsProcessor(localArgs); //new
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -238,11 +258,13 @@ public class Main extends JFrame
 				probabilities[i][j].setBounds(120*j,230+34*i,120,32);
 				showValues[i][j].setText("");			
 			}
+			ticker.tick();
 		}
 		add(prob);
 		prob.setBounds(10,200,400,30);
 		add(numStates);
 		numStates.setBounds(10,175,400,30);
+		ticker.tick();
 		/*
 		setTitle("Voltorb Flip");
 		setLayout(null);
@@ -284,23 +306,52 @@ public class Main extends JFrame
 			System.out.println(slice);
 
 			a = choosestrategy(strategy);
+			ticker.tick();
 			
 			
 		}
 		
+		ticker.tick();
+		
 		//Global Execution
 			play(a);
+			ticker.tick();
 			reset();
+			ticker.tick();
 		
 		
 		System.out.print(simCounter + " = " + totalSims);
+		ticker.tick();
 		
 		} while(simCounter < totalSims );
 		
 		csvstats(stats);
+		
+		//export ticks
 
 		//auto starts - no need to press start
 		//play();
+		
+		long endTime = System.currentTimeMillis();
+		
+		long duration =  endTime - startTime;
+		
+		FileWriter myWriter;
+		
+		//String s = "strategy, size, time (ns), ticks\n";
+		
+		String s = logger.getAlgo() + ", " + totalSims + ", " + duration + "," + ticker.getTickCount() + ","  + "\n";
+		
+		try {
+			myWriter = new FileWriter("timing.csv", true);
+			System.out.print(s);
+			myWriter.write(s);
+			myWriter.close();
+		} catch (IOException e) {
+			System.out.println("File io error");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		
 
@@ -379,6 +430,7 @@ public class Main extends JFrame
 
 		//simCounter++;
 		String strategy = globalstrat;
+		ticker.tick();
 
 		//Algorithm a;
 
@@ -387,21 +439,25 @@ public class Main extends JFrame
 
 
 		choosestrategy(strategy);
+		ticker.tick();
 
 		
 
 		String loggerAlgo = strategy.replace("-auto", "");
+		ticker.tick();
 
 
 		logger.setAlgorithm(loggerAlgo);
 
 		setNumbers();
 		startCalculating();	
+		ticker.tick();
 
 		//Run auto if desired 
 		//Loop until a game over/tie
 
 		if(strategy.contains("-auto")) {
+			ticker.tick();
 
 
 			//keep running until you can
@@ -413,13 +469,14 @@ public class Main extends JFrame
 				if(solution != null) {
 					xcoord = solution[0];
 					ycoord = solution[1];
+					ticker.tick();
 
 					//If a flip isn't successful, stop
 					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
 					int tilevalue = flip(xcoord, ycoord);
-
+					ticker.tick();
 					if(tilevalue != 0) {
-
+						
 						return;
 					}
 					/*
@@ -432,6 +489,7 @@ public class Main extends JFrame
 					 */
 				}
 				else {
+					ticker.tick();
 					//Cannot find a safe solution - withdraw
 					cleanup(false, false, true);
 					//fix returning later
@@ -446,19 +504,22 @@ public class Main extends JFrame
 
 		//If none of those flags are present, run normal
 		else {
-
+			ticker.tick();
 			int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
-
+			ticker.tick();
 			if(solution != null) {
+				ticker.tick();
 				xcoord = solution[0];
 				ycoord = solution[1];
 				//If a flip isn't successfull, stop
 				//Note: A switch statement could be put here if you wan't to do stuff like log files or do something depending on flip outcomes
 				if(flip(xcoord, ycoord) != 0) {
+					ticker.tick();
 					return;
 				}
 			}
 			else {
+				ticker.tick();
 				//NoRisk cannot find a safe solution
 				cleanup(false, false, true);
 				//fix returning later
@@ -473,7 +534,7 @@ public class Main extends JFrame
 		return;
 	}
 
-	private void csvstats(LinkedList<String> list) {
+	public void csvstats(LinkedList<String> list) {
 
 		String s = "Algorithm, Turns, Exit Status, Number of Ones, Number of Twos, Number of Threes\n";
 		for (String d : list) {
@@ -482,7 +543,7 @@ public class Main extends JFrame
 
 		FileWriter myWriter;
 		try {
-			myWriter = new FileWriter("src/stats.csv");
+			myWriter = new FileWriter("stats.csv");
 			System.out.print(s);
 			myWriter.write(s);
 			myWriter.close();
@@ -500,9 +561,9 @@ public class Main extends JFrame
 	 * Interprets command string to pick strategy
 	 * @param strategy The command string input
 	 */
-	private Algorithm choosestrategy(String strategy) {
+	public Algorithm choosestrategy(String strategy) {
 		//  Auto-generated method stub
-
+		ticker = new Ticker(); //.tick();
 		int xcoord = -1;
 		int ycoord = -1;
 
@@ -530,7 +591,7 @@ public class Main extends JFrame
 			//default is norisk for now
 			a = new NoRisk();
 		}
-
+		ticker.tick();
 		return a;
 
 
@@ -546,9 +607,9 @@ public class Main extends JFrame
 
 		System.out.println("answer="+answer[xcoord][ycoord]);
 		boardify(answer[xcoord][ycoord], xcoord, ycoord);
-
+		ticker.tick();
 		update();
-
+		ticker.tick();
 		//check if the board is won/lost
 		boolean alldone = true;
 		boolean gameover = false;
@@ -558,13 +619,16 @@ public class Main extends JFrame
 				if(knownBoard[i][j] == 0) {
 					gameover = true;
 					alldone = false;
+					ticker.tick();
 					break;
+					
 				}
 
 				//should it be flipped over?
 
 				if( (answer[i][j] == 2 ||  answer[i][j] == 3) && (answer[i][j] != knownBoard[i][j]) ) {
 					alldone = false;
+					ticker.tick();
 					//break; //the dirty sneaky culprit
 				}
 
@@ -573,16 +637,19 @@ public class Main extends JFrame
 		}
 		//Game over is #1 Priority - check first
 		if(gameover) {
+			ticker.tick();
 			cleanup(false, false, false);
 			logger.setExit(2);
 			return 2;
 		}
 		else if(alldone) {
+			ticker.tick();
 			cleanup(true, false, false);
 			logger.setExit(1);
 			return 1;
 		}
 		else {
+			ticker.tick();
 			prettyprint();
 			Integer flippedTile = answer[xcoord][ycoord];
 			logger.log(flippedTile, getBoardState());
@@ -599,16 +666,17 @@ public class Main extends JFrame
 	 * @param win - is true if the gameboard is cleaned up because of a win, false if it is because of a loss
 	 */
 	public int cleanup(boolean win, boolean loop, boolean withdraw) {
-
+		ticker.tick();
 		if(withdraw) {
 			System.out.println("Could not decide on another move, so chose to withdraw");
 			//System.exit(2);
-
+			ticker.tick();
 			return 2;
 			// 2 denotes withdraw status
 		}
 
 		if(win){
+			ticker.tick();
 			prettyprint();
 			System.out.println("        d8b        888                           \n" + 
 					"        Y8P        888                           \n" + 
@@ -625,6 +693,7 @@ public class Main extends JFrame
 			return 0;
 		}
 		else {
+			ticker.tick();
 			prettyprint();
 			System.out.println("┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼\n" + 
 					"███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀\n" + 
@@ -672,7 +741,7 @@ public class Main extends JFrame
 	 */
 	public void boardify(int boardResult, int x,  int y){
 
-
+		ticker.tick();
 		switch(boardResult){
 		//Flipped a Voltorb - Trigger Game Over
 		case 0:
@@ -680,6 +749,7 @@ public class Main extends JFrame
 			values[x][y] = 0;
 			prettyprint();
 			System.out.println("BOMB!");
+			ticker.tick();
 			break;
 
 			//Flipped a 1 - Do nothing but just update board
@@ -687,6 +757,7 @@ public class Main extends JFrame
 			knownBoard[x][y] = 1;
 			values[x][y] = 1;
 			System.out.println("1 Flipped");
+			ticker.tick();
 			break;
 
 
@@ -695,7 +766,7 @@ public class Main extends JFrame
 			knownBoard[x][y] = 2;
 			values[x][y] = 2;
 			System.out.println("2 Flipped");
-
+			ticker.tick();
 			break;
 
 			//Flipped a 3 - Update Board and Coin Count
@@ -703,7 +774,7 @@ public class Main extends JFrame
 			knownBoard[x][y] = 3;
 			values[x][y] = 3;
 			System.out.println("3 Flipped!");
-
+			ticker.tick();
 			break;
 		}
 
@@ -777,6 +848,7 @@ public class Main extends JFrame
 			for (int j = 0; j < SIZE; ++j) {
 				char val = (knownBoard[i][j] == COVERED ? ' ': Character.forDigit(knownBoard[i][j],10)); 
 				state = state.concat(Character.toString(val));
+				ticker.tick();
 			}
 			//state = state.concat(" " + rows[i] + " " + vrows[i]);
 			//state = state.concat("\n");
@@ -816,6 +888,7 @@ public class Main extends JFrame
 		{
 			add=true;
 			values=states.get(k);
+			ticker.tick();
 			for(int i=0;i<SIZE;i++)
 			{
 				for(int j=0;j<SIZE;j++)
@@ -827,11 +900,12 @@ public class Main extends JFrame
 					{
 						//old
 						//tempInt=Integer.parseInt(showValues[i][j].getText());
-
+						ticker.tick();
 						//updated to take in from known board
 						tempInt=knownBoard[i][j];
 						if(values[i][j]!=tempInt)
 							add=false;
+						ticker.tick();
 					}
 				}
 			}
@@ -839,6 +913,7 @@ public class Main extends JFrame
 			{
 				newStates.add(values);
 				newSize++;
+				ticker.tick();
 			}
 		}
 
@@ -856,6 +931,9 @@ public class Main extends JFrame
 						accumulated[1][i][j]++;
 					if(values[i][j]==2||values[i][j]==3)
 						accumulated[2][i][j]++;
+					
+					
+					ticker.tick();
 				}
 			}
 		}
@@ -870,11 +948,13 @@ public class Main extends JFrame
 				accumulated[0][i][j]=Math.round(accumulated[0][i][j]/alpha*100)/100.0;
 				accumulated[1][i][j]=Math.round(accumulated[1][i][j]/alpha*100)/100.0;
 				accumulated[2][i][j]=Math.round(accumulated[2][i][j]/alpha*100)/100.0;
+				ticker.tick();
 				if(accumulated[0][i][j]>maxvoltorb&&showValues[i][j].getText().equals(""))
 					maxvoltorb=accumulated[0][i][j];
 				if(accumulated[2][i][j]>maxscore&&showValues[i][j].getText().equals(""))
 					maxscore=accumulated[2][i][j];
 				//probabilities[i][j].setText("<"+Math.round(accumulated[0][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
+				ticker.tick();
 			}
 		}
 		for(int i=0;i<SIZE;i++)
@@ -891,9 +971,11 @@ public class Main extends JFrame
 				currentVProbabilities[i][j] = accumulated[0][i][j];
 				currentOProbabilities[i][j] = accumulated[1][i][j];
 				currentSProbabilities[i][j] = accumulated[2][i][j];
+				ticker.tick();
 			}
 		}
 		numStates.setText("Number of Possible Games: "+newSize);
+		ticker.tick();
 	}
 	/**
 	 * 
@@ -901,8 +983,8 @@ public class Main extends JFrame
 	public void reset()
 	{
 		logger.consoleprint();
-		logger.createCSV();
-		logger.createTXT();
+		///logger.createCSV();
+		//logger.createTXT();
 
 		stats.add(logger.csvSummaryPrint());
 
@@ -920,6 +1002,7 @@ public class Main extends JFrame
 			vcolumns[i]=-1;
 			rows[i]=-1;
 			vrows[i]=-1;
+			ticker.tick();
 			for(int j=0;j<SIZE;j++)
 			{
 				accumulate[i][j]=0;
@@ -935,9 +1018,11 @@ public class Main extends JFrame
 				currentVProbabilities[i][j] = 0;
 				currentSProbabilities[i][j] = 0;
 				currentOProbabilities[i][j] = 0;
+				ticker.tick();
 
 			}
 			numStates.setText("");
+			ticker.tick();
 
 		}
 
@@ -963,8 +1048,8 @@ public class Main extends JFrame
 
 			//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
 
-			File parentFile = new File("support_src/boards/resources"); 
-			
+			File parentFile = new File("../support_src/boards/resources"); 
+			ticker.tick();
 
 			FileFilter filter = new FileFilter() { 
 
@@ -977,7 +1062,6 @@ public class Main extends JFrame
 
 				} 
 			}; 
-			//System.out.print("-"+(totalSims)+"-");
 			// System.out.println(parentFile.listFiles(filter));
 			//File[] newfiles = parentFile.listFiles(filter);
 
@@ -989,7 +1073,7 @@ public class Main extends JFrame
 			totalSims = files.length;
 
 			Arrays.parallelSort(files);
-
+			ticker.tick();
 			//for (File f : files) {
 			//	System.out.println(f);
 			//}
@@ -1002,17 +1086,20 @@ public class Main extends JFrame
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("oopsies");
+				ticker.tick();
 			}
-
+			ticker.tick();
 			runningGlobal = false;
 
 		} else {
 			try {
 				in = new Scanner(files[simCounter]);
+				ticker.tick();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("oopsies");
+				ticker.tick();
 			}
 
 		}
@@ -1030,6 +1117,7 @@ public class Main extends JFrame
 		for (int i = 0; i < SIZE; ++i) {
 			for (int j = 0; j < SIZE; ++j) {
 				answer[i][j] = in.nextInt();
+				ticker.tick();
 			}
 		}
 
@@ -1040,29 +1128,36 @@ public class Main extends JFrame
 			for (int j = 0; j < SIZE; ++j) {
 				if (answer[i][j] == 0) {
 					countVoltorbs++;
+					ticker.tick();
 				}
 				else {
 					countPoints += answer[i][j];
+					ticker.tick();
 				}
 			}
 			rows[i] = countPoints;
 			vrows[i] = countVoltorbs;
+			ticker.tick();
 		}
 
 		//sums over columns (going up/down)
 		for (int i = 0; i < SIZE; ++i) {
 			int countPoints = 0;
 			int countVoltorbs = 0;
+			ticker.tick();
 			for (int j = 0; j < SIZE; ++j) {
 				if (answer[j][i] == 0) {
 					countVoltorbs++;
+					ticker.tick();
 				}
 				else {
 					countPoints += answer[j][i];
+					ticker.tick();
 				}
 			}
 			columns[i] = countPoints;
 			vcolumns[i] = countVoltorbs;
+			ticker.tick();
 		}
 
 	}
@@ -1079,6 +1174,7 @@ public class Main extends JFrame
 			{
 				//old
 				showValues[i][j].setText(Integer.toString(values[i][j]));
+				ticker.tick();
 				//showValues[i][j].setText(Integer.toString(knownBoard[i][j]));
 			}
 		}
@@ -1095,6 +1191,7 @@ public class Main extends JFrame
 		{
 
 			numCombinations[i] = ncr(SIZE, vrows[i]);
+			ticker.tick();
 
 			//genericized to an ncr call
 
@@ -1121,52 +1218,67 @@ public class Main extends JFrame
 		for(int first=0;first<numCombinations[0];first++)
 		{
 			createPlacement(vrows[0],first,place);
+			ticker.tick();
 			for(int i=0;i<SIZE;i++)
 			{
 				if(place[i]==true)
 					values[0][i]=0;
 				else
 					values[0][i]=-1;
+				
+				ticker.tick();
 			}
 			for(int second=0;second<numCombinations[1];second++)
 			{
 				createPlacement(vrows[1],second,place);
+				ticker.tick();
 				for(int i=0;i<SIZE;i++)
 				{
 					if(place[i]==true)
 						values[1][i]=0;
 					else
 						values[1][i]=-1;
+					
+					ticker.tick();
 				}
 				for(int third=0;third<numCombinations[2];third++)
 				{
 					createPlacement(vrows[2],third,place);
+					ticker.tick();
 					for(int i=0;i<SIZE;i++)
 					{
 						if(place[i]==true)
 							values[2][i]=0;
 						else
 							values[2][i]=-1;
+						
+						ticker.tick();
 					}
 					for(int fourth=0;fourth<numCombinations[3];fourth++)
 					{
 						createPlacement(vrows[3],fourth,place);
+						ticker.tick();
 						for(int i=0;i<SIZE;i++)
 						{
 							if(place[i]==true)
 								values[3][i]=0;
 							else
 								values[3][i]=-1;
+							
+							ticker.tick();
 						}
 						for(int fifth=0;fifth<numCombinations[4];fifth++)
 						{
 							createPlacement(vrows[4],fifth,place);
+							ticker.tick();
 							for(int i=0;i<5;i++)
 							{
 								if(place[i]==true)
 									values[4][i]=0;
 								else
 									values[4][i]=-1;
+								
+								ticker.tick();
 							}
 							//code for checking
 							if(testVCols(values))
@@ -1176,6 +1288,10 @@ public class Main extends JFrame
 								copyMatrix(values,tempValues);
 								states.add(tempValues);
 								count++;
+								
+								ticker.tick();
+								ticker.tick();
+								ticker.tick();
 							}
 						}
 					}
@@ -1192,6 +1308,7 @@ public class Main extends JFrame
 			{
 				System.out.print(	Math.round((accumulate[i][j]/(count*1.0))*10000)/10000.0	+"\t");
 				accumulate[i][j]=0;
+				ticker.tick();
 			}
 			System.out.println();
 		}
@@ -1203,13 +1320,14 @@ public class Main extends JFrame
 		int[] min = new int[SIZE];
 		int[] outertemps = new int[SIZE];
 		int iterator = 0;
-
+		ticker.tick();
 		for (int i = 0; i < SIZE; ++i){
 			min[i] = (rows[i]+vrows[i]-SIZE-1)/2;
 			max[i] = (rows[i]+vrows[i]-SIZE);
 			if(max[i]>(SIZE-vrows[i])){
 				max[i]=SIZE-vrows[i];
 			}
+			ticker.tick();
 		}
 
 		// Replaced by for loop above
@@ -1234,6 +1352,16 @@ public class Main extends JFrame
 		max4=(rows[4]+vrows[4]-5);
 		if(max4>(5-vrows[4]))
 			max4=5-vrows[4];
+		
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
+		ticker.tick();
 
 
 
@@ -1251,12 +1379,14 @@ public class Main extends JFrame
 		while(count>0){
 			values=states.pop();
 			copyMatrix(values,nextValue);
+			ticker.tick();
 			for(int firstouter=min0;firstouter<=max0;firstouter++)
 			{
 				for(int first=0;first<getNumCombinations(firstouter,vrows[0]);first++)
 				{
 					generate(firstouter,vrows[0],first,place);
 					counter=0;
+					ticker.tick();
 					for(int i=0;i<5;i++)
 						if(nextValue[0][i]!=0)
 						{
@@ -1266,6 +1396,7 @@ public class Main extends JFrame
 								nextValue[0][i]=-1;
 							counter++;
 						}
+					ticker.tick();
 					for(int secondouter=min1;secondouter<=max1;secondouter++)
 					{
 						for(int second=0;second<getNumCombinations(secondouter,vrows[1]);second++)
@@ -1281,12 +1412,14 @@ public class Main extends JFrame
 										nextValue[1][i]=-1;
 									counter++;
 								}
+							ticker.tick();
 							for(int thirdouter=min2;thirdouter<=max2;thirdouter++)
 							{
 								for(int third=0;third<getNumCombinations(thirdouter,vrows[2]);third++)
 								{
 									generate(thirdouter,vrows[2],third,place);
 									counter=0;
+									ticker.tick();
 									for(int i=0;i<5;i++)
 										if(nextValue[2][i]!=0)
 										{
@@ -1295,6 +1428,7 @@ public class Main extends JFrame
 											else
 												nextValue[2][i]=-1;
 											counter++;
+											ticker.tick();
 										}
 									for(int fourthouter=min3;fourthouter<=max3;fourthouter++)
 									{
@@ -1302,6 +1436,7 @@ public class Main extends JFrame
 										{
 											generate(fourthouter,vrows[3],fourth,place);
 											counter=0;
+											ticker.tick();
 											for(int i=0;i<5;i++)
 												if(nextValue[3][i]!=0)
 												{
@@ -1310,6 +1445,7 @@ public class Main extends JFrame
 													else
 														nextValue[3][i]=-1;
 													counter++;
+													ticker.tick();
 												}
 											for(int fifthouter=min4;fifthouter<=max4;fifthouter++)
 											{
@@ -1325,7 +1461,9 @@ public class Main extends JFrame
 															else
 																nextValue[4][i]=-1;
 															counter++;
+															ticker.tick();
 														}
+													ticker.tick();
 													if(testCols(nextValue))
 													{
 														numberOfStates++;
@@ -1333,6 +1471,7 @@ public class Main extends JFrame
 														copyMatrix(nextValue,tempValues);
 														incrementValues2(nextValue);
 														states.add(tempValues);
+														ticker.tick();
 													}
 												}
 											}	
@@ -1344,6 +1483,7 @@ public class Main extends JFrame
 					}							
 				}
 			}
+			ticker.tick();
 			count--;
 		}
 
@@ -1355,6 +1495,7 @@ public class Main extends JFrame
 			for(int j=0;j<SIZE;j++)
 			{
 				System.out.print(	Math.round(accumulate[i][j]/(numberOfStates*1.0)*10000)/10000.0	+"\t");
+				ticker.tick();
 			}
 			System.out.println();
 		}
@@ -1374,7 +1515,7 @@ public class Main extends JFrame
 
 		numCom=new int[5];
 		for(int i=0;i<5;i++)
-			numCom[i]=0;
+			numCom[i]=0; ticker.tick();
 		while(numberOfStates>0)
 		{
 			for(int i=0;i<5;i++)
@@ -1386,6 +1527,7 @@ public class Main extends JFrame
 			num2=getNumberOnOff(numCom[2]);
 			num3=getNumberOnOff(numCom[3]);
 			num4=getNumberOnOff(numCom[4]);
+			ticker.tick();
 			for(int first=0;first<num0;first++)
 			{
 				getBinaryPlacement(num0,first,place);
@@ -1398,10 +1540,13 @@ public class Main extends JFrame
 						if(place[count]==true)
 						{
 							values[0][i]=3;
+							ticker.tick();
 						}
 						else
 							values[0][i]=2;
 						count++;
+						
+						ticker.tick();
 					}
 				}
 				if(!isValid(values[0],0))
@@ -1410,6 +1555,8 @@ public class Main extends JFrame
 						break;
 					else
 						continue;
+					
+					//ticker.tick();
 				}
 				//System.out.println("After Row 1");
 				for(int second=0;second<num1;second++)
@@ -1427,6 +1574,7 @@ public class Main extends JFrame
 								values[1][i]=2;
 							count++;
 						}
+						ticker.tick();
 					}
 					if(!isValid(values[1],1))
 					{
@@ -1434,6 +1582,8 @@ public class Main extends JFrame
 							break;
 						else
 							continue;
+						
+						//ticker.tick();
 					}
 					//System.out.println("After Row 2");
 					for(int third=0;third<num2;third++)
@@ -1441,6 +1591,7 @@ public class Main extends JFrame
 						getBinaryPlacement(num2,third,place);
 						//make placement
 						count=0;
+						ticker.tick();
 						for(int i=0;i<5;i++)
 						{
 							if(values[2][i]==2||values[2][i]==3)
@@ -1451,6 +1602,7 @@ public class Main extends JFrame
 									values[2][i]=2;
 								count++;
 							}
+							ticker.tick();
 						}
 						if(!isValid(values[2],2))
 						{
@@ -1458,6 +1610,8 @@ public class Main extends JFrame
 								break;
 							else
 								continue;
+							
+							//ticker.tick();
 						}
 						//System.out.println("After Row 3");
 						for(int fourth=0;fourth<num3;fourth++)
@@ -1475,6 +1629,7 @@ public class Main extends JFrame
 										values[3][i]=2;
 									count++;
 								}
+								ticker.tick();
 							}
 							if(!isValid(values[3],3))
 							{
@@ -1482,6 +1637,8 @@ public class Main extends JFrame
 									break;
 								else
 									continue;
+								
+								//ticker.tick();
 							}
 							//System.out.println("After Row 4");
 							for(int fifth=0;fifth<num4;fifth++)
@@ -1499,6 +1656,7 @@ public class Main extends JFrame
 											values[4][i]=2;
 										count++;
 									}
+									ticker.tick();
 								}
 								if(!isValid(values[4],4))
 								{
@@ -1515,6 +1673,7 @@ public class Main extends JFrame
 									states.add(tempValues);
 									numberOfFinalStates++;
 								}
+								ticker.tick();
 							}
 						}
 					}
@@ -1535,7 +1694,7 @@ public class Main extends JFrame
 		for(int i=0;i<3;i++)
 			for(int j=0;j<5;j++)
 				for(int k=0;k<5;k++)
-					accumulated[i][j][k]=0;
+					accumulated[i][j][k]=0; ticker.tick();
 
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
@@ -1544,6 +1703,7 @@ public class Main extends JFrame
 			{
 				for(int j=0;j<5;j++)
 				{
+					ticker.tick();
 					if(values[i][j]==0)
 						accumulated[0][i][j]++;
 					if(values[i][j]==1)
@@ -1558,6 +1718,7 @@ public class Main extends JFrame
 		{
 			for(int j=0;j<5;j++)
 			{
+				ticker.tick();
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
 				probabilities[i][j].setText("<"/*+Math.round(accumulated[0][i][j]/alpha*100)/100.0*/+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
 				//Update data-feeding arrays
@@ -1591,6 +1752,8 @@ public class Main extends JFrame
 			return false;
 		else
 			return true;
+		
+		//ticker.tick();
 
 	}
 	/**
@@ -1610,6 +1773,7 @@ public class Main extends JFrame
 					values[i][j]=2;
 					num[i]++;
 				}
+				ticker.tick();
 			}
 		}
 	}
@@ -1627,6 +1791,8 @@ public class Main extends JFrame
 		}
 		if(maxrows>rows[num])
 			return true;
+		
+		ticker.tick();
 		return false;
 	}
 	/**
@@ -1661,6 +1827,7 @@ public class Main extends JFrame
 				{
 					//iterate through columns
 					maxcol+=values[k][j];
+					ticker.tick();
 				}
 				if(maxcol!=columns[j])
 				{
@@ -1703,6 +1870,8 @@ public class Main extends JFrame
 		{
 			if(values[j][0]==5)
 				count++;
+			
+			ticker.tick();
 		}
 		if(count<min0||count>max0)
 			return false;
@@ -1711,6 +1880,8 @@ public class Main extends JFrame
 		{
 			if(values[j][1]==5)
 				count++;
+			
+			ticker.tick();
 		}
 		if(count<min1||count>max1)
 			return false;
@@ -1719,6 +1890,9 @@ public class Main extends JFrame
 		{
 			if(values[j][2]==5)
 				count++;
+			
+			
+			ticker.tick();
 		}
 		if(count<min2||count>max2)
 			return false;
@@ -1727,6 +1901,8 @@ public class Main extends JFrame
 		{
 			if(values[j][3]==5)
 				count++;
+			
+			ticker.tick();
 		}
 		if(count<min3||count>max3)
 			return false;
@@ -1735,9 +1911,13 @@ public class Main extends JFrame
 		{
 			if(values[j][4]==5)
 				count++;
+			
+			ticker.tick();
 		}
 		if(count<min4||count>max4)
 			return false;
+		
+		ticker.tick();
 
 		return true;
 	}
@@ -1781,6 +1961,8 @@ public class Main extends JFrame
 			{
 				if(values[i][j]==0)
 					accumulate[i][j]++;
+				
+				ticker.tick();
 			}
 		}
 	}
@@ -1795,6 +1977,8 @@ public class Main extends JFrame
 			{
 				if(values[i][j]==5) // flag value = 5?
 					accumulate[i][j]++;
+				
+				ticker.tick();
 			}
 		}
 	}
@@ -1812,6 +1996,8 @@ public class Main extends JFrame
 			{
 				if(values[j][i]==0)
 					count++;
+				
+				ticker.tick();
 			}
 			if(count!=vcolumns[i])
 				return false;
@@ -1948,6 +2134,8 @@ public class Main extends JFrame
 		{
 			setPlaced(true,true,true,true,true,place);
 		}
+		
+		ticker.tick();
 	}
 	/**
 	 * @param b0
@@ -1976,6 +2164,7 @@ public class Main extends JFrame
 			for(int j=0;j<5;j++)
 			{
 				out[i][j]=in[i][j];
+				ticker.tick();
 			}
 		}
 	}
@@ -1985,6 +2174,7 @@ public class Main extends JFrame
 	 */
 	public int getNumberOnOff(int num)
 	{
+		ticker.tick();
 		return (int)Math.pow(2, num);
 	}
 	/**
@@ -2202,6 +2392,7 @@ public class Main extends JFrame
 				break;
 			}
 		}
+		ticker.tick();
 	}
 	/**
 	 * @param n
@@ -2488,6 +2679,9 @@ public class Main extends JFrame
 				setPlaced(false,false,false,false,false,place);
 			}
 		}
+		
+		ticker.tick();
+		ticker.tick();
 	}
 	/**
 	 * @param n
@@ -2545,6 +2739,7 @@ public class Main extends JFrame
 			return 1;
 		}
 		return -1;
+		
 	}
 
 	/** Factorial method to call in ncr,
@@ -2553,7 +2748,7 @@ public class Main extends JFrame
 	static int factorial(int n){ 
 		if (n == 0) 
 			return 1; 
-
+		
 		return n*factorial(n-1); 
 	} 
 
@@ -2564,8 +2759,10 @@ public class Main extends JFrame
 	 */
 	static int ncr(int n, int k){
 		int num = factorial(n);
+		//ticker.tick();
 		int denom = (factorial(k))*(factorial(n-k));
 		return (num/denom);
+		
 	}
 
 	/**
@@ -2585,6 +2782,7 @@ public class Main extends JFrame
 				for(int i=0;i<SIZE;i++)
 					if(nextValue[iterator][i]!=0)
 					{
+						ticker.tick();
 						if(place[counter])
 							nextValue[iterator][i]=5; //5 is a magic num?
 						else
@@ -2593,6 +2791,7 @@ public class Main extends JFrame
 					}
 
 				if (iterator == SIZE-1){
+					ticker.tick();
 					if(testCols(nextValue)){
 						numberOfStates++;
 						tempValues=new int[5][5];
@@ -2602,6 +2801,7 @@ public class Main extends JFrame
 					}
 					return numberOfStates;
 				}else{
+					ticker.tick();
 					//recurse 
 					numberOfStates = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
 				}

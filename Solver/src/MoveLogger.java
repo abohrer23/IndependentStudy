@@ -31,6 +31,8 @@ public class MoveLogger {
 	
 	private int fileNumber;
 	
+	public String getAlgo() {return algo;}
+	
 	
 	public MoveLogger(int fileNumber) {
 		//start from zero

@@ -18,12 +18,12 @@ public class MakeBoard {
 	}
 
 	//TODO add level scaling
-	public void makeboard(int quantity, int level) {
+	public int makeboard(int quantity, int level) {
 
 		int batch = 0;
 		//Get Batch #
 		try {
-			Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
+			Scanner scanner = new Scanner(new File("genboards/.boardconfig"));
 
 			batch = Integer.parseInt(scanner.nextLine());
 
@@ -34,7 +34,7 @@ public class MakeBoard {
 
 			//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 			try {
-				FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
+				FileWriter myWriter = new FileWriter("genboards/.boardconfig");
 
 				String defaultin = "0\n0";
 
@@ -45,7 +45,7 @@ public class MakeBoard {
 
 				System.out.println(".boardconfig not found - created new boardconfig");
 
-				Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
+				Scanner scanner = new Scanner(new File("genboards/.boardconfig"));
 
 				batch = Integer.parseInt(scanner.nextLine());
 
@@ -145,7 +145,7 @@ public class MakeBoard {
 
 			batch++;
 
-			FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
+			FileWriter myWriter = new FileWriter("genboards/.boardconfig");
 
 			myWriter.write(Integer.toString(batch));
 
@@ -161,7 +161,7 @@ public class MakeBoard {
 
 
 
-		return;
+		return batch;
 	}
 
 	private void writefile(int[][] board, int batch){
@@ -183,7 +183,7 @@ public class MakeBoard {
 
 		//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 		try {
-			String destination = "support_src/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
+			String destination = "../support_src/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
 			FileWriter myWriter = new FileWriter(destination);
 
 
@@ -210,7 +210,7 @@ public class MakeBoard {
 
 		MakeBoard m = new MakeBoard();
 		//quantity,level
-		m.makeboard(1, 0);
+		m.makeboard(10, 0);
 
 	}
 

@@ -615,11 +615,11 @@ public class Main extends JFrame
 		boolean gameover = false;
 		for(int i=0;i<knownBoard.length;i++) {
 			for(int j=0;j<knownBoard.length;j++) {
+				ticker.tick();
 
 				if(knownBoard[i][j] == 0) {
 					gameover = true;
 					alldone = false;
-					ticker.tick();
 					break;
 					
 				}
@@ -880,10 +880,15 @@ public class Main extends JFrame
 		int tempInt;
 		double accumulated[][][];
 		accumulated=new double[3][SIZE][SIZE];
-		for(int i=0;i<3;i++)
-			for(int j=0;j<SIZE;j++)
-				for(int k=0;k<SIZE;k++)
+		for(int i=0;i<3;i++) {
+			for(int j=0;j<SIZE;j++) {
+				for(int k=0;k<SIZE;k++) {
 					accumulated[i][j][k]=0;
+					ticker.tick();
+				}
+			}
+		}
+		
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
 			add=true;
@@ -896,11 +901,11 @@ public class Main extends JFrame
 					//old
 					//if(!showValues[i][j].getText().equals(""))
 					//using knownBoard now
+					ticker.tick();
 					if (!(knownBoard[i][j] == COVERED))
 					{
 						//old
 						//tempInt=Integer.parseInt(showValues[i][j].getText());
-						ticker.tick();
 						//updated to take in from known board
 						tempInt=knownBoard[i][j];
 						if(values[i][j]!=tempInt)
@@ -948,7 +953,6 @@ public class Main extends JFrame
 				accumulated[0][i][j]=Math.round(accumulated[0][i][j]/alpha*100)/100.0;
 				accumulated[1][i][j]=Math.round(accumulated[1][i][j]/alpha*100)/100.0;
 				accumulated[2][i][j]=Math.round(accumulated[2][i][j]/alpha*100)/100.0;
-				ticker.tick();
 				if(accumulated[0][i][j]>maxvoltorb&&showValues[i][j].getText().equals(""))
 					maxvoltorb=accumulated[0][i][j];
 				if(accumulated[2][i][j]>maxscore&&showValues[i][j].getText().equals(""))
@@ -967,10 +971,12 @@ public class Main extends JFrame
 					probabilities[i][j].setForeground(Color.blue);
 				else
 					probabilities[i][j].setForeground(Color.black);
+				
 				probabilities[i][j].setText("<"+accumulated[0][i][j]+" , "+accumulated[1][i][j]+" , "+accumulated[2][i][j]+">\t");
 				currentVProbabilities[i][j] = accumulated[0][i][j];
 				currentOProbabilities[i][j] = accumulated[1][i][j];
 				currentSProbabilities[i][j] = accumulated[2][i][j];
+				
 				ticker.tick();
 			}
 		}
@@ -1056,6 +1062,8 @@ public class Main extends JFrame
 				public boolean accept(File parentFile) 
 				{ 
 					//return true;
+
+					ticker.tick();
 
 					//for batch #, could do something like
 					return parentFile.getName().contains("-"+(totalSims)+"-");
@@ -1354,16 +1362,6 @@ public class Main extends JFrame
 			max4=5-vrows[4];
 		
 		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-		ticker.tick();
-
-
 
 		//new code
 
@@ -1387,7 +1385,9 @@ public class Main extends JFrame
 					generate(firstouter,vrows[0],first,place);
 					counter=0;
 					ticker.tick();
-					for(int i=0;i<5;i++)
+					for(int i=0;i<5;i++) {
+						ticker.tick();
+
 						if(nextValue[0][i]!=0)
 						{
 							if(place[counter])
@@ -1396,6 +1396,7 @@ public class Main extends JFrame
 								nextValue[0][i]=-1;
 							counter++;
 						}
+					}
 					ticker.tick();
 					for(int secondouter=min1;secondouter<=max1;secondouter++)
 					{
@@ -1403,7 +1404,11 @@ public class Main extends JFrame
 						{
 							generate(secondouter,vrows[1],second,place);
 							counter=0;
-							for(int i=0;i<5;i++)
+							ticker.tick();
+
+							for(int i=0;i<5;i++) {
+								ticker.tick();
+						
 								if(nextValue[1][i]!=0)
 								{
 									if(place[counter])
@@ -1412,7 +1417,7 @@ public class Main extends JFrame
 										nextValue[1][i]=-1;
 									counter++;
 								}
-							ticker.tick();
+							}
 							for(int thirdouter=min2;thirdouter<=max2;thirdouter++)
 							{
 								for(int third=0;third<getNumCombinations(thirdouter,vrows[2]);third++)
@@ -1420,7 +1425,9 @@ public class Main extends JFrame
 									generate(thirdouter,vrows[2],third,place);
 									counter=0;
 									ticker.tick();
-									for(int i=0;i<5;i++)
+									for(int i=0;i<5;i++) {
+										ticker.tick();
+
 										if(nextValue[2][i]!=0)
 										{
 											if(place[counter])
@@ -1430,6 +1437,7 @@ public class Main extends JFrame
 											counter++;
 											ticker.tick();
 										}
+									}
 									for(int fourthouter=min3;fourthouter<=max3;fourthouter++)
 									{
 										for(int fourth=0;fourth<getNumCombinations(fourthouter,vrows[3]);fourth++)
@@ -1437,7 +1445,9 @@ public class Main extends JFrame
 											generate(fourthouter,vrows[3],fourth,place);
 											counter=0;
 											ticker.tick();
-											for(int i=0;i<5;i++)
+											for(int i=0;i<5;i++) {
+												ticker.tick();
+
 												if(nextValue[3][i]!=0)
 												{
 													if(place[counter])
@@ -1445,15 +1455,18 @@ public class Main extends JFrame
 													else
 														nextValue[3][i]=-1;
 													counter++;
-													ticker.tick();
 												}
+											}
 											for(int fifthouter=min4;fifthouter<=max4;fifthouter++)
 											{
 												for(int fifth=0;fifth<getNumCombinations(fifthouter,vrows[4]);fifth++)
 												{
 													generate(fifthouter,vrows[4],fifth,place);
 													counter=0;
-													for(int i=0;i<5;i++)
+													for(int i=0;i<5;i++) {
+														
+														ticker.tick();
+
 														if(nextValue[4][i]!=0)
 														{
 															if(place[counter])
@@ -1461,9 +1474,8 @@ public class Main extends JFrame
 															else
 																nextValue[4][i]=-1;
 															counter++;
-															ticker.tick();
 														}
-													ticker.tick();
+													}
 													if(testCols(nextValue))
 													{
 														numberOfStates++;
@@ -1518,8 +1530,10 @@ public class Main extends JFrame
 			numCom[i]=0; ticker.tick();
 		while(numberOfStates>0)
 		{
-			for(int i=0;i<5;i++)
+			for(int i=0;i<5;i++) {
 				numCom[i]=0;
+				ticker.tick();
+			}
 			values=states.pop();
 			changeToValues(values,numCom);
 			num0=getNumberOnOff(numCom[0]);
@@ -1535,6 +1549,8 @@ public class Main extends JFrame
 				count=0;
 				for(int i=0;i<5;i++)
 				{
+					ticker.tick();
+
 					if(values[0][i]==2||values[0][i]==3)
 					{
 						if(place[count]==true)
@@ -1563,6 +1579,8 @@ public class Main extends JFrame
 				{
 					getBinaryPlacement(num1,second,place);
 					//make placement
+					ticker.tick();
+
 					count=0;
 					for(int i=0;i<5;i++)
 					{
@@ -1618,6 +1636,8 @@ public class Main extends JFrame
 						{
 							getBinaryPlacement(num3,fourth,place);
 							//make placement
+							ticker.tick();
+
 							count=0;
 							for(int i=0;i<5;i++)
 							{
@@ -1645,6 +1665,8 @@ public class Main extends JFrame
 							{
 								getBinaryPlacement(num4,fifth,place);
 								//make placement
+								ticker.tick();
+
 								count=0;
 								for(int i=0;i<5;i++)
 								{
@@ -1788,6 +1810,8 @@ public class Main extends JFrame
 		for(int i=0;i<5;i++)
 		{	
 			maxrows+=values[i];
+			ticker.tick();
+
 		}
 		if(maxrows>rows[num])
 			return true;
@@ -1806,6 +1830,8 @@ public class Main extends JFrame
 		for(int i=0;i<5;i++)
 		{	
 			maxrows+=values[i];
+			ticker.tick();
+
 		}
 		if(maxrows==rows[num])
 			return true;
@@ -2001,6 +2027,10 @@ public class Main extends JFrame
 			}
 			if(count!=vcolumns[i])
 				return false;
+			
+			
+			ticker.tick();
+
 		}
 
 		return true;
@@ -2147,6 +2177,8 @@ public class Main extends JFrame
 	 */
 	public void setPlaced(boolean b0,boolean b1,boolean b2,boolean b3,boolean b4,boolean place[])
 	{
+		ticker.tick();
+
 		place[0]=b0;
 		place[1]=b1;
 		place[2]=b2;
@@ -2745,7 +2777,9 @@ public class Main extends JFrame
 	/** Factorial method to call in ncr,
 	gotten from https://www.geeksforgeeks.org/java-program-for-factorial-of-a-number/
 	 */
-	static int factorial(int n){ 
+	int factorial(int n){ 
+		ticker.tick();
+
 		if (n == 0) 
 			return 1; 
 		
@@ -2757,7 +2791,7 @@ public class Main extends JFrame
 	@param k integer k
 	@return n choose k
 	 */
-	static int ncr(int n, int k){
+	int ncr(int n, int k){
 		int num = factorial(n);
 		//ticker.tick();
 		int denom = (factorial(k))*(factorial(n-k));
@@ -2779,16 +2813,21 @@ public class Main extends JFrame
 				generate(outertemps[iterator],vrows[iterator],comboCount,place);
 				int counter=0;
 
-				for(int i=0;i<SIZE;i++)
+				for(int i=0;i<SIZE;i++) {
+					ticker.tick();
+
 					if(nextValue[iterator][i]!=0)
 					{
 						ticker.tick();
 						if(place[counter])
 							nextValue[iterator][i]=5; //5 is a magic num?
 						else
-							nextValue[iterator][i]=-1; //-1 as well
+							nextValue[iterator][i]=-1;
 						counter++;
 					}
+				}
+
+				ticker.tick();
 
 				if (iterator == SIZE-1){
 					ticker.tick();

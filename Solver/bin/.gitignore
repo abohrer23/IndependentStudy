@@ -1,8 +1,3 @@
-/run.sh
-/stats-minrisk-vs-norisk.csv
-/stats-minrisk-vs-norisk.xlsx
-/boards/
-/cse131/
 /Algorithm.class
 /Bogoflip.class
 /CutoffN.class
@@ -16,4 +11,12 @@
 /ScoreFirst.class
 /StdIn.class
 /Strategy.class
+/VoltorbTimer.class
+/.classpath
+/.gitignore
+/.project
+/boards/
+/cse131/
 /genboards/
+/timing.csv
+/timing/

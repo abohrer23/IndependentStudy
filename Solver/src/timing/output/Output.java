@@ -1,16 +1,20 @@
 package timing.output;
 
+/*
+ * commented out the things giving errors
+ */
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import com.csvreader.CsvWriter;
+//import com.csvreader.CsvWriter;
 
 import timing.utils.SizeAndLong;
 
 public class Output {
 
-	private CsvWriter w;
+//	private CsvWriter w;
 
 	public Output(String exper, String file) {
 		this(exper,file, false);
@@ -34,10 +38,10 @@ public class Output {
 			String[] parts = file.split("\\.(?=[^\\.]+$)");
 			int digit = findDigit("outputs/"+parts[0], parts[1]);
 			FileWriter fw = new FileWriter("outputs/" + parts[0]+digit+"."+parts[1], append);
-			this.w  = new CsvWriter(fw, ',');
-			w.write("n");
-			w.write(exper);
-			w.endRecord();
+		//	this.w  = new CsvWriter(fw, ',');
+//			w.write("n");
+//			w.write(exper);
+//			w.endRecord();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,10 +63,10 @@ public class Output {
 	public void writeSizeValue(int size, long value) {
 		try {
 			// System.out.println("writing " + size + " " + value);
-			w.write("" + size);
-			w.write("" + value);
-			w.endRecord();
-			w.flush();
+//			w.write("" + size);
+//			w.write("" + value);
+//			w.endRecord();
+//			w.flush();
 		} catch (Throwable t) {
 			throw new Error("oops");
 		}
@@ -70,7 +74,7 @@ public class Output {
 	}
 
 	public void close() {
-		w.close();
+		//w.close();
 	}
 
 }

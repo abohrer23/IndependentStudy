@@ -79,52 +79,54 @@ public class MoveLogger {
 	}
 
 	
-	/** TODO implement
-	 * @return A string formatted in a text-based style for a file to log actions
+	/** 	 
+	 * * @return A string formatted in a text-based style for a file to log actions
+	 * Uses StringBuilder for performance improvements with high iterations
 	 */
 	public String logprint() {
-		String output = "";
+		StringBuilder output = new StringBuilder() ;
 		
-		output += "Exit status: ";
-		output += exitStatus; 
-		output += " Turn counter: ";
-		output += turnCounter;
-		output += " Algorithm: ";
-		output += algo;
-		output += "\n";
+		output.append("Exit status: ");
+		output.append(exitStatus); 
+		output.append(" Turn counter: ");
+		output.append(turnCounter);
+		output.append(" Algorithm: ");
+		output.append(algo);
+		output.append("\n");
 		
-		output += "Flipped tiles: ";
-		output += tileSequence;
-		output += "\n";
+		output.append("Flipped tiles: ");
+		output.append(tileSequence);
+		output.append("\n");
 		
-		output += "Board States: ";
-		output += boardStates;
-		output += "\n";
-		return output;
+		output.append("Board States: ");
+		output.append(boardStates);
+		output.append("\n");
+		return output.toString();
 	}
 	
 	/**
 	 * 
 	 * @return A string formatted for a Comma-Separated-Value file
+	 * Uses StringBuilder for performance improvements with high iterations
 	 * 
 	 */
 	public String csvprint() {
-		String csv = "";
+		StringBuilder csv = new StringBuilder();
 		
-		csv += exitStatus; 
-		csv += ", ";
-		csv += turnCounter;
-		csv += ", ";
-		csv += algo;
-		csv += "\n";
+		csv.append(exitStatus); 
+		csv.append(", ");
+		csv.append(turnCounter);
+		csv.append(", ");
+		csv.append(algo);
+		csv.append("\n");
 		
-		csv += csvLinkedListInt(tileSequence);
-		csv += "\n";
+		csv.append(csvLinkedListInt(tileSequence));
+		csv.append("\n");
 		
-		csv += csvLinkedListStr(boardStates);
-		csv += "\n";
+		csv.append(csvLinkedListStr(boardStates));
+		csv.append("\n");
 		
-		return csv;
+		return csv.toString();
 	}
 	
 	/**
@@ -169,13 +171,13 @@ public class MoveLogger {
 	 * @return String with Integers separated by commas
 	 */
 	private String csvLinkedListInt(LinkedList<Integer> list) {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		
 		for (Integer i : list) {
-			s += i;
-			s += ", ";
+			s.append(i);
+			s.append(", ");
 		}
-		return s;
+		return s.toString();
 	}
 	
 	/**
@@ -184,7 +186,7 @@ public class MoveLogger {
 	 * @return String with given Strings separated by commas and new lines taken out
 	 */
 	private String csvLinkedListStr(LinkedList<String> list) {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		
 		for (String i : list) {
 			i = i.replace("\n", "\t"); //TODO 
@@ -193,11 +195,11 @@ public class MoveLogger {
 			 * one cell?
 			 * */
 			
-			s += i;
-			s += ", ";
+			s.append(i);
+			s.append(", ");
 		}
 		
-		return s;
+		return s.toString();
 	}
 
 	/**
@@ -206,18 +208,18 @@ public class MoveLogger {
 	* @return a string formatted with brief quantitative sumnmaries of the game for quick and dirty analysis
 	**/
 	public String csvSummaryPrint() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 
-		s += this.algo + ",";
-		s += this.turnCounter + ",";
-		s += this.exitStatus + ",";
-		s += this.ones + ",";
-		s += this.twos + ",";
-		s += this.threes + ",";
+		s.append(this.algo + ",");
+		s.append(this.turnCounter + ",");
+		s.append(this.exitStatus + ",");
+		s.append(this.ones + ",");
+		s.append(this.twos + ",");
+		s.append(this.threes + ",");
 
 
 		
-		return s;
+		return s.toString();
 	}
 
 

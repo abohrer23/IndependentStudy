@@ -24,7 +24,7 @@ public class MakeBoard {
 		int batch = 0;
 		//Get Batch #
 		try {
-			Scanner scanner = new Scanner(new File("genboards/.boardconfig"));
+			Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
 
 			batch = Integer.parseInt(scanner.nextLine());
 
@@ -35,7 +35,7 @@ public class MakeBoard {
 
 			//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 			try {
-				FileWriter myWriter = new FileWriter("genboards/.boardconfig");
+				FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
 
 				String defaultin = "0\n0";
 
@@ -46,7 +46,7 @@ public class MakeBoard {
 
 				System.out.println(".boardconfig not found - created new boardconfig");
 
-				Scanner scanner = new Scanner(new File("genboards/.boardconfig"));
+				Scanner scanner = new Scanner(new File("src/genboards/.boardconfig"));
 
 				batch = Integer.parseInt(scanner.nextLine());
 
@@ -168,7 +168,7 @@ public class MakeBoard {
 
 			batch++;
 
-			FileWriter myWriter = new FileWriter("genboards/.boardconfig");
+			FileWriter myWriter = new FileWriter("src/genboards/.boardconfig");
 
 			myWriter.write(Integer.toString(batch));
 
@@ -206,7 +206,7 @@ public class MakeBoard {
 
 		//File I/O code obtained from: https://www.w3schools.com/java/java_files_create.asp
 		try {
-			String destination = "../support_src/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
+			String destination = "support_src/boards/resources/gennedboard-" + batch + "-" + this.sample + " .txt";
 			FileWriter myWriter = new FileWriter(destination);
 
 

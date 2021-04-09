@@ -11,6 +11,7 @@ public class MakeBoard {
 
 
 	private int sample;
+	private int size;
 
 	//Default constructor 
 	public MakeBoard() {
@@ -18,8 +19,8 @@ public class MakeBoard {
 	}
 
 	//TODO add level scaling
-	public int makeboard(int quantity, int level) {
-
+	public int makeboard(int quantity, int level, int size) {
+		this.size = size;
 		int batch = 0;
 		//Get Batch #
 		try {
@@ -67,15 +68,37 @@ public class MakeBoard {
 		//Index 1: Options
 		//Index 2: 0=Voltorbs, 1=2s, 2=3s
 
-		int[][] masteralloc  = { {6, 3, 1} , {6, 0, 3} , {6, 5, 0}, {6, 2, 2}, {6, 4, 1}};
+		int[][][] masteralloc  = { {{6, 3, 1} , {6, 0, 3} , {6, 5, 0}, {6, 2, 2}, {6, 4, 1}}, {{6 , 1 , 3} , 
+		{6 , 3 , 0} , {6 , 0 , 5} , {6 , 2 , 2} , {6 , 1 , 4}},{{7 , 3 , 1} , {7 , 0 , 6} , {7 , 2 , 3} , {7 , 4 , 0} , 
+		{7 , 1 , 5}},{{8 , 3 , 2} , {8 , 0 , 7} , {8 , 2 , 4} , {8 , 4 , 1} , {8 , 1 , 6}},{{8 , 3 , 3} , {8 , 5 , 0} , 
+		{10 , 0 , 8} , {10 , 2 , 5} , {10 , 4 , 2}},{{10 , 1 , 7} , {10 , 3 , 4} , {10 , 5 , 1} , {10 , 0 , 9} , {10 , 2 , 6}},
+		{{10 , 4 , 3} , {10 , 6 , 0} , {10 , 1 , 8} , {10 , 3 , 5} , {10 , 5 , 2}},{{10 , 2 , 7} , {10 , 4 , 4} , {13 , 6 , 1} , 
+		{13 , 1 , 9} , {10 , 3 , 6}},{{10 , 7 , 0} , {10 , 2 , 8} , {10 , 4 , 5} , {10 , 6 , 2} , {10 , 3 , 7}} };
 
 		//run for the number requested
 		for(int ii=0;ii<quantity;ii++) {
-			int[] fillinfo = masteralloc[(int)Math.floor(Math.random()*masteralloc.length)];
+			
+			
+			
+			//New fillinfo to scale
+			
+			//int [] raw = masteralloc[(int)Math.floor(Math.random()*masteralloc.length)];
+			int [] raw = masteralloc[level][(int)Math.floor(Math.random()*masteralloc[level].length)];
+			
+
+			int[] fillinfo = new int[3];
+
+			
+			for(int iii=0;iii<raw.length;iii++) {
+				
+				fillinfo[iii] = (int)((raw[iii]/25.0)*size*size);
+				
+			}
+			
+			
 
 
-
-			int[][] board = new int[5][5];
+			int[][] board = new int[size][size];
 
 			for(int i=0;i<board.length;i++){
 				Arrays.fill(board[i], -1);
@@ -88,8 +111,8 @@ public class MakeBoard {
 			for(int i=0;i<fillinfo[0];i++){
 				int proposed[] = {-1, -1};
 				do {
-					proposed[0] = (int)(Math.random()*5.0);
-					proposed[1] = (int)(Math.random()*5.0);
+					proposed[0] = (int)(Math.random()* ( (double)size ));
+					proposed[1] = (int)(Math.random()* ( (double)size ) );
 
 				} while(board[proposed[0]][proposed[1]] != -1);
 
@@ -101,8 +124,8 @@ public class MakeBoard {
 			for(int i=0;i<fillinfo[1];i++){
 				int proposed[] = {-1, -1};
 				do {
-					proposed[0] = (int)(Math.random()*5.0);
-					proposed[1] = (int)(Math.random()*5.0);
+					proposed[0] = (int)(Math.random()* ( (double)size ));
+					proposed[1] = (int)(Math.random()* ( (double)size ));
 
 				} while(board[proposed[0]][proposed[1]] != -1);
 
@@ -113,8 +136,8 @@ public class MakeBoard {
 			for(int i=0;i<fillinfo[2];i++){
 				int proposed[] = {-1, -1};
 				do {
-					proposed[0] = (int)(Math.random()*5.0);
-					proposed[1] = (int)(Math.random()*5.0);
+					proposed[0] = (int)(Math.random()* ( (double)size ));
+					proposed[1] = (int)(Math.random()* ( (double)size ));
 
 				} while(board[proposed[0]][proposed[1]] != -1);
 
@@ -171,7 +194,7 @@ public class MakeBoard {
 		//Boardconfig not found - Make it
 
 
-		String content = "5\n";
+		String content = this.size + "\n";
 
 		//concat board entries onto string
 		for(int i=0;i<board.length;i++){
@@ -209,8 +232,8 @@ public class MakeBoard {
 		// TODO Auto-generated method stub
 
 		MakeBoard m = new MakeBoard();
-		//quantity,level
-		m.makeboard(10, 0);
+		//quantity,level, size
+		m.makeboard(5, 6, 100);
 
 	}
 

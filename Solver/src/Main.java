@@ -16,14 +16,6 @@
  */
 
 
-/* TODO
- *
- * - check to see if game win (are there any 2s/3s still uncovered?)
- * - implement coin counter
- * 
- * */
-
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -107,9 +99,10 @@ public class Main extends JFrame
 	double[][] currentOProbabilities;
 
 	final static int COVERED = -1; //special value for still covered spots on the board
-	static int SIZE;
+	int SIZE;
 	int countforV;
 	int possibleStatesCount;
+	int numberOfFinalStates;
 
 	public static void main(String args[]) 
 	{
@@ -188,14 +181,14 @@ public class Main extends JFrame
 
 
 
-		values=new int[5][5];
-		nextValue=new int[5][5];
+		//values=new int[5][5];
+		//nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
-		columns=new int[5];
-		vcolumns=new int[5];
-		rows=new int[5];
-		vrows=new int[5];
-		accumulate=new double[5][5];
+//		columns=new int[5];
+//		vcolumns=new int[5];
+//		rows=new int[5];
+//		vrows=new int[5];
+//		accumulate=new double[5][5];
 
 		globalstrat = "";
 		//globalfilename = "";
@@ -203,28 +196,28 @@ public class Main extends JFrame
 		runningGlobal = false;
 
 		//2-D Answer Board
-		answer = new int[5][5];
+		//answer = new int[5][5];
 
 		//current known (flipped over) board
-		knownBoard = new int[5][5];
-		for (int i = 0; i < 5; ++i) {
-			for (int j = 0; j < 5; ++j){
-				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
-			}
-		}
+//		knownBoard = new int[5][5];
+//		for (int i = 0; i < 5; ++i) {
+//			for (int j = 0; j < 5; ++j){
+//				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
+//			}
+//		}
 
-		//current voltorb probabilities
-		currentVProbabilities = new double[5][5];
-		//current scoring probabilites
-		currentSProbabilities = new double[5][5];
-		//current one-tile probabilites
-		currentOProbabilities = new double[5][5];
+//		//current voltorb probabilities
+//		currentVProbabilities = new double[5][5];
+//		//current scoring probabilites
+//		currentSProbabilities = new double[5][5];
+//		//current one-tile probabilites
+//		currentOProbabilities = new double[5][5];
 
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
 		Vcols=new JTextField[5];
 		Vrows=new JTextField[5];
-		place=new boolean[5];
+//		place=new boolean[5];
 		probabilities=new JLabel[5][5];
 
 		for(int i=0;i<SIZE;i++)
@@ -242,16 +235,16 @@ public class Main extends JFrame
 			Vcols[i].setBounds((i*40)+50, 160, 20, 20);
 			Rows[i].setBounds(230, (i*20)+60, 20, 20);
 			Vrows[i].setBounds(250, (i*20)+60, 20, 20);
-			columns[i]=-1;
-			vcolumns[i]=-1;
-			rows[i]=-1;
-			vrows[i]=-1;
+//			columns[i]=-1;
+//			vcolumns[i]=-1;
+//			rows[i]=-1;
+//			vrows[i]=-1;
 			//Setup for loop to initalize 2-D arrays inside existing for loop. Lane, you could possilby use this for loop to add scanned characters in
 			for(int j=0;j<SIZE;j++)
 			{
-				accumulate[i][j]=0;
-				nextValue[i][j]=0;
-				values[i][j]=0;
+//				accumulate[i][j]=0;
+//				nextValue[i][j]=0;
+//				values[i][j]=0;
 				showValues[i][j]=new JTextField();
 				add(showValues[i][j]);
 				showValues[i][j].setBounds((j*40)+30,(i*20)+60, 40, 20);
@@ -351,7 +344,6 @@ public class Main extends JFrame
 			myWriter.close();
 		} catch (IOException e) {
 			System.out.println("File io error");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -361,8 +353,7 @@ public class Main extends JFrame
 	}
 
 	public String globalconfig(String strategy) {
-		// TODO Auto-generated method stub
-		
+				
 		Algorithm a;
 		
 		if(strategy.contains("-global")) {
@@ -535,7 +526,6 @@ public class Main extends JFrame
 			myWriter.close();
 		} catch (IOException e) {
 			System.out.println("File io error");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -1022,6 +1012,54 @@ public class Main extends JFrame
 		//Recursion bad
 		return;
 	}
+	
+	/**
+	 * do definitions of arrays etc that depend on size
+	 */
+	private void createArrays() {
+		values=new int[SIZE][SIZE];
+		nextValue=new int[SIZE][SIZE];
+		columns=new int[SIZE];
+		vcolumns=new int[SIZE];
+		rows=new int[SIZE];
+		vrows=new int[SIZE];
+		accumulate=new double[SIZE][SIZE];
+
+		//2-D Answer Board
+		answer = new int[SIZE][SIZE];
+
+		knownBoard = new int[SIZE][SIZE];
+		for (int i = 0; i < SIZE; ++i) {
+			for (int j = 0; j < SIZE; ++j){
+				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
+			}
+		}
+
+		//current voltorb probabilities
+		currentVProbabilities = new double[SIZE][SIZE];
+		//current scoring probabilites
+		currentSProbabilities = new double[SIZE][SIZE];
+		//current one-tile probabilites
+		currentOProbabilities = new double[SIZE][SIZE];
+
+		place=new boolean[SIZE];
+
+		for (int i = 0;  i < SIZE; ++i){
+			columns[i]=-1;
+			vcolumns[i]=-1;
+			rows[i]=-1;
+			vrows[i]=-1;
+			for (int j = 0; j < SIZE; j++){
+				accumulate[i][j]=0;
+				nextValue[i][j]=0;
+				values[i][j]=0;
+			}
+		}
+
+	}
+	
+	
+	
 	/**
 	 *  
 	 * 
@@ -1098,7 +1136,8 @@ public class Main extends JFrame
 
 
 		SIZE = in.nextInt(); //not used yet but will let us do nxn
-
+		
+		createArrays();
 
 		for (int i = 0; i < SIZE; ++i) {
 			for (int j = 0; j < SIZE; ++j) {
@@ -1205,82 +1244,12 @@ public class Main extends JFrame
 			findVoltorbPlacements(numCombinations, iterator + 1);
 			
 		}
-		//OLD BELOW
-			/*
-		
-			for(int second=0;second<numCombinations[1];second++)
-			{
-				createPlacement(vrows[1],second,place);
-				ticker.tick();
-				for(int i=0;i<SIZE;i++)
-				{
-					if(place[i]==true)
-						values[1][i]=0;
-					else
-						values[1][i]=-1;
-
-					ticker.tick();
-				}
-				for(int third=0;third<numCombinations[2];third++)
-				{
-					createPlacement(vrows[2],third,place);
-					ticker.tick();
-					for(int i=0;i<SIZE;i++)
-					{
-						if(place[i]==true)
-							values[2][i]=0;
-						else
-							values[2][i]=-1;
-
-						ticker.tick();
-					}
-					for(int fourth=0;fourth<numCombinations[3];fourth++)
-					{
-						createPlacement(vrows[3],fourth,place);
-						ticker.tick();
-						for(int i=0;i<SIZE;i++)
-						{
-							if(place[i]==true)
-								values[3][i]=0;
-							else
-								values[3][i]=-1;
-
-							ticker.tick();
-						}
-						for(int fifth=0;fifth<numCombinations[4];fifth++)
-						{
-							createPlacement(vrows[4],fifth,place);
-							ticker.tick();
-							for(int i=0;i<5;i++)
-							{
-								if(place[i]==true)
-									values[4][i]=0;
-								else
-									values[4][i]=-1;
-
-								ticker.tick();
-							}
-							//code for checking
-							if(testVCols(values))
-							{
-								tempValues=new int[5][5];
-								incrementValues(values);
-								copyMatrix(values,tempValues);
-								states.add(tempValues);
-								countforV++;
-
-								ticker.tick();
-								ticker.tick();
-								ticker.tick();
-							}
-						}
-					}
-				}
-			}
-		}*/
 	}
 
 	//ooooh recursion use helper method for things that happen once 
+	/**
+	 * recursive method for finding possible states, calls its helper
+	 */
 	private void findAllPossibleStates(){
 		
 		possibleStatesCount = 0;
@@ -1309,6 +1278,13 @@ public class Main extends JFrame
 		}
 	}
 	
+	/**
+	 * Recursive helper for findAllPossibleStates
+	 * @param max array of max vals
+	 * @param min array of min vals
+	 * @param nextValue array for nextValue
+	 * @param iterator recursive iterator
+	 */
 	private void possibleStatesRecursive(int[] max, int[] min, int[][] nextValue, int iterator) {
 		
 		//base! case!
@@ -1326,7 +1302,6 @@ public class Main extends JFrame
 		}
 		
 		int counter;
-
 		ticker.tick();
 		for(int firstouter=min[iterator];firstouter<=max[iterator];firstouter++)
 		{
@@ -1343,111 +1318,277 @@ public class Main extends JFrame
 						if(place[counter])
 							nextValue[iterator][i]=5; //what does 5 mean??
 						else
-							nextValue[0][i]=-1;
+							nextValue[iterator][i]=-1;
 						counter++;
 					}
 
 				}
-				possibleStatesRecursive(max, min, nextValue, iterator+1); 
-
-				ticker.tick();
-					
 				//recurse
-				
+				possibleStatesRecursive(max, min, nextValue, iterator+1); 
+				ticker.tick();
 			}
 		}
 	}
 	
-	//saving this here
-	/*
-	 			for(int secondouter=min[1];secondouter<=max[1];secondouter++)
+	/**
+	 * Method called to figure out NumberOfFinalStates, will call a recursive helper
+	 */
+	private void computeFinalStates(){
+		int[] nums = new int[SIZE];
+
+		int numCom[] =new int[SIZE];
+		for(int i=0;i<SIZE;i++)
+			numCom[i]=0; ticker.tick();
+			
+		while(possibleStatesCount>0){
+			//prep work
+			for(int i=0;i<SIZE;i++) {
+				numCom[i]=0;
+				ticker.tick();
+			}
+			values=states.pop();
+			changeToValues(values,numCom);
+			for (int i = 0; i < SIZE; ++i) {
+				nums[i] = getNumberOnOff(numCom[i]);
+				ticker.tick();
+			}
+			
+			
+			//computeFinalStatesRecursive(nums, numCom,  0);
+			computeFinalStatesIterative(nums, numCom);
+
+			possibleStatesCount--;
+		}
+	}
+	
+	/**
+	 * Recursive helper for computeFinalStates
+	 * @param nums array created in computeFinalStates
+	 * @param numCom array created in computeFinalStates
+	 * @param iterator recursive counter, goes through size
+	 */
+	private void computeFinalStatesRecursive(int[] nums, int[] numCom, int iterator) {
+		if (iterator == SIZE) { //check after last row
+			if(testConstraints(values))
+			{
+				tempValues=new int[SIZE][SIZE];
+				copyMatrix(values,tempValues);
+				states.add(tempValues);
+				numberOfFinalStates++;
+			}
+			ticker.tick();
+			return;
+		}
+
+		for(int first=0;first<nums[iterator];first++)
+		{
+			getBinaryPlacement(nums[iterator],first,place);
+			//make placement
+			countforV=0;
+			for(int i=0;i<SIZE;i++)
+			{
+				ticker.tick();
+
+				if(values[iterator][i]==2||values[iterator][i]==3)
 				{
-					for(int second=0;second<getNumCombinations(secondouter,vrows[1]);second++)
+					if(place[countforV])
 					{
-						generate(secondouter,vrows[1],second,place);
-						counter=0;
+						values[iterator][i]=3;
+						ticker.tick();
+					}
+					else
+						values[iterator][i]=2;
+					countforV++;
+
+					ticker.tick();
+				}
+			}
+			boolean skip = false;
+			if(!isValid(values[iterator],iterator))
+			{
+				if(outOfBounds(values[iterator],iterator))
+					return;
+				else
+					skip = true;
+				
+				/* 
+				 	find a way to speed this up? used to be:
+					if(outOfBounds(x,x))
+						break;
+					else
+						continue;
+				*/
+			}
+
+			//recurse
+			if (!skip) {
+			computeFinalStatesRecursive(nums, numCom, iterator+1);
+			}
+		}
+
+	}
+	
+	private void computeFinalStatesIterative(int[] nums, int[] numCom){
+		for(int first=0;first<nums[0];first++)
+		{
+			getBinaryPlacement(nums[0],first,place);
+			//make placement
+			countforV=0;
+			for(int i=0;i<5;i++)
+			{
+				ticker.tick();
+
+				if(values[0][i]==2||values[0][i]==3)
+				{
+					if(place[countforV]==true)
+					{
+						values[0][i]=3;
+						ticker.tick();
+					}
+					else
+						values[0][i]=2;
+					countforV++;
+					
+					ticker.tick();
+				}
+			}
+			if(!isValid(values[0],0))
+			{
+				if(outOfBounds(values[0],0))
+					break;
+				else
+					continue;
+				
+				//ticker.tick();
+			}
+			//System.out.println("After Row 1");
+			for(int second=0;second<nums[1];second++)
+			{
+				getBinaryPlacement(nums[1],second,place);
+				//make placement
+				ticker.tick();
+
+				countforV=0;
+				for(int i=0;i<5;i++)
+				{
+					if(values[1][i]==2||values[1][i]==3)
+					{
+						if(place[countforV]==true)
+							values[1][i]=3;
+						else
+							values[1][i]=2;
+						countforV++;
+					}
+					ticker.tick();
+				}
+				if(!isValid(values[1],1))
+				{
+					if(outOfBounds(values[1],1))
+						break;
+					else
+						continue;
+					
+					//ticker.tick();
+				}
+				//System.out.println("After Row 2");
+				for(int third=0;third<nums[2];third++)
+				{
+					getBinaryPlacement(nums[2],third,place);
+					//make placement
+					countforV=0;
+					ticker.tick();
+					for(int i=0;i<5;i++)
+					{
+						if(values[2][i]==2||values[2][i]==3)
+						{
+							if(place[countforV]==true)
+								values[2][i]=3;
+							else
+								values[2][i]=2;
+							countforV++;
+						}
+						ticker.tick();
+					}
+					if(!isValid(values[2],2))
+					{
+						if(outOfBounds(values[2],2))
+							break;
+						else
+							continue;
+						
+						//ticker.tick();
+					}
+					//System.out.println("After Row 3");
+					for(int fourth=0;fourth<nums[3];fourth++)
+					{
+						getBinaryPlacement(nums[3],fourth,place);
+						//make placement
 						ticker.tick();
 
-						for(int i=0;i<5;i++) {
-							ticker.tick();
-					
-							if(nextValue[1][i]!=0)
-							{
-								if(place[counter])
-									nextValue[1][i]=5;
-								else
-									nextValue[1][i]=-1;
-								counter++;
-							}
-						}
-						for(int thirdouter=min[2];thirdouter<=max[2];thirdouter++)
+						countforV=0;
+						for(int i=0;i<5;i++)
 						{
-							for(int third=0;third<getNumCombinations(thirdouter,vrows[2]);third++)
+							if(values[3][i]==2||values[3][i]==3)
 							{
-								generate(thirdouter,vrows[2],third,place);
-								counter=0;
-								ticker.tick();
-								for(int i=0;i<5;i++) {
-									ticker.tick();
-
-									if(nextValue[2][i]!=0)
-									{
-										if(place[counter])
-											nextValue[2][i]=5;
-										else
-											nextValue[2][i]=-1;
-										counter++;
-										ticker.tick();
-									}
-								}
-								for(int fourthouter=min[3];fourthouter<=max[3];fourthouter++)
-								{
-									for(int fourth=0;fourth<getNumCombinations(fourthouter,vrows[3]);fourth++)
-									{
-										generate(fourthouter,vrows[3],fourth,place);
-										counter=0;
-										ticker.tick();
-										for(int i=0;i<5;i++) {
-											ticker.tick();
-
-											if(nextValue[3][i]!=0)
-											{
-												if(place[counter])
-													nextValue[3][i]=5;
-												else
-													nextValue[3][i]=-1;
-												counter++;
-											}
-										}
-										for(int fifthouter=min[4];fifthouter<=max[4];fifthouter++)
-										{
-											for(int fifth=0;fifth<getNumCombinations(fifthouter,vrows[4]);fifth++)
-											{
-												generate(fifthouter,vrows[4],fifth,place);
-												counter=0;
-												for(int i=0;i<5;i++) {
-													
-													ticker.tick();
-
-													if(nextValue[4][i]!=0)
-													{
-														if(place[counter])
-															nextValue[4][i]=5;
-														else
-															nextValue[4][i]=-1;
-														counter++;
-													}
-												}
-												
-											}
-										}	
-									}
-								}									
+								if(place[countforV]==true)
+									values[3][i]=3;
+								else
+									values[3][i]=2;
+								countforV++;
 							}
-						}	
+							ticker.tick();
+						}
+						if(!isValid(values[3],3))
+						{
+							if(outOfBounds(values[3],3))
+								break;
+							else
+								continue;
+							
+							//ticker.tick();
+						}
+						//System.out.println("After Row 4");
+						for(int fifth=0;fifth<nums[4];fifth++)
+						{
+							getBinaryPlacement(nums[4],fifth,place);
+							//make placement
+							ticker.tick();
+
+							countforV=0;
+							for(int i=0;i<5;i++)
+							{
+								if(values[4][i]==2||values[4][i]==3)
+								{
+									if(place[countforV]==true)
+										values[4][i]=3;
+									else
+										values[4][i]=2;
+									countforV++;
+								}
+								ticker.tick();
+							}
+							if(!isValid(values[4],4))
+							{
+								if(outOfBounds(values[4],4))
+									break;
+								else
+									continue;
+							}
+							//System.out.println("After Row 5");
+							if(testConstraints(values))
+							{
+								tempValues=new int[5][5];
+								copyMatrix(values,tempValues);
+								states.add(tempValues);
+								numberOfFinalStates++;
+							}
+							ticker.tick();
+						}
 					}
-				}		
-	 */
+				}
+			}
+		}
+	}
 
 	/**
 	 * 
@@ -1461,25 +1602,11 @@ public class Main extends JFrame
 			numCombinations[i] = ncr(SIZE, vrows[i]);
 			ticker.tick();
 
-			//genericized to an ncr call
-			/*
-			if(vrows[i]==0)
-				numCombinations[i]=1;
-			else if(vrows[i]==1)
-				numCombinations[i]=5;
-			else if(vrows[i]==2)
-				numCombinations[i]=10;
-			else if(vrows[i]==3)
-				numCombinations[i]=10;
-			else if(vrows[i]==4)
-				numCombinations[i]=5;
-			else if(vrows[i]==5)
-				numCombinations[i]=1;
-			 */
 		}
 		//determine possible placements of voltorbs////////////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////////
 
+		//new
 		findVoltorbPlacements(numCombinations, 0);
 		
 		///end of finding voltorbs////////////////////////////////////////////////////////////
@@ -1498,39 +1625,13 @@ public class Main extends JFrame
 		}
 		//start of finding all possible assignments///////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
-	//	int numberOfStates=0;
 		
 
-		/*
-		// Replaced by for loop above
-		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
-		min0=(rows[0]+vrows[0]-4)/2;
-		min1=(rows[1]+vrows[1]-4)/2;
-		min2=(rows[2]+vrows[2]-4)/2;
-		min3=(rows[3]+vrows[3]-4)/2;
-		min4=(rows[4]+vrows[4]-4)/2;
-		max0=(rows[0]+vrows[0]-5);
-		if(max0>(5-vrows[0]))
-			max0=5-vrows[0];
-		max1=(rows[1]+vrows[1]-5);
-		if(max1>(5-vrows[1]))
-			max1=5-vrows[1];
-		max2=(rows[2]+vrows[2]-5);
-		if(max2>(5-vrows[2]))
-			max2=5-vrows[2];
-		max3=(rows[3]+vrows[3]-5);
-		if(max3>(5-vrows[3]))
-			max3=5-vrows[3];
-		max4=(rows[4]+vrows[4]-5);
-		if(max4>(5-vrows[4]))
-			max4=5-vrows[4];
-		
-		*/
 		ticker.tick();
 
 		//new
-		findAllPossibleStates();
-
+		findAllPossibleStates();		
+		
 
 		System.out.println("New number of states  "+possibleStatesCount);
 		System.out.println("Probability of Scoring:");
@@ -1549,213 +1650,31 @@ public class Main extends JFrame
 
 		//////now to actually compute real states
 		////////////////////////////////////////////////////////////////////////////////////////////////
-		int numberOfFinalStates=0;
-		int num0;
-		int num1;
-		int num2;
-		int num3;
-		int num4;
-		int numCom[];
+		
+		numberOfFinalStates=0;
 
-		numCom=new int[5];
-		for(int i=0;i<5;i++)
-			numCom[i]=0; ticker.tick();
-		while(possibleStatesCount>0)
-		{
-			for(int i=0;i<5;i++) {
-				numCom[i]=0;
-				ticker.tick();
-			}
-			values=states.pop();
-			changeToValues(values,numCom);
-			num0=getNumberOnOff(numCom[0]);
-			num1=getNumberOnOff(numCom[1]);
-			num2=getNumberOnOff(numCom[2]);
-			num3=getNumberOnOff(numCom[3]);
-			num4=getNumberOnOff(numCom[4]);
-			ticker.tick();
-			for(int first=0;first<num0;first++)
-			{
-				getBinaryPlacement(num0,first,place);
-				//make placement
-				countforV=0;
-				for(int i=0;i<5;i++)
-				{
-					ticker.tick();
-
-					if(values[0][i]==2||values[0][i]==3)
-					{
-						if(place[countforV]==true)
-						{
-							values[0][i]=3;
-							ticker.tick();
-						}
-						else
-							values[0][i]=2;
-						countforV++;
-						
-						ticker.tick();
-					}
-				}
-				if(!isValid(values[0],0))
-				{
-					if(outOfBounds(values[0],0))
-						break;
-					else
-						continue;
-					
-					//ticker.tick();
-				}
-				//System.out.println("After Row 1");
-				for(int second=0;second<num1;second++)
-				{
-					getBinaryPlacement(num1,second,place);
-					//make placement
-					ticker.tick();
-
-					countforV=0;
-					for(int i=0;i<5;i++)
-					{
-						if(values[1][i]==2||values[1][i]==3)
-						{
-							if(place[countforV]==true)
-								values[1][i]=3;
-							else
-								values[1][i]=2;
-							countforV++;
-						}
-						ticker.tick();
-					}
-					if(!isValid(values[1],1))
-					{
-						if(outOfBounds(values[1],1))
-							break;
-						else
-							continue;
-						
-						//ticker.tick();
-					}
-					//System.out.println("After Row 2");
-					for(int third=0;third<num2;third++)
-					{
-						getBinaryPlacement(num2,third,place);
-						//make placement
-						countforV=0;
-						ticker.tick();
-						for(int i=0;i<5;i++)
-						{
-							if(values[2][i]==2||values[2][i]==3)
-							{
-								if(place[countforV]==true)
-									values[2][i]=3;
-								else
-									values[2][i]=2;
-								countforV++;
-							}
-							ticker.tick();
-						}
-						if(!isValid(values[2],2))
-						{
-							if(outOfBounds(values[2],2))
-								break;
-							else
-								continue;
-							
-							//ticker.tick();
-						}
-						//System.out.println("After Row 3");
-						for(int fourth=0;fourth<num3;fourth++)
-						{
-							getBinaryPlacement(num3,fourth,place);
-							//make placement
-							ticker.tick();
-
-							countforV=0;
-							for(int i=0;i<5;i++)
-							{
-								if(values[3][i]==2||values[3][i]==3)
-								{
-									if(place[countforV]==true)
-										values[3][i]=3;
-									else
-										values[3][i]=2;
-									countforV++;
-								}
-								ticker.tick();
-							}
-							if(!isValid(values[3],3))
-							{
-								if(outOfBounds(values[3],3))
-									break;
-								else
-									continue;
-								
-								//ticker.tick();
-							}
-							//System.out.println("After Row 4");
-							for(int fifth=0;fifth<num4;fifth++)
-							{
-								getBinaryPlacement(num4,fifth,place);
-								//make placement
-								ticker.tick();
-
-								countforV=0;
-								for(int i=0;i<5;i++)
-								{
-									if(values[4][i]==2||values[4][i]==3)
-									{
-										if(place[countforV]==true)
-											values[4][i]=3;
-										else
-											values[4][i]=2;
-										countforV++;
-									}
-									ticker.tick();
-								}
-								if(!isValid(values[4],4))
-								{
-									if(outOfBounds(values[4],4))
-										break;
-									else
-										continue;
-								}
-								//System.out.println("After Row 5");
-								if(testConstraints(values))
-								{
-									tempValues=new int[5][5];
-									copyMatrix(values,tempValues);
-									states.add(tempValues);
-									numberOfFinalStates++;
-								}
-								ticker.tick();
-							}
-						}
-					}
-				}
-			}
-
-			possibleStatesCount--;
-		}
-
+		//new
+		computeFinalStates();
+		//comebackhere
+		
 
 		System.out.println("Final States "+numberOfFinalStates);
 
 		//end of computations////now have a set of possible real states////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
 		//calculate the probabilities
-		double accumulated[][][];
-		accumulated=new double[3][5][5];
+		double accumulated[][][] = new double[3][SIZE][SIZE];
 		for(int i=0;i<3;i++)
-			for(int j=0;j<5;j++)
-				for(int k=0;k<5;k++)
+			for(int j=0;j<SIZE;j++)
+				for(int k=0;k<SIZE;k++)
 					accumulated[i][j][k]=0; ticker.tick();
 
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
 			values=states.get(k);
-			for(int i=0;i<5;i++)
+			for(int i=0;i<SIZE;i++)
 			{
-				for(int j=0;j<5;j++)
+				for(int j=0;j<SIZE;j++)
 				{
 					ticker.tick();
 					if(values[i][j]==0)
@@ -1768,9 +1687,9 @@ public class Main extends JFrame
 			}
 		}
 		double alpha;
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				ticker.tick();
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
@@ -1792,7 +1711,7 @@ public class Main extends JFrame
 	 * @param values
 	 * @return
 	 */
-	public boolean debugger(int values[])
+	public boolean debugger(int values[]) //wat
 	{
 		if(values[0]!=1)
 			return false;
@@ -1839,7 +1758,7 @@ public class Main extends JFrame
 	public boolean outOfBounds(int values[],int num)
 	{
 		int maxrows=0;
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{	
 			maxrows+=values[i];
 			ticker.tick();
@@ -1859,7 +1778,7 @@ public class Main extends JFrame
 	public boolean isValid(int values[],int num)
 	{
 		int maxrows=0;
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{	
 			maxrows+=values[i];
 			ticker.tick();
@@ -1869,6 +1788,7 @@ public class Main extends JFrame
 			return true;
 		return false;
 	}
+	//TODO why are there 3 loops
 	/**
 	 * @param values
 	 * @return
@@ -1895,6 +1815,8 @@ public class Main extends JFrame
 		}
 		return true;  
 	}
+	
+	//TODO
 	/**
 	 * @param values
 	 * @return
@@ -1922,10 +1844,33 @@ public class Main extends JFrame
 		max4=(columns[4]+vcolumns[4]-5);
 		if(max4>(5-vcolumns[4]))
 			max4=5-vcolumns[4];
-		int count2;
-		count2=0;
-		for(int j=0;j<5;j++)
-		{
+		
+//		int[] max = new int[SIZE];
+//		int[] min = new int[SIZE];
+//
+//		for (int i = 0; i < SIZE; ++i){
+//			min[i] = (columns[i]+vcolumns[i]-SIZE-1)/2;
+//			max[i] = (columns[i]+vcolumns[i]-SIZE);
+//			if(max[i]>(SIZE-vcolumns[i])){
+//				max[i]=SIZE-vcolumns[i];
+//			}
+//			ticker.tick();
+//		}
+
+		int count2 = 0;
+		
+//		for (int i = 0; i < SIZE; ++i){
+//			for(int j=0;j<SIZE;j++){
+//				if(values[j][i]==5)
+//					count2++;
+//				
+//				ticker.tick();
+//			}
+//			if(count2<min[i]||count2>max[i])
+//				return false;
+//		}
+//		
+		for(int j=0;j<SIZE;j++){
 			if(values[j][0]==5)
 				count2++;
 			
@@ -1974,39 +1919,11 @@ public class Main extends JFrame
 		}
 		if(count2<min4||count2>max4)
 			return false;
-		
+
 		ticker.tick();
 
 		return true;
 	}
-
-	/*
-		int[] max = new int[SIZE];
-		int[] min = new int[SIZE];
-
-		for (int i = 0; i < SIZE; ++i){
-			min[i] = (columns[i]+vcolumns[i]-SIZE-1)/2;
-			max[i] = (rows[i]+vrows[i]-SIZE);
-			if(max[i]>(SIZE-vcolumns[i])){
-				max[i]=SIZE-vcolumns[i];
-			}
-		}
-
-		for (int i = 0; i < SIZE; ++i) {
-			int count=0;
-			for(int j=0;j<SIZE;j++){
-				if(values[j][i]==5){
-					count++;
-				}
-			}
-			if(count<min[i]||count>max[i])
-				return false;
-			} 
-
-
-		return true;
-
-	}*/
 
 	/**
 	 * @param values
@@ -2067,15 +1984,25 @@ public class Main extends JFrame
 
 		return true;
 	}
+	//TODO
 	/**
 	 * @param numMines
 	 * @param whichOne
 	 * @param place
 	 */
-	public void createPlacement(int numMines,int whichOne,boolean place[])
-	{
-		if(numMines==0)
+	public void createPlacement(int numMines,int whichOne,boolean place[])	{
+		
+		//start out setting all to false
+//		for(int i = 0; i < place.length; i++) {
+//			place[i] = false;
+//		}
+		
+		if(numMines==0) {
 			setPlaced(false,false,false,false,false,place);
+		}
+		
+		//iterate over numMines?
+		
 		else if(numMines==1)
 		{
 			switch(whichOne)
@@ -2199,6 +2126,8 @@ public class Main extends JFrame
 		
 		ticker.tick();
 	}
+	
+	//TODO
 	/**
 	 * @param b0
 	 * @param b1
@@ -2210,7 +2139,7 @@ public class Main extends JFrame
 	public void setPlaced(boolean b0,boolean b1,boolean b2,boolean b3,boolean b4,boolean place[])
 	{
 		ticker.tick();
-
+		
 		place[0]=b0;
 		place[1]=b1;
 		place[2]=b2;
@@ -2223,9 +2152,9 @@ public class Main extends JFrame
 	 */
 	public void copyMatrix(int in[][],int out[][])
 	{
-		for(int i=0;i<5;i++)
+		for(int i=0;i<in.length;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<in[0].length;j++)
 			{
 				out[i][j]=in[i][j];
 				ticker.tick();
@@ -2241,6 +2170,8 @@ public class Main extends JFrame
 		ticker.tick();
 		return (int)Math.pow(2, num);
 	}
+	
+	//TODO
 	/**
 	 * @param num
 	 * @param curr
@@ -2458,6 +2389,8 @@ public class Main extends JFrame
 		}
 		ticker.tick();
 	}
+	
+	//TODO
 	/**
 	 * @param n
 	 * @param V
@@ -2747,6 +2680,8 @@ public class Main extends JFrame
 		ticker.tick();
 		ticker.tick();
 	}
+	
+	//TODO i think this is an ncr?
 	/**
 	 * @param n
 	 * @param v
@@ -2831,60 +2766,7 @@ public class Main extends JFrame
 		
 	}
 
-	/**
-	@param max array of max vals
-	@param min array of min vals
-	@param outertemps temporary iterators used in method
-	@param iterator keeps track of level of recursion
-	@param numberOfStates count of how many states have been found
-	 */
-	/*
-	int findPossibleAssignments(int[] max, int[] min, int[] outertemps, int iterator, int numberOfStates){		
 
-		for(outertemps[iterator]=min[iterator]; outertemps[iterator]<=max[iterator]; outertemps[iterator]++){
-			for(int comboCount = 0; comboCount<getNumCombinations(outertemps[iterator],vrows[iterator]); comboCount++){
-				generate(outertemps[iterator],vrows[iterator],comboCount,place);
-				int counter=0;
-
-				for(int i=0;i<SIZE;i++) {
-					ticker.tick();
-
-					if(nextValue[iterator][i]!=0)
-					{
-						ticker.tick();
-						if(place[counter])
-							nextValue[iterator][i]=5; //5 is a magic num?
-						else
-							nextValue[iterator][i]=-1;
-						counter++;
-					}
-				}
-
-				ticker.tick();
-
-				if (iterator == SIZE-1){
-					ticker.tick();
-					if(testCols(nextValue)){
-						possibleStatesCount++;
-						tempValues=new int[5][5];
-						copyMatrix(nextValue,tempValues);
-						incrementValues2(nextValue);
-						states.add(tempValues);
-					}
-					return possibleStatesCount;
-				}else{
-					ticker.tick();
-					//recurse 
-					possibleStatesCount = findPossibleAssignments(max, min, outertemps, ++iterator, numberOfStates);
-				}
-			}
-
-		}
-		return possibleStatesCount;
-
-
-	}
-*/
 }
 
 

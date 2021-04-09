@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import javax.swing.*;
-
+import genboards.MakeBoard;
 //Evin and Lane's imports
 import cse131.ArgsProcessor;
 import timing.Ticker;
@@ -77,6 +77,7 @@ public class Main extends JFrame
 	int vcolumns[];
 	int rows[];
 	int vrows[];
+	int score;
 	boolean place[];
 	LinkedList<int[][]> states;
 
@@ -286,6 +287,25 @@ public class Main extends JFrame
 		Algorithm a = null;
 
 		String strategy;
+
+
+		/*
+			* Evin's Multithreading corner
+			*
+			*
+		*/
+		// https://www.geeksforgeeks.org/multithreading-in-java/
+		try {
+            // Displaying the thread that is running
+            System.out.println(
+                "Thread " + Thread.currentThread().getId()
+                + " is running");
+        }
+        catch (Exception e) {
+            // Throwing an exception
+            System.out.println("Exception is caught");
+        }
+
 		
 		do {
 		if(globalstrat.equals("")) {
@@ -313,6 +333,17 @@ public class Main extends JFrame
 			ticker.tick();
 			reset();
 			ticker.tick();
+
+		/*
+
+		int n = 4; // Number of threads because Lane and I have puny CPUs
+        for (int i = 0; i < n; i++) {
+            MultithreadingDemo object
+                = new MultithreadingDemo();
+            object.start();
+        }
+		
+		*/
 		
 		
 		System.out.print(simCounter + " = " + totalSims);
@@ -512,17 +543,17 @@ public class Main extends JFrame
 	}
 
 	public void csvstats(LinkedList<String> list) {
-
-		String s = "Algorithm, Turns, Exit Status, Number of Ones, Number of Twos, Number of Threes\n";
+		StringBuilder output = new StringBuilder();
+		output.append("Algorithm, Turns, Exit Status, Number of Ones, Number of Twos, Number of Threes, Score\n");
 		for (String d : list) {
-			s += d + "\n";
+			output.append( (d + "\n") );
 		}
 
 		FileWriter myWriter;
 		try {
 			myWriter = new FileWriter("stats.csv");
-			System.out.print(s);
-			myWriter.write(s);
+			System.out.print(output.toString());
+			myWriter.write(output.toString());
 			myWriter.close();
 		} catch (IOException e) {
 			System.out.println("File io error");
@@ -614,20 +645,35 @@ public class Main extends JFrame
 		//Game over is #1 Priority - check first
 		if(gameover) {
 			ticker.tick();
+			
+			score = 0;
+
+			int flippedTile = answer[xcoord][ycoord];
+			logger.log(flippedTile, getBoardState());
+
+			logger.setExit(2, score);
+
 			cleanup(false, false, false);
-			logger.setExit(2);
+
 			return 2;
 		}
 		else if(alldone) {
 			ticker.tick();
+			int flippedTile = answer[xcoord][ycoord];
+			score *= flippedTile;
+			logger.log(flippedTile, getBoardState());
+
+			logger.setExit(1, score);
+
 			cleanup(true, false, false);
-			logger.setExit(1);
+
 			return 1;
 		}
 		else {
 			ticker.tick();
 			prettyprint();
-			Integer flippedTile = answer[xcoord][ycoord];
+			int flippedTile = answer[xcoord][ycoord];
+			score *= flippedTile;
 			logger.log(flippedTile, getBoardState());
 			return 0;
 		}
@@ -665,6 +711,8 @@ public class Main extends JFrame
 					"                                             888 \n" + 
 					"                                        Y8b d88P \n" + 
 					"                                         \"Y88P\"");
+
+			System.out.println("Score: " + score);
 			//System.exit(0);
 			return 0;
 		}
@@ -696,7 +744,7 @@ public class Main extends JFrame
 					"┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼\n" + 
 					"┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼\n" + 
 					"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼");
-
+			System.out.println("Score: " + score);
 			//exit of 1 because game over
 			//System.exit(1);
 			return 1;
@@ -1693,8 +1741,7 @@ public class Main extends JFrame
 			{
 				ticker.tick();
 				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
-		//		probabilities[i][j].setText("<"/*+Math.round(accumulated[0][i][j]/alpha*100)/100.0*/+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
-				//Update data-feeding arrays
+
 				currentVProbabilities[i][j] = Math.round(accumulated[0][i][j]/alpha*100)/100.0;
 				currentOProbabilities[i][j] = Math.round(accumulated[1][i][j]/alpha*100)/100.0;
 				currentSProbabilities[i][j] = Math.round(accumulated[2][i][j]/alpha*100)/100.0;
@@ -1705,8 +1752,9 @@ public class Main extends JFrame
 		prettyprint();
 		System.out.println("\n");
 
-
 	}
+	
+	
 	/**
 	 * @param values
 	 * @return
@@ -1823,102 +1871,102 @@ public class Main extends JFrame
 	 */
 	public boolean testCols(int values[][])
 	{
-		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
-		min0=(columns[0]+vcolumns[0]-4)/2;
-		min1=(columns[1]+vcolumns[1]-4)/2;
-		min2=(columns[2]+vcolumns[2]-4)/2;
-		min3=(columns[3]+vcolumns[3]-4)/2;
-		min4=(columns[4]+vcolumns[4]-4)/2;
-		max0=(columns[0]+vcolumns[0]-5);
-		if(max0>(5-vcolumns[0]))
-			max0=5-vcolumns[0];
-		max1=(columns[1]+vcolumns[1]-5);
-		if(max1>(5-vcolumns[1]))
-			max1=5-vcolumns[1];
-		max2=(columns[2]+vcolumns[2]-5);
-		if(max2>(5-vcolumns[2]))
-			max2=5-vcolumns[2];
-		max3=(columns[3]+vcolumns[3]-5);
-		if(max3>(5-vcolumns[3]))
-			max3=5-vcolumns[3];
-		max4=(columns[4]+vcolumns[4]-5);
-		if(max4>(5-vcolumns[4]))
-			max4=5-vcolumns[4];
+//		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
+//		min0=(columns[0]+vcolumns[0]-4)/2;
+//		min1=(columns[1]+vcolumns[1]-4)/2;
+//		min2=(columns[2]+vcolumns[2]-4)/2;
+//		min3=(columns[3]+vcolumns[3]-4)/2;
+//		min4=(columns[4]+vcolumns[4]-4)/2;
+//		max0=(columns[0]+vcolumns[0]-5);
+//		if(max0>(5-vcolumns[0]))
+//			max0=5-vcolumns[0];
+//		max1=(columns[1]+vcolumns[1]-5);
+//		if(max1>(5-vcolumns[1]))
+//			max1=5-vcolumns[1];
+//		max2=(columns[2]+vcolumns[2]-5);
+//		if(max2>(5-vcolumns[2]))
+//			max2=5-vcolumns[2];
+//		max3=(columns[3]+vcolumns[3]-5);
+//		if(max3>(5-vcolumns[3]))
+//			max3=5-vcolumns[3];
+//		max4=(columns[4]+vcolumns[4]-5);
+//		if(max4>(5-vcolumns[4]))
+//			max4=5-vcolumns[4];
 		
-//		int[] max = new int[SIZE];
-//		int[] min = new int[SIZE];
-//
-//		for (int i = 0; i < SIZE; ++i){
-//			min[i] = (columns[i]+vcolumns[i]-SIZE-1)/2;
-//			max[i] = (columns[i]+vcolumns[i]-SIZE);
-//			if(max[i]>(SIZE-vcolumns[i])){
-//				max[i]=SIZE-vcolumns[i];
-//			}
+		int[] max = new int[SIZE];
+		int[] min = new int[SIZE];
+
+		for (int i = 0; i < SIZE; ++i){
+			min[i] = (columns[i]+vcolumns[i]-SIZE-1)/2;
+			max[i] = (columns[i]+vcolumns[i]-SIZE);
+			if(max[i]>(SIZE-vcolumns[i])){
+				max[i]=SIZE-vcolumns[i];
+			}
+			ticker.tick();
+		}
+
+		
+		for (int i = 0; i < SIZE; ++i){
+		int count2 = 0;
+			for(int j=0;j<SIZE;j++){
+				if(values[j][i]==5)
+					count2++;
+				
+				ticker.tick();
+			}
+			if(count2<min[i]||count2>max[i])
+				return false;
+		}
+		
+//		for(int j=0;j<SIZE;j++){
+//			if(values[j][0]==5)
+//				count2++;
+//			
 //			ticker.tick();
 //		}
-
-		int count2 = 0;
-		
-//		for (int i = 0; i < SIZE; ++i){
-//			for(int j=0;j<SIZE;j++){
-//				if(values[j][i]==5)
-//					count2++;
-//				
-//				ticker.tick();
-//			}
-//			if(count2<min[i]||count2>max[i])
-//				return false;
+//		if(count2<min0||count2>max0)
+//			return false;
+//		count2=0;
+//		for(int j=0;j<5;j++)
+//		{
+//			if(values[j][1]==5)
+//				count2++;
+//			
+//			ticker.tick();
 //		}
-//		
-		for(int j=0;j<SIZE;j++){
-			if(values[j][0]==5)
-				count2++;
-			
-			ticker.tick();
-		}
-		if(count2<min0||count2>max0)
-			return false;
-		count2=0;
-		for(int j=0;j<5;j++)
-		{
-			if(values[j][1]==5)
-				count2++;
-			
-			ticker.tick();
-		}
-		if(count2<min1||count2>max1)
-			return false;
-		count2=0;
-		for(int j=0;j<5;j++)
-		{
-			if(values[j][2]==5)
-				count2++;
-			
-			
-			ticker.tick();
-		}
-		if(count2<min2||count2>max2)
-			return false;
-		count2=0;
-		for(int j=0;j<5;j++)
-		{
-			if(values[j][3]==5)
-				count2++;
-			
-			ticker.tick();
-		}
-		if(count2<min3||count2>max3)
-			return false;
-		count2=0;
-		for(int j=0;j<5;j++)
-		{
-			if(values[j][4]==5)
-				count2++;
-			
-			ticker.tick();
-		}
-		if(count2<min4||count2>max4)
-			return false;
+//		if(count2<min1||count2>max1)
+//			return false;
+//		count2=0;
+//		for(int j=0;j<5;j++)
+//		{
+//			if(values[j][2]==5)
+//				count2++;
+//			
+//			
+//			ticker.tick();
+//		}
+//		if(count2<min2||count2>max2)
+//			return false;
+//		count2=0;
+//		for(int j=0;j<5;j++)
+//		{
+//			if(values[j][3]==5)
+//				count2++;
+//			
+//			ticker.tick();
+//		}
+//		if(count2<min3||count2>max3)
+//			return false;
+//		count2=0;
+//		for(int j=0;j<5;j++)
+//		{
+//			if(values[j][4]==5)
+//				count2++;
+//			
+//			ticker.tick();
+//		}
+//		if(count2<min4||count2>max4)
+//			return false;
 
 		ticker.tick();
 
@@ -2165,8 +2213,7 @@ public class Main extends JFrame
 	 * @param num
 	 * @return
 	 */
-	public int getNumberOnOff(int num)
-	{
+	public int getNumberOnOff(int num)	{
 		ticker.tick();
 		return (int)Math.pow(2, num);
 	}
@@ -2177,21 +2224,17 @@ public class Main extends JFrame
 	 * @param curr
 	 * @param place
 	 */
-	public void getBinaryPlacement(int num,int curr,boolean place[])
-	{
-		if(num==1)
-		{
+	public void getBinaryPlacement(int num,int curr,boolean place[]) {
+		if(num==1) {
 			setPlaced(false,false,false,false,false,place);
 		}
-		else if(num==2)
-		{
+		else if(num==2) {
 			if(curr==0)
 				setPlaced(false,false,false,false,false,place);
 			else if(curr==1)
 				setPlaced(true,false,false,false,false,place);
 		}
-		else if(num==4)
-		{
+		else if(num==4) {
 			if(curr==0)
 				setPlaced(false,false,false,false,false,place);
 			else if(curr==1)
@@ -2201,8 +2244,7 @@ public class Main extends JFrame
 			else if(curr==3)
 				setPlaced(true,true,false,false,false,place);
 		}
-		else if(num==8)
-		{
+		else if(num==8) {
 			switch(curr)
 			{
 			case 0:
@@ -2397,18 +2439,13 @@ public class Main extends JFrame
 	 * @param index
 	 * @param place
 	 */
-	public void generate(int n,int V,int index,boolean place[])
-	{
-		if(V==0)
-		{
-			if(n==0)
-			{
+	public void generate(int n,int V,int index,boolean place[])	{
+		if(V==0) {
+			if(n==0) {
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1)
-			{
-				switch(index)
-				{
+			else if(n==1) {
+				switch(index) {
 				case 0:
 					setPlaced(true,false,false,false,false,place);
 					break;
@@ -2426,10 +2463,8 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==2)
-			{
-				switch(index)
-				{
+			else if(n==2)  {
+				switch(index) {
 				case 0:
 					setPlaced(true,true,false,false,false,place);//11000
 					break;
@@ -2462,10 +2497,8 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==3)
-			{
-				switch(index)
-				{
+			else if(n==3) {
+				switch(index) {
 				case 0:
 					setPlaced(false,false,true,true,true,place);//11000
 					break;
@@ -2519,8 +2552,7 @@ public class Main extends JFrame
 					break;
 				}
 			}	
-			else if(n==5)
-			{
+			else if(n==5) {
 				setPlaced(true,true,true,true,true,place);
 			}
 		}
@@ -2687,24 +2719,22 @@ public class Main extends JFrame
 	 * @param v
 	 * @return
 	 */
-	public int getNumCombinations(int n,int v)
-	{
+	public int getNumCombinations(int n,int v)	{
 		if(n==0)
 		{
 			return 1;
 		}
-		else if(n==1)
-		{
+		else if(n==1) {
 			if(v==0)
-				return 5;
+					return 5;
 			else if(v==1)
-				return 4;
+					return 4;
 			else if(v==2)
-				return 3;
+					return 3;
 			else if(v==3)
-				return 2;
+					return 2;
 			else if(v==4)
-				return 1;
+					return 1;
 		}
 		else if(n==2)
 		{
@@ -2737,6 +2767,8 @@ public class Main extends JFrame
 		{
 			return 1;
 		}
+		
+		
 		return -1;
 		
 	}
@@ -2744,7 +2776,7 @@ public class Main extends JFrame
 	/** Factorial method to call in ncr,
 	gotten from https://www.geeksforgeeks.org/java-program-for-factorial-of-a-number/
 	 */
-	int factorial(int n){ 
+	int factorial(int n) { 
 		ticker.tick();
 
 		if (n == 0) 
@@ -2758,7 +2790,7 @@ public class Main extends JFrame
 	@param k integer k
 	@return n choose k
 	 */
-	int ncr(int n, int k){
+	int ncr(int n, int k) {
 		int num = factorial(n);
 		//ticker.tick();
 		int denom = (factorial(k))*(factorial(n-k));

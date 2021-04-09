@@ -18,13 +18,16 @@ public class MoveLogger {
 	//stores the exit status of the game
 	private int exitStatus; // 1=win, 2=game over
 	
-	//keeps track of the number of turns
+	//keep track of the number of turns
 	private int turnCounter;
 
 	//Keeps track of the values flipped
 	private int ones;
 	private int twos;
 	private int threes;
+	
+	//Keep Track of Scores
+	private int score;
 	
 	//name of algorithm ran (will have global and auto flags i think but idk)
 	private String algo;
@@ -69,7 +72,8 @@ public class MoveLogger {
 		turnCounter++;
 	}
 	
-	public void setExit(int s) {
+	public void setExit(int s, int score) {
+		score = score;
 		exitStatus = s;
 		turnCounter++; //fixes an off-by-one error
 	}
@@ -125,6 +129,7 @@ public class MoveLogger {
 		
 		csv.append(csvLinkedListStr(boardStates));
 		csv.append("\n");
+		
 		
 		return csv.toString();
 	}
@@ -216,6 +221,7 @@ public class MoveLogger {
 		s.append(this.ones + ",");
 		s.append(this.twos + ",");
 		s.append(this.threes + ",");
+		s.append(this.score + ",");
 
 
 		

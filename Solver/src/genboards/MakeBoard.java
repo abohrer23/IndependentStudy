@@ -233,7 +233,7 @@ public class MakeBoard {
 
 		MakeBoard m = new MakeBoard();
 		//quantity,level, size
-		m.makeboard(5, 6, 100);
+		m.makeboard(2, 1, 5);
 
 	}
 

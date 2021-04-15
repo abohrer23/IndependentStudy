@@ -24,7 +24,8 @@ public class VoltorbTimer {
 			int size = 1 + 2*i;
 			//int batch = m.makeboard( (int) Math.pow( 5.0, (double)i ), 0) - 1;
 			
-			int batch = m.makeboard( size, 0) - 1;
+			//quantity, level, size
+			int batch = m.makeboard(1,0,size) - 1; //i changed this to make the error go away
 			
 			System.out.println(arg + batch);
 			

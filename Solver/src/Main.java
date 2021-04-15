@@ -16,7 +16,7 @@
  */
 
 
-import java.awt.Color;
+//import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -24,6 +24,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -91,7 +92,6 @@ public class Main extends JFrame
 	Scanner in;
 	boolean runningGlobal;
 
-	//added
 	In file = new In("two.txt");
 	int[][] answer;
 	int[][] knownBoard;
@@ -99,12 +99,15 @@ public class Main extends JFrame
 	double[][] currentSProbabilities;
 	double[][] currentOProbabilities;
 
-	final static int COVERED = -1; //special value for still covered spots on the board
+	final static int COVERED = -1; //flag value for still covered spots on the board
 	int SIZE;
 	int countforV;
 	int possibleStatesCount;
 	int numberOfFinalStates;
 
+	ArrayList<boolean[]>[] permutations;
+	
+	
 	public static void main(String args[]) 
 	{
 		//Thank you HackerRank
@@ -1103,10 +1106,76 @@ public class Main extends JFrame
 				values[i][j]=0;
 			}
 		}
-
+		
+		//syntax weird https://www.geeksforgeeks.org/array-of-arraylist-in-java/ 
+		// these will be lists of the possible permutations (boolean arrays) that show the voltorb positions given the number of voltorbs (index in big array)
+		permutations = new ArrayList[SIZE+1];
+        for (int i = 0; i < permutations.length; i++) {
+            permutations[i] = new ArrayList<boolean[]>();
+        }
+        
+        permutationSetup(SIZE, new boolean[SIZE], 0);
+        
+      //  printPermutations();
 	}
 	
+	/**
+	 * method to print out permutations (use for debugging)
+	 */
+	private void printPermutations() {
+		for (int i = 0; i < permutations.length; i++) {
+            for (int j = 0; j < permutations[i].size(); j++) {
+                for (int k = 0; k < permutations[i].get(j).length; k++) {
+                	System.out.print(permutations[i].get(j)[k]);
+                }
+                System.out.println();
+            }
+            System.out.println();
+            System.out.println();
+        }
+	}
 	
+	/**
+	 * recursive method for getting all permutations of the voltorb boolean arrays
+	 * @param n size (could probably not be a parameter ngl)
+	 * @param arr array to add to
+	 * @param i current index in array
+	 */
+	private void permutationSetup (int n, boolean arr[], int i)
+	{
+	    if (i == n) {
+	    	addToPermutations(arr);
+	        return;
+	    }
+	  
+	    // First assign "0" at ith position
+	    // and try for all other permutations
+	    // for remaining positions
+	    arr[i] = false;
+	    permutationSetup (n, arr, i + 1);
+	  
+	    // And then assign "1" at ith position
+	    // and try for all other permutations
+	    // for remaining positions
+	    arr[i] = true;
+	    permutationSetup (n, arr, i + 1);
+	}
+	
+	/**
+	 * helper for permutationSetup, adds array to the correct arraylist based on number of voltorbs
+	 * @param arr array to add
+	 */
+	private void addToPermutations (boolean[] arr) {
+		int numTrue = 0;
+		for (int i = 0; i < arr.length; ++i) {
+			if (arr[i] == true) {
+				numTrue++;
+			}
+		}
+		
+		boolean[] copy = arr.clone();
+		permutations[numTrue].add(copy);
+	}
 	
 	/**
 	 *  
@@ -1146,13 +1215,12 @@ public class Main extends JFrame
 
 			files = parentFile.listFiles(filter); 
 			
-			System.out.print("files" + files);
+			//System.out.println("files" + files);
 			
 			totalSims = files.length;
 
 			Arrays.parallelSort(files);
 			ticker.tick();
-
 
 			try {
 				in = new Scanner(files[0]);
@@ -1306,7 +1374,7 @@ public class Main extends JFrame
 		int[] min = new int[SIZE];
 
 		for (int i = 0; i < SIZE; ++i){
-			min[i] = (rows[i]+vrows[i]-SIZE-1)/2;
+			min[i] = (rows[i]+vrows[i]-SIZE+1)/2;
 			max[i] = (rows[i]+vrows[i]-SIZE);
 			if(max[i]>(SIZE-vrows[i])){
 				max[i]=SIZE-vrows[i];
@@ -1395,15 +1463,15 @@ public class Main extends JFrame
 				ticker.tick();
 			}
 			values=states.pop();
-			changeToValues(values,numCom);
+			changeToValues(values,numCom); //gets... number of.. something in each row. voltorbs maybe?
 			for (int i = 0; i < SIZE; ++i) {
-				nums[i] = getNumberOnOff(numCom[i]);
+				nums[i] = getNumberOnOff(numCom[i]); //2^numCom[i]
 				ticker.tick();
 			}
 			
 			
-			//computeFinalStatesRecursive(nums, numCom,  0);
-			computeFinalStatesIterative(nums, numCom);
+			computeFinalStatesRecursive(nums, numCom,  0);
+			//computeFinalStatesIterative(nums, numCom);
 
 			possibleStatesCount--;
 		}
@@ -1476,168 +1544,6 @@ public class Main extends JFrame
 
 	}
 	
-	private void computeFinalStatesIterative(int[] nums, int[] numCom){
-		for(int first=0;first<nums[0];first++)
-		{
-			getBinaryPlacement(nums[0],first,place);
-			//make placement
-			countforV=0;
-			for(int i=0;i<5;i++)
-			{
-				ticker.tick();
-
-				if(values[0][i]==2||values[0][i]==3)
-				{
-					if(place[countforV]==true)
-					{
-						values[0][i]=3;
-						ticker.tick();
-					}
-					else
-						values[0][i]=2;
-					countforV++;
-					
-					ticker.tick();
-				}
-			}
-			if(!isValid(values[0],0))
-			{
-				if(outOfBounds(values[0],0))
-					break;
-				else
-					continue;
-				
-				//ticker.tick();
-			}
-			//System.out.println("After Row 1");
-			for(int second=0;second<nums[1];second++)
-			{
-				getBinaryPlacement(nums[1],second,place);
-				//make placement
-				ticker.tick();
-
-				countforV=0;
-				for(int i=0;i<5;i++)
-				{
-					if(values[1][i]==2||values[1][i]==3)
-					{
-						if(place[countforV]==true)
-							values[1][i]=3;
-						else
-							values[1][i]=2;
-						countforV++;
-					}
-					ticker.tick();
-				}
-				if(!isValid(values[1],1))
-				{
-					if(outOfBounds(values[1],1))
-						break;
-					else
-						continue;
-					
-					//ticker.tick();
-				}
-				//System.out.println("After Row 2");
-				for(int third=0;third<nums[2];third++)
-				{
-					getBinaryPlacement(nums[2],third,place);
-					//make placement
-					countforV=0;
-					ticker.tick();
-					for(int i=0;i<5;i++)
-					{
-						if(values[2][i]==2||values[2][i]==3)
-						{
-							if(place[countforV]==true)
-								values[2][i]=3;
-							else
-								values[2][i]=2;
-							countforV++;
-						}
-						ticker.tick();
-					}
-					if(!isValid(values[2],2))
-					{
-						if(outOfBounds(values[2],2))
-							break;
-						else
-							continue;
-						
-						//ticker.tick();
-					}
-					//System.out.println("After Row 3");
-					for(int fourth=0;fourth<nums[3];fourth++)
-					{
-						getBinaryPlacement(nums[3],fourth,place);
-						//make placement
-						ticker.tick();
-
-						countforV=0;
-						for(int i=0;i<5;i++)
-						{
-							if(values[3][i]==2||values[3][i]==3)
-							{
-								if(place[countforV]==true)
-									values[3][i]=3;
-								else
-									values[3][i]=2;
-								countforV++;
-							}
-							ticker.tick();
-						}
-						if(!isValid(values[3],3))
-						{
-							if(outOfBounds(values[3],3))
-								break;
-							else
-								continue;
-							
-							//ticker.tick();
-						}
-						//System.out.println("After Row 4");
-						for(int fifth=0;fifth<nums[4];fifth++)
-						{
-							getBinaryPlacement(nums[4],fifth,place);
-							//make placement
-							ticker.tick();
-
-							countforV=0;
-							for(int i=0;i<5;i++)
-							{
-								if(values[4][i]==2||values[4][i]==3)
-								{
-									if(place[countforV]==true)
-										values[4][i]=3;
-									else
-										values[4][i]=2;
-									countforV++;
-								}
-								ticker.tick();
-							}
-							if(!isValid(values[4],4))
-							{
-								if(outOfBounds(values[4],4))
-									break;
-								else
-									continue;
-							}
-							//System.out.println("After Row 5");
-							if(testConstraints(values))
-							{
-								tempValues=new int[5][5];
-								copyMatrix(values,tempValues);
-								states.add(tempValues);
-								numberOfFinalStates++;
-							}
-							ticker.tick();
-						}
-					}
-				}
-			}
-		}
-	}
-
 	/**
 	 * 
 	 */
@@ -1777,15 +1683,16 @@ public class Main extends JFrame
 		//ticker.tick();
 
 	}
+	
 	/**
 	 * @param values
 	 * @param num
 	 */
 	public void changeToValues(int values[][],int num[])
 	{
-		for(int i=0;i<5;i++)
+		for(int i=0;i<SIZE;i++)
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				if(values[i][j]==-1)
 					values[i][j]=1;
@@ -1798,6 +1705,7 @@ public class Main extends JFrame
 			}
 		}
 	}
+	
 	/**
 	 * @param values
 	 * @param num
@@ -1818,6 +1726,7 @@ public class Main extends JFrame
 		ticker.tick();
 		return false;
 	}
+	
 	/**
 	 * @param values
 	 * @param num
@@ -1836,7 +1745,7 @@ public class Main extends JFrame
 			return true;
 		return false;
 	}
-	//TODO why are there 3 loops
+	//TODO WHY are there 3 loops
 	/**
 	 * @param values
 	 * @return
@@ -1844,12 +1753,12 @@ public class Main extends JFrame
 	public boolean testConstraints(int values[][])
 	{
 		int maxcol;
-		for(int i=0;i<5;i++)
+		for(int i=0;i<5;i++) //???
 		{
-			for(int j=0;j<5;j++)
+			for(int j=0;j<SIZE;j++)
 			{
 				maxcol=0;
-				for(int k=0;k<5;k++)
+				for(int k=0;k<SIZE;k++)
 				{
 					//iterate through columns
 					maxcol+=values[k][j];
@@ -1864,34 +1773,12 @@ public class Main extends JFrame
 		return true;  
 	}
 	
-	//TODO
 	/**
 	 * @param values
 	 * @return
 	 */
 	public boolean testCols(int values[][])
 	{
-//		int min0,max0,min1,max1,min2,max2,min3,max3,min4,max4;
-//		min0=(columns[0]+vcolumns[0]-4)/2;
-//		min1=(columns[1]+vcolumns[1]-4)/2;
-//		min2=(columns[2]+vcolumns[2]-4)/2;
-//		min3=(columns[3]+vcolumns[3]-4)/2;
-//		min4=(columns[4]+vcolumns[4]-4)/2;
-//		max0=(columns[0]+vcolumns[0]-5);
-//		if(max0>(5-vcolumns[0]))
-//			max0=5-vcolumns[0];
-//		max1=(columns[1]+vcolumns[1]-5);
-//		if(max1>(5-vcolumns[1]))
-//			max1=5-vcolumns[1];
-//		max2=(columns[2]+vcolumns[2]-5);
-//		if(max2>(5-vcolumns[2]))
-//			max2=5-vcolumns[2];
-//		max3=(columns[3]+vcolumns[3]-5);
-//		if(max3>(5-vcolumns[3]))
-//			max3=5-vcolumns[3];
-//		max4=(columns[4]+vcolumns[4]-5);
-//		if(max4>(5-vcolumns[4]))
-//			max4=5-vcolumns[4];
 		
 		int[] max = new int[SIZE];
 		int[] min = new int[SIZE];
@@ -1917,56 +1804,6 @@ public class Main extends JFrame
 			if(count2<min[i]||count2>max[i])
 				return false;
 		}
-		
-//		for(int j=0;j<SIZE;j++){
-//			if(values[j][0]==5)
-//				count2++;
-//			
-//			ticker.tick();
-//		}
-//		if(count2<min0||count2>max0)
-//			return false;
-//		count2=0;
-//		for(int j=0;j<5;j++)
-//		{
-//			if(values[j][1]==5)
-//				count2++;
-//			
-//			ticker.tick();
-//		}
-//		if(count2<min1||count2>max1)
-//			return false;
-//		count2=0;
-//		for(int j=0;j<5;j++)
-//		{
-//			if(values[j][2]==5)
-//				count2++;
-//			
-//			
-//			ticker.tick();
-//		}
-//		if(count2<min2||count2>max2)
-//			return false;
-//		count2=0;
-//		for(int j=0;j<5;j++)
-//		{
-//			if(values[j][3]==5)
-//				count2++;
-//			
-//			ticker.tick();
-//		}
-//		if(count2<min3||count2>max3)
-//			return false;
-//		count2=0;
-//		for(int j=0;j<5;j++)
-//		{
-//			if(values[j][4]==5)
-//				count2++;
-//			
-//			ticker.tick();
-//		}
-//		if(count2<min4||count2>max4)
-//			return false;
 
 		ticker.tick();
 
@@ -2032,24 +1869,21 @@ public class Main extends JFrame
 
 		return true;
 	}
-	//TODO
+
 	/**
 	 * @param numMines
 	 * @param whichOne
 	 * @param place
 	 */
 	public void createPlacement(int numMines,int whichOne,boolean place[])	{
+
+		setPlacedNew(place, permutations[numMines].get(whichOne));
 		
-		//start out setting all to false
-//		for(int i = 0; i < place.length; i++) {
-//			place[i] = false;
-//		}
-		
+		/*
 		if(numMines==0) {
 			setPlaced(false,false,false,false,false,place);
 		}
 		
-		//iterate over numMines?
 		
 		else if(numMines==1)
 		{
@@ -2171,11 +2005,11 @@ public class Main extends JFrame
 		{
 			setPlaced(true,true,true,true,true,place);
 		}
+		*/
 		
 		ticker.tick();
 	}
 	
-	//TODO
 	/**
 	 * @param b0
 	 * @param b1
@@ -2193,7 +2027,17 @@ public class Main extends JFrame
 		place[2]=b2;
 		place[3]=b3;
 		place[4]=b4;
+		
+
 	}
+	
+	private void setPlacedNew(boolean[] place, boolean[] current) {
+		for (int i = 0; i < SIZE; ++i) {
+			place[i] = current[i];
+		}
+	}
+	
+	
 	/**
 	 * @param in
 	 * @param out
@@ -2224,7 +2068,9 @@ public class Main extends JFrame
 	 * @param curr
 	 * @param place
 	 */
-	public void getBinaryPlacement(int num,int curr,boolean place[]) {
+	public void getBinaryPlacement(int num,int curr,boolean place[]) { //curr iterates 0 to num.
+		//does this iterate through the first "num" permutations?
+		//could sort the array(list)s somehow and use that?
 		if(num==1) {
 			setPlaced(false,false,false,false,false,place);
 		}
@@ -2434,17 +2280,17 @@ public class Main extends JFrame
 	
 	//TODO
 	/**
-	 * @param n
-	 * @param V
+	 * @param numV
+	 * @param numScoring
 	 * @param index
 	 * @param place
 	 */
-	public void generate(int n,int V,int index,boolean place[])	{
-		if(V==0) {
-			if(n==0) {
+	public void generate(int numV,int numScoring,int index,boolean place[])	{
+		if(numScoring==0) {
+			if(numV==0) {
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1) {
+			else if(numV==1) {
 				switch(index) {
 				case 0:
 					setPlaced(true,false,false,false,false,place);
@@ -2463,7 +2309,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==2)  {
+			else if(numV==2)  {
 				switch(index) {
 				case 0:
 					setPlaced(true,true,false,false,false,place);//11000
@@ -2497,7 +2343,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==3) {
+			else if(numV==3) {
 				switch(index) {
 				case 0:
 					setPlaced(false,false,true,true,true,place);//11000
@@ -2531,7 +2377,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==4)
+			else if(numV==4)
 			{
 				switch(index)
 				{
@@ -2552,17 +2398,17 @@ public class Main extends JFrame
 					break;
 				}
 			}	
-			else if(n==5) {
+			else if(numV==5) {
 				setPlaced(true,true,true,true,true,place);
 			}
 		}
-		else if(V==1)
+		else if(numScoring==1)
 		{
-			if(n==0)
+			if(numV==0)
 			{
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1)
+			else if(numV==1)
 			{
 				switch(index)
 				{
@@ -2580,7 +2426,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==2)
+			else if(numV==2)
 			{
 				switch(index)
 				{
@@ -2604,7 +2450,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==3)
+			else if(numV==3)
 			{
 				switch(index)
 				{
@@ -2622,19 +2468,17 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==4)
+			else if(numV==4)
 			{
 				setPlaced(true,true,true,true,false,place);
 			}			
 		}
-		else if(V==2)
+		else if(numScoring==2)
 		{
-			if(n==0)
-			{
+			if(numV==0) {
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1)
-			{
+			else if(numV==1) {
 				switch(index)
 				{
 				case 0:
@@ -2648,8 +2492,7 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==2)
-			{
+			else if(numV==2) {
 				switch(index)
 				{
 				case 0:
@@ -2663,18 +2506,18 @@ public class Main extends JFrame
 					break;
 				}
 			}
-			else if(n==3)
+			else if(numV==3)
 			{
 				setPlaced(true,true,true,false,false,place);
 			}
 		}
-		else if(V==3)
+		else if(numScoring==3)
 		{
-			if(n==0)
+			if(numV==0)
 			{
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1)
+			else if(numV==1)
 			{
 				if(index==0)
 				{
@@ -2685,25 +2528,25 @@ public class Main extends JFrame
 					setPlaced(false,true,false,false,false,place);
 				}
 			}
-			else if(n==2)
+			else if(numV==2)
 			{
 				setPlaced(true,true,false,false,false,place);
 			}
 		}
-		else if(V==4)
+		else if(numScoring==4)
 		{
-			if(n==0)
+			if(numV==0)
 			{
 				setPlaced(false,false,false,false,false,place);
 			}
-			else if(n==1)
+			else if(numV==1)
 			{
 				setPlaced(true,false,false,false,false,place);
 			}
 		}
-		else if(V==5)
+		else if(numScoring==5)
 		{
-			if(n==0)
+			if(numV==0)
 			{
 				setPlaced(false,false,false,false,false,place);
 			}
@@ -2713,63 +2556,99 @@ public class Main extends JFrame
 		ticker.tick();
 	}
 	
-	//TODO i think this is an ncr?
 	/**
-	 * @param n
-	 * @param v
-	 * @return
+	 * @param numScoring number of scoring tiles
+	 * @param numVoltorbs number of voltorbs
+	 * @return number of combinations (SIZE - numScoring choose numVoltorbs)
 	 */
-	public int getNumCombinations(int n,int v)	{
-		if(n==0)
-		{
-			return 1;
-		}
-		else if(n==1) {
-			if(v==0)
-					return 5;
-			else if(v==1)
-					return 4;
-			else if(v==2)
-					return 3;
-			else if(v==3)
-					return 2;
-			else if(v==4)
-					return 1;
-		}
-		else if(n==2)
-		{
-			if(v==0)
-				return 10;
-			else if(v==1)
-				return 6;
-			else if(v==2)
-				return 3;
-			else if(v==3)
-				return 1;
-		}
-		else if(n==3)
-		{
-			if(v==0)
-				return 10;
-			else if(v==1)
-				return 4;
-			else if(v==2)
-				return 1;
-		}
-		else if(n==4)
-		{
-			if(v==0)
-				return 5;
-			else if(v==1)
-				return 1;
-		}
-		else if(n==5)
-		{
-			return 1;
-		}
+	public int getNumCombinations(int numScoring,int numVoltorbs)	{
 		
+		return ncr(SIZE - numScoring, numVoltorbs);
+
+		/*
+		int compare = ncr(SIZE - numVoltorbs, numScoring);
+		System.out.print(SIZE - numVoltorbs + " choose "+ numScoring + " gives\t ");
+		
+		if(numScoring==0)
+		{
+			System.out.println("old: 1, new: "+compare);
+			return 1; //5 choose 0
+		}
+		else if(numScoring==1) { 
+			if(numVoltorbs==0) {
+				System.out.println("old: 5, new: "+compare);
+				return 5; //5 choose 1 --> SIZE - numScoring choose numVoltorbs
+			}
+			else if(numVoltorbs==1){
+				System.out.println("old: 4, new: "+compare);
+				return 4; //4 choose 1
+			}
+			else if(numVoltorbs==2) {
+				System.out.println("old: 3, new: "+compare);
+					return 3; //3 choose 1
+			}
+			else if(numVoltorbs==3) {
+				System.out.println("old: 2, new: "+compare);
+					return 2; //2 choose 1
+			}
+			else if(numVoltorbs==4){
+				System.out.println("old: 1, new: "+compare);
+					return 1; //1 choose 1
+			}
+		}
+		else if(numScoring==2) {
+			if(numVoltorbs==0)
+			{
+				System.out.println("old: 10, new: "+compare);
+				return 10; //5 choose 2
+			}
+			else if(numVoltorbs==1){
+				System.out.println("old: 6, new: "+compare);
+				return 6; //4 choose 2
+			}
+			else if(numVoltorbs==2){
+				System.out.println("old: 3, new: "+compare);
+				return 3; //3 choose 2
+			}
+			else if(numVoltorbs==3){
+				System.out.println("old: 1, new: "+compare);
+				return 1; //2 choose 2
+			}
+		}
+		else if(numScoring==3) {
+			if(numVoltorbs==0)
+			{
+				System.out.println("old: 10, new: "+compare);
+				return 10; //5 choose 3
+			}
+			else if(numVoltorbs==1) {
+				System.out.println("old: 4, new: "+compare);
+				return 4; //4 choose 3
+			}
+			else if(numVoltorbs==2){
+				System.out.println("old: 1, new: "+compare);
+				return 1;
+			}
+		}
+		else if(numScoring==4)
+		{
+			if(numVoltorbs==0) {
+				System.out.println("old: 5, new: "+compare);
+				return 5; //5 choose 4
+			}
+			else if(numVoltorbs==1) {
+				System.out.println("old: 1, new: "+compare);
+				return 1;
+			}
+		}
+		else if(numScoring==5)
+		{
+				System.out.println("old: 1, new: "+compare);
+			return 1; //5 choose 5
+		}
 		
 		return -1;
+		*/
 		
 	}
 
@@ -2791,8 +2670,8 @@ public class Main extends JFrame
 	@return n choose k
 	 */
 	int ncr(int n, int k) {
+		ticker.tick();
 		int num = factorial(n);
-		//ticker.tick();
 		int denom = (factorial(k))*(factorial(n-k));
 		return (num/denom);
 		

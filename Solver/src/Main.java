@@ -26,6 +26,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -37,6 +39,7 @@ import timing.Ticker;
 //import boards.boardSimulationFiles;
 //import java.math.BigInteger;
 
+//TODO: bug where some probabilities are 0 and shouldn't be? see photo in DMs
 public class Main extends JFrame 
 {
 	public Ticker ticker; //= new Ticker();
@@ -1116,7 +1119,8 @@ public class Main extends JFrame
         
         permutationSetup(SIZE, new boolean[SIZE], 0);
         
-      //  printPermutations();
+        sortPermutations();
+        //printPermutations();
 	}
 	
 	/**
@@ -1175,6 +1179,29 @@ public class Main extends JFrame
 		
 		boolean[] copy = arr.clone();
 		permutations[numTrue].add(copy);
+	}
+	
+	private void sortPermutations() {
+		for (int i = 0; i < permutations.length; i++) {
+			Collections.sort(permutations[i], new SortFalseFirst());
+		}
+	}
+	
+	class SortFalseFirst implements Comparator<boolean[]> {
+	    // Used for sorting in ascending order of
+	    // name
+	    public int compare(boolean[] a, boolean[] b)
+	    {
+	    	for (int i = a.length-1; i>=0; i--) {
+	    		if (a[i]!=b[i]) {
+	    			if (a[i]) {
+	    				return 1;
+	    			}
+	    			return -1;
+	    		}
+	    	}
+	        return 0;
+	    }
 	}
 	
 	/**
@@ -1745,7 +1772,7 @@ public class Main extends JFrame
 			return true;
 		return false;
 	}
-	//TODO WHY are there 3 loops
+
 	/**
 	 * @param values
 	 * @return
@@ -1753,22 +1780,21 @@ public class Main extends JFrame
 	public boolean testConstraints(int values[][])
 	{
 		int maxcol;
-		for(int i=0;i<5;i++) //???
+
+		for(int j=0;j<SIZE;j++)
 		{
-			for(int j=0;j<SIZE;j++)
+			maxcol=0;
+			for(int k=0;k<SIZE;k++)
 			{
-				maxcol=0;
-				for(int k=0;k<SIZE;k++)
-				{
-					//iterate through columns
-					maxcol+=values[k][j];
-					ticker.tick();
-				}
-				if(maxcol!=columns[j])
-				{
-					return false;			
-				}
-			}			
+				//iterate through columns
+				maxcol+=values[k][j];
+				ticker.tick();
+			}
+			if(maxcol!=columns[j])
+			{
+				return false;			
+			}
+
 		}
 		return true;  
 	}
@@ -1879,134 +1905,6 @@ public class Main extends JFrame
 
 		setPlacedNew(place, permutations[numMines].get(whichOne));
 		
-		/*
-		if(numMines==0) {
-			setPlaced(false,false,false,false,false,place);
-		}
-		
-		
-		else if(numMines==1)
-		{
-			switch(whichOne)
-			{
-			case 0:
-				setPlaced(true,false,false,false,false,place);
-				break;
-			case 1:
-				setPlaced(false,true,false,false,false,place);
-				break;
-			case 2:
-				setPlaced(false,false,true,false,false,place);
-				break;
-			case 3:
-				setPlaced(false,false,false,true,false,place);
-				break;
-			case 4:
-				setPlaced(false,false,false,false,true,place);
-				break;
-			}
-		}
-		else if(numMines==2)
-		{
-			switch(whichOne)
-			{
-			case 0:
-				setPlaced(true,true,false,false,false,place);//11000
-				break;
-			case 1:
-				setPlaced(true,false,true,false,false,place);//10100
-				break;
-			case 2:
-				setPlaced(true,false,false,true,false,place);//10010
-				break;
-			case 3:
-				setPlaced(true,false,false,false,true,place);//10001
-				break;
-			case 4:
-				setPlaced(false,true,true,false,false,place);//01100
-				break;
-			case 5:
-				setPlaced(false,true,false,true,false,place);//01010
-				break;
-			case 6:
-				setPlaced(false,true,false,false,true,place);//01001
-				break;
-			case 7:
-				setPlaced(false,false,true,true,false,place);//00110
-				break;
-			case 8:
-				setPlaced(false,false,false,true,true,place);//00011
-				break;
-			case 9:
-				setPlaced(false,false,true,false,true,place);//00101
-				break;
-			}
-
-		}
-		else if(numMines==3)
-		{			
-			switch(whichOne)
-			{
-			case 0:
-				setPlaced(false,false,true,true,true,place);//11000
-				break;
-			case 1:
-				setPlaced(false,true,false,true,true,place);//10100
-				break;
-			case 2:
-				setPlaced(false,true,true,false,true,place);//10010
-				break;
-			case 3:
-				setPlaced(false,true,true,true,false,place);//10001
-				break;
-			case 4:
-				setPlaced(true,false,false,true,true,place);//01100
-				break;
-			case 5:
-				setPlaced(true,false,true,false,true,place);//01010
-				break;
-			case 6:
-				setPlaced(true,false,true,true,false,place);//01001
-				break;
-			case 7:
-				setPlaced(true,true,false,false,true,place);//00110
-				break;
-			case 8:
-				setPlaced(true,true,true,false,false,place);//00011
-				break;
-			case 9:
-				setPlaced(true,true,false,true,false,place);//00101
-				break;
-			}
-
-		}
-		else if(numMines==4)
-		{
-			switch(whichOne)
-			{
-			case 0:
-				setPlaced(false,true,true,true,true,place);
-				break;
-			case 1:
-				setPlaced(true,false,true,true,true,place);
-				break;
-			case 2:
-				setPlaced(true,true,false,true,true,place);
-				break;
-			case 3:
-				setPlaced(true,true,true,false,true,place);
-				break;
-			case 4:
-				setPlaced(true,true,true,true,false,place);
-				break;
-			}
-		}
-		else if(numMines==5)
-		{
-			setPlaced(true,true,true,true,true,place);
-		}
-		*/
-		
 		ticker.tick();
 	}
 	
@@ -2053,6 +1951,7 @@ public class Main extends JFrame
 			}
 		}
 	}
+	
 	/**
 	 * @param num
 	 * @return
@@ -2068,9 +1967,15 @@ public class Main extends JFrame
 	 * @param curr
 	 * @param place
 	 */
-	public void getBinaryPlacement(int num,int curr,boolean place[]) { //curr iterates 0 to num.
+	public void getBinaryPlacement(int num,int curr,boolean place[]) { 
+		//curr iterates 0 to num.
 		//does this iterate through the first "num" permutations?
 		//could sort the array(list)s somehow and use that?
+		
+		//actually i think it does the permutations with (possible) trues only in the first num=2^x places?
+		//can work with that in a similar way as the other method
+		//could pass in numComs instead of nums? that would avoid taking a log oofity
+		
 		if(num==1) {
 			setPlaced(false,false,false,false,false,place);
 		}
@@ -2278,7 +2183,6 @@ public class Main extends JFrame
 		ticker.tick();
 	}
 	
-	//TODO
 	/**
 	 * @param numV
 	 * @param numScoring
@@ -2286,274 +2190,13 @@ public class Main extends JFrame
 	 * @param place
 	 */
 	public void generate(int numV,int numScoring,int index,boolean place[])	{
-		if(numScoring==0) {
-			if(numV==0) {
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(numV==1) {
-				switch(index) {
-				case 0:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				case 3:
-					setPlaced(false,false,false,true,false,place);
-					break;
-				case 4:
-					setPlaced(false,false,false,false,true,place);
-					break;
-				}
-			}
-			else if(numV==2)  {
-				switch(index) {
-				case 0:
-					setPlaced(true,true,false,false,false,place);//11000
-					break;
-				case 1:
-					setPlaced(true,false,true,false,false,place);//10100
-					break;
-				case 2:
-					setPlaced(true,false,false,true,false,place);//10010
-					break;
-				case 3:
-					setPlaced(true,false,false,false,true,place);//10001
-					break;
-				case 4:
-					setPlaced(false,true,true,false,false,place);//01100
-					break;
-				case 5:
-					setPlaced(false,true,false,true,false,place);//01010
-					break;
-				case 6:
-					setPlaced(false,true,false,false,true,place);//01001
-					break;
-				case 7:
-					setPlaced(false,false,true,true,false,place);//00110
-					break;
-				case 8:
-					setPlaced(false,false,false,true,true,place);//00011
-					break;
-				case 9:
-					setPlaced(false,false,true,false,true,place);//00101
-					break;
-				}
-			}
-			else if(numV==3) {
-				switch(index) {
-				case 0:
-					setPlaced(false,false,true,true,true,place);//11000
-					break;
-				case 1:
-					setPlaced(false,true,false,true,true,place);//10100
-					break;
-				case 2:
-					setPlaced(false,true,true,false,true,place);//10010
-					break;
-				case 3:
-					setPlaced(false,true,true,true,false,place);//10001
-					break;
-				case 4:
-					setPlaced(true,false,false,true,true,place);//01100
-					break;
-				case 5:
-					setPlaced(true,false,true,false,true,place);//01010
-					break;
-				case 6:
-					setPlaced(true,false,true,true,false,place);//01001
-					break;
-				case 7:
-					setPlaced(true,true,false,false,true,place);//00110
-					break;
-				case 8:
-					setPlaced(true,true,true,false,false,place);//00011
-					break;
-				case 9:
-					setPlaced(true,true,false,true,false,place);//00101
-					break;
-				}
-			}
-			else if(numV==4)
-			{
-				switch(index)
-				{
-				case 0:
-					setPlaced(false,true,true,true,true,place);
-					break;
-				case 1:
-					setPlaced(true,false,true,true,true,place);
-					break;
-				case 2:
-					setPlaced(true,true,false,true,true,place);
-					break;
-				case 3:
-					setPlaced(true,true,true,false,true,place);
-					break;
-				case 4:
-					setPlaced(true,true,true,true,false,place);
-					break;
-				}
-			}	
-			else if(numV==5) {
-				setPlaced(true,true,true,true,true,place);
-			}
-		}
-		else if(numScoring==1)
-		{
-			if(numV==0)
-			{
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(numV==1)
-			{
-				switch(index)
-				{
-				case 0:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				case 3:
-					setPlaced(false,false,false,true,false,place);
-					break;
-				}
-			}
-			else if(numV==2)
-			{
-				switch(index)
-				{
-				case 0:
-					setPlaced(true,true,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(true,false,true,false,false,place);
-					break;
-				case 2:
-					setPlaced(true,false,false,true,false,place);
-					break;
-				case 3:
-					setPlaced(false,true,true,false,false,place);
-					break;
-				case 4:
-					setPlaced(false,true,false,true,false,place);
-					break;
-				case 5:
-					setPlaced(false,false,true,true,false,place);
-					break;
-				}
-			}
-			else if(numV==3)
-			{
-				switch(index)
-				{
-				case 0:
-					setPlaced(true,true,true,false,false,place);
-					break;
-				case 1:
-					setPlaced(true,true,false,true,false,place);
-					break;
-				case 2:
-					setPlaced(true,false,true,true,false,place);
-					break;
-				case 3:
-					setPlaced(false,true,true,true,false,place);
-					break;
-				}
-			}
-			else if(numV==4)
-			{
-				setPlaced(true,true,true,true,false,place);
-			}			
-		}
-		else if(numScoring==2)
-		{
-			if(numV==0) {
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(numV==1) {
-				switch(index)
-				{
-				case 0:
-					setPlaced(true,false,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(false,true,false,false,false,place);
-					break;
-				case 2:
-					setPlaced(false,false,true,false,false,place);
-					break;
-				}
-			}
-			else if(numV==2) {
-				switch(index)
-				{
-				case 0:
-					setPlaced(true,true,false,false,false,place);
-					break;
-				case 1:
-					setPlaced(false,true,true,false,false,place);
-					break;
-				case 2:
-					setPlaced(true,false,true,false,false,place);
-					break;
-				}
-			}
-			else if(numV==3)
-			{
-				setPlaced(true,true,true,false,false,place);
-			}
-		}
-		else if(numScoring==3)
-		{
-			if(numV==0)
-			{
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(numV==1)
-			{
-				if(index==0)
-				{
-					setPlaced(true,false,false,false,false,place);
-				}
-				else if(index==1)
-				{
-					setPlaced(false,true,false,false,false,place);
-				}
-			}
-			else if(numV==2)
-			{
-				setPlaced(true,true,false,false,false,place);
-			}
-		}
-		else if(numScoring==4)
-		{
-			if(numV==0)
-			{
-				setPlaced(false,false,false,false,false,place);
-			}
-			else if(numV==1)
-			{
-				setPlaced(true,false,false,false,false,place);
-			}
-		}
-		else if(numScoring==5)
-		{
-			if(numV==0)
-			{
-				setPlaced(false,false,false,false,false,place);
-			}
-		}
 		
-		ticker.tick();
-		ticker.tick();
+		if(numV==0) {
+			setPlacedNew(place,permutations[numV].get(0));
+			return;
+		}
+		setPlacedNew(place,permutations[numV].get(index));		
+		
 	}
 	
 	/**
@@ -2562,94 +2205,7 @@ public class Main extends JFrame
 	 * @return number of combinations (SIZE - numScoring choose numVoltorbs)
 	 */
 	public int getNumCombinations(int numScoring,int numVoltorbs)	{
-		
 		return ncr(SIZE - numScoring, numVoltorbs);
-
-		/*
-		int compare = ncr(SIZE - numVoltorbs, numScoring);
-		System.out.print(SIZE - numVoltorbs + " choose "+ numScoring + " gives\t ");
-		
-		if(numScoring==0)
-		{
-			System.out.println("old: 1, new: "+compare);
-			return 1; //5 choose 0
-		}
-		else if(numScoring==1) { 
-			if(numVoltorbs==0) {
-				System.out.println("old: 5, new: "+compare);
-				return 5; //5 choose 1 --> SIZE - numScoring choose numVoltorbs
-			}
-			else if(numVoltorbs==1){
-				System.out.println("old: 4, new: "+compare);
-				return 4; //4 choose 1
-			}
-			else if(numVoltorbs==2) {
-				System.out.println("old: 3, new: "+compare);
-					return 3; //3 choose 1
-			}
-			else if(numVoltorbs==3) {
-				System.out.println("old: 2, new: "+compare);
-					return 2; //2 choose 1
-			}
-			else if(numVoltorbs==4){
-				System.out.println("old: 1, new: "+compare);
-					return 1; //1 choose 1
-			}
-		}
-		else if(numScoring==2) {
-			if(numVoltorbs==0)
-			{
-				System.out.println("old: 10, new: "+compare);
-				return 10; //5 choose 2
-			}
-			else if(numVoltorbs==1){
-				System.out.println("old: 6, new: "+compare);
-				return 6; //4 choose 2
-			}
-			else if(numVoltorbs==2){
-				System.out.println("old: 3, new: "+compare);
-				return 3; //3 choose 2
-			}
-			else if(numVoltorbs==3){
-				System.out.println("old: 1, new: "+compare);
-				return 1; //2 choose 2
-			}
-		}
-		else if(numScoring==3) {
-			if(numVoltorbs==0)
-			{
-				System.out.println("old: 10, new: "+compare);
-				return 10; //5 choose 3
-			}
-			else if(numVoltorbs==1) {
-				System.out.println("old: 4, new: "+compare);
-				return 4; //4 choose 3
-			}
-			else if(numVoltorbs==2){
-				System.out.println("old: 1, new: "+compare);
-				return 1;
-			}
-		}
-		else if(numScoring==4)
-		{
-			if(numVoltorbs==0) {
-				System.out.println("old: 5, new: "+compare);
-				return 5; //5 choose 4
-			}
-			else if(numVoltorbs==1) {
-				System.out.println("old: 1, new: "+compare);
-				return 1;
-			}
-		}
-		else if(numScoring==5)
-		{
-				System.out.println("old: 1, new: "+compare);
-			return 1; //5 choose 5
-		}
-		
-		return -1;
-		*/
-		
 	}
 
 	/** Factorial method to call in ncr,

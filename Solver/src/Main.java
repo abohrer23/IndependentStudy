@@ -827,9 +827,18 @@ public class Main extends JFrame
 			state = state.concat("\t\t\tProbability of Voltorb");
 		}
 		System.out.println();
-		//TODO adjust printing for nxn
-		System.out.println("   01234\n");
-		state = state.concat("\n   01234\n");
+		//adjust printing for nxn
+		System.out.println("   ");
+		for (int i = 0; i < SIZE; i++) {
+			System.out.print(i);
+		}
+		System.out.println("\n");
+		state = state.concat("   ");
+		for (int i = 0; i < SIZE; i++) {
+			state = state.concat(i+"");
+		}
+		state = state.concat("\n");
+		//state = state.concat("\n   01234\n");
 		//System.out.println("   _____");
 		for (int i = 0; i < SIZE; ++i) {
 			System.out.print(i + " |");
@@ -1526,7 +1535,7 @@ public class Main extends JFrame
 
 		for(int first=0;first<nums[iterator];first++)
 		{
-			getBinaryPlacement(nums[iterator],first,place);
+			getBinaryPlacement(nums[iterator],first,place, numCom[iterator]);
 			//make placement
 			countforV=0;
 			for(int i=0;i<SIZE;i++)
@@ -1974,13 +1983,13 @@ public class Main extends JFrame
 			System.out.print(a[i] + " ");
 		}
 	}
-	//TODO
+
 	/**
 	 * @param num
 	 * @param curr
 	 * @param place
 	 */
-	public void getBinaryPlacement(int num,int curr,boolean place[]) { 
+	public void getBinaryPlacement(int num,int curr,boolean place[], int exp) { //switch num to just the exponent
 		//curr iterates 0 to num.
 		//does this iterate through the first "num" permutations?
 		//could sort the array(list)s somehow and use that?
@@ -1989,26 +1998,28 @@ public class Main extends JFrame
 		//can work with that in a similar way as the other method
 		//could pass in numComs instead of nums? that would avoid taking a log oofity
 		
-		boolean[] newChoice;
+	//	boolean[] newChoice = null;
 		
-		int i = 0;
-		while (true) {
-			ticker.tick();
-			if (num>permutations[i].size()) {
-				i++;
-			}
-			else {
-				newChoice = permutations[i].get(curr);
-				//setPlacedNew(place, permutations[i].get(curr));
-				//return;
-				break;
+		int localCount = 0;
+		for (int i = 0; i <= exp; i++) {
+			for (int j = 0; j < ncr(exp,i); j++) {
+				
+				if (localCount == curr) {
+					setPlacedNew(place,permutations[i].get(j));
+					return;
+					//newChoice = permutations[i].get(j);
+				}
+				localCount++;
 			}
 		}
 		
-//		System.out.print("num: "+num+", curr: " +curr+"\t");
+		
+		
+		
+	//	System.out.print("\tnum: "+num+", aka 2^"+exp+", curr: " +curr+"\t");
 //		printBoolArr(newChoice);
 //		System.out.println();
-		
+		/*
 		if(num==1) {
 //			System.out.print("new: ");
 //			printBoolArr(newChoice);
@@ -2320,7 +2331,7 @@ public class Main extends JFrame
 				setPlaced(true,true,true,true,true,place);
 				break;
 			}
-		}
+		}*/
 		
 	}
 	

@@ -1852,6 +1852,7 @@ public class Main extends JFrame
 			}
 		}
 	}
+	
 	/**
 	 * @param values
 	 */
@@ -1861,13 +1862,14 @@ public class Main extends JFrame
 		{
 			for(int j=0;j<SIZE;j++)
 			{
-				if(values[i][j]==5) // flag value = 5?
+				if(values[i][j]==5) // flag value = 5? for a voltorb i am pretty sure
 					accumulate[i][j]++;
 				
 				ticker.tick();
 			}
 		}
 	}
+	
 	/**
 	 * @param values
 	 * @return
@@ -1929,6 +1931,10 @@ public class Main extends JFrame
 
 	}
 	
+	/**
+	 * @param place place array
+	 * @param current current array to transfer in
+	 */
 	private void setPlacedNew(boolean[] place, boolean[] current) {
 		for (int i = 0; i < SIZE; ++i) {
 			place[i] = current[i];
@@ -1961,6 +1967,12 @@ public class Main extends JFrame
 		return (int)Math.pow(2, num);
 	}
 	
+	
+	private void printBoolArr(boolean[] a) {
+		for (int i = 0; i < a.length; i++) {
+			System.out.print(a[i] + " ");
+		}
+	}
 	//TODO
 	/**
 	 * @param num
@@ -1976,18 +1988,50 @@ public class Main extends JFrame
 		//can work with that in a similar way as the other method
 		//could pass in numComs instead of nums? that would avoid taking a log oofity
 		
+		boolean[] newChoice;
+		
+		int i = 0;
+		while (true) {
+			ticker.tick();
+			if (num>permutations[i].size()) {
+				i++;
+			}
+			else {
+				newChoice = permutations[i].get(curr);
+				//setPlacedNew(place, permutations[i].get(curr));
+				//return;
+				break;
+			}
+		}
+		
+//		System.out.print("num: "+num+", curr: " +curr+"\t");
+//		printBoolArr(newChoice);
+//		System.out.println();
+		
 		if(num==1) {
+//			System.out.print("new: ");
+//			printBoolArr(newChoice);
+//			System.out.println("\told: false,false,false,false,false");
 			setPlaced(false,false,false,false,false,place);
 		}
 		else if(num==2) {
-			if(curr==0)
+			if(curr==0) {
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,false,false,false");
 				setPlaced(false,false,false,false,false,place);
-			else if(curr==1)
+			}
+			else if(curr==1) {
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,false,false,false");
 				setPlaced(true,false,false,false,false,place);
+			}
 		}
 		else if(num==4) {
-			if(curr==0)
+			if(curr==0) {
 				setPlaced(false,false,false,false,false,place);
+			}
 			else if(curr==1)
 				setPlaced(true,false,false,false,false,place);
 			else if(curr==2)
@@ -2083,104 +2127,200 @@ public class Main extends JFrame
 			switch(curr)
 			{
 			case 0:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,false,false,false");
 				setPlaced(false,false,false,false,false,place);
 				break;
 			case 1:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,false,false,false");
 				setPlaced(true,false,false,false,false,place);
 				break;
 			case 2:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,false,false,false");
 				setPlaced(false,true,false,false,false,place);
 				break;
 			case 3:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false, true,false,false");
 				setPlaced(false,false,true,false,false,place);
 				break;
 			case 4:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,false,true,false");
 				setPlaced(false,false,false,true,false,place);
 				break;
 			case 5:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,false,false,true");
 				setPlaced(false,false,false,false,true,place);
 				break;
 			case 6:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,false,false,false");
 				setPlaced(true,true,false,false,false,place);
 				break;
 			case 7:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,true,false,false");
 				setPlaced(true,false,true,false,false,place);
 				break;
 			case 8:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,false,true,false");
 				setPlaced(true,false,false,true,false,place);
 				break;
 			case 9:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,false,false,true");
 				setPlaced(true,false,false,false,true,place);
 				break;
 			case 10:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,true,false,false");
 				setPlaced(false,true,true,false,false,place);
 				break;
 			case 11:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,false,true,false");
 				setPlaced(false,true,false,true,false,place);
 				break;
 			case 12:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,false,false,true");
 				setPlaced(false,true,false,false,true,place);
 				break;
 			case 13:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,true,true,false");
 				setPlaced(false,false,true,true,false,place);
 				break;
 			case 14:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,true,false,true");
 				setPlaced(false,false,true,false,true,place);
 				break;
 			case 15:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,false,true,true");
 				setPlaced(false,false,false,true,true,place);
 				break;
 			case 16:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,true,false,false");
 				setPlaced(true,true,true,false,false,place);
 				break;
 			case 17:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,false,true,false");
 				setPlaced(true,true,false,true,false,place);
 				break;
 			case 18:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,false,false,true");
 				setPlaced(true,true,false,false,true,place);
 				break;
 			case 19:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,true,true,false");
 				setPlaced(true,false,true,true,false,place);
 				break;
 			case 20:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,true,false,true");
 				setPlaced(true,false,true,false,true,place);
 				break;
 			case 21:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,false,true,true");
 				setPlaced(true,false,false,true,true,place);
 				break;
 			case 22:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,true,true,false");
 				setPlaced(false,true,true,true,false,place);
 				break;
 			case 23:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,true,false,true");
 				setPlaced(false,true,true,false,true,place);
 				break;
 			case 24:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,false,true,true");
 				setPlaced(false,true,false,true,true,place);
 				break;
 			case 25:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,false,true,true,true");
 				setPlaced(false,false,true,true,true,place);
 				break;
 			case 26:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,true,true,false");
 				setPlaced(true,true,true,true,false,place);
 				break;
 			case 27:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,true,false, true");
 				setPlaced(true,true,true,false,true,place);
 				break;
 			case 28:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,false,true, true");
 				setPlaced(true,true,false,true,true,place);
 				break;
 			case 29:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,false,true,true, true");
 				setPlaced(true,false,true,true,true,place);
 				break;
 			case 30:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: false,true,true,true, true");
 				setPlaced(false,true,true,true,true,place);
 				break;
 			case 31:
+//				System.out.print("new: ");
+//				printBoolArr(newChoice);
+//				System.out.println("\told: true,true,true,true, true");
 				setPlaced(true,true,true,true,true,place);
 				break;
 			}
 		}
-		ticker.tick();
+		
 	}
 	
 	/**

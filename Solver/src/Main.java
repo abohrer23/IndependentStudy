@@ -1448,8 +1448,9 @@ public class Main extends JFrame
 		ticker.tick();
 		for(int firstouter=min[iterator];firstouter<=max[iterator];firstouter++)
 		{
-			for(int first=0;first<getNumCombinations(firstouter,vrows[iterator]);first++)
+			for(int first=0;first<getNumCombinations(vrows[iterator], firstouter);first++)
 			{
+				
 				generate(firstouter,vrows[iterator],first,place);
 				counter=0;
 				ticker.tick();
@@ -2335,6 +2336,7 @@ public class Main extends JFrame
 			setPlacedNew(place,permutations[numV].get(0));
 			return;
 		}
+		//System.out.println("index: "+ index + "\tfor len: "+permutations[numV].size()+"\t should have: "+getNumCombinations(numScoring, numV));
 		setPlacedNew(place,permutations[numV].get(index));		
 		
 	}

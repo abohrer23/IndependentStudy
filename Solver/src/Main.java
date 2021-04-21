@@ -43,15 +43,15 @@ import timing.Ticker;
 public class Main extends JFrame 
 {
 	public Ticker ticker; //= new Ticker();
-	
+
 	//ticker.tick();
-	
+
 	long startTime;// = System.nanoTime();
 	//methodToTime();
 	long endTime;// = System.nanoTime();
 
 	//long duration = (endTime - startTime); 
-	
+
 	private static final long serialVersionUID = 1L;
 	ArgsProcessor ap;
 	static String[] localArgs;
@@ -81,7 +81,14 @@ public class Main extends JFrame
 	int vcolumns[];
 	int rows[];
 	int vrows[];
+	
+	int level;
+
+	static boolean gmatflag;
+
 	int score;
+
+	int numflipped;
 	boolean place[];
 	LinkedList<int[][]> states;
 
@@ -109,15 +116,15 @@ public class Main extends JFrame
 	int numberOfFinalStates;
 
 	ArrayList<boolean[]>[] permutations;
-	
-	
+
+
 	public static void main(String args[]) 
 	{
 		//Thank you HackerRank
 		//https://www.hackerrank.com/challenges/java-stdin-and-stdout-1/problem
-		
+
 		Scanner scanner = new Scanner(System.in);
-		
+
 		/*
 		System.out.print("Choose strategy");
 		String myString = scanner.next();
@@ -125,37 +132,58 @@ public class Main extends JFrame
 			String val = scanner.next();
 			System.out.println(9 + ": " + val );
 			myString += val;
-			
+
 		}
 		scanner.close();
-		*/
-		
+		 */
+
 		System.out.println("Please enter your Strategy: (type \"GUI\" if you want to use the GUI)");
-        String input = scanner.nextLine();
-        System.out.println("User Input from console: " + input);
-		
-		localArgs = args;
-        
-        if(input.equals("") || input.equals("GUI")){
-        	new Main("");
-        }
-        else {
-        	new Main(input);
-        }
-        
-		
+		String input = scanner.nextLine();
+		System.out.println("User Input from console: " + input);
+
+		if(input.contains("-GMAT")) {
+
+			gmatflag = true;
+
+			localArgs = args;
+
+			for(int i=0;i<5;i++) {
+
+				if(input.equals("") || input.equals("GUI")){
+					new Main("");
+				}
+				else {
+					new Main(input);
+				}
+			}
+		}
+		else {
+
+			gmatflag = false;
+
+			localArgs = args;
+
+			if(input.equals("") || input.equals("GUI")){
+				new Main("");
+			}
+			else {
+				new Main(input);
+			}
+		}
+
+
 	}
 	Main(String args) 
 	{
-		
+
 		Ticker ticker = new Ticker();
-		
+
 		long startTime = System.currentTimeMillis();
 		//methodToTime();
 		//long endTime;// = System.nanoTime();
 
 		//long duration = (endTime - startTime);
-		
+
 		stats = new LinkedList<String>();
 		ap = new ArgsProcessor(localArgs); //new
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -166,10 +194,11 @@ public class Main extends JFrame
 		update=new JButton("Update");
 		reset=new JButton("Reset");
 		play=new JButton("Play");
-		
-		
+
+
 		totalSims = 0;
 		simCounter = 0;
+		numflipped = 0;
 		logger = new MoveLogger(simCounter);
 		files = new File[0];
 
@@ -191,11 +220,11 @@ public class Main extends JFrame
 		//values=new int[5][5];
 		//nextValue=new int[5][5];
 		showValues=new JTextField[5][5];
-//		columns=new int[5];
-//		vcolumns=new int[5];
-//		rows=new int[5];
-//		vrows=new int[5];
-//		accumulate=new double[5][5];
+		//		columns=new int[5];
+		//		vcolumns=new int[5];
+		//		rows=new int[5];
+		//		vrows=new int[5];
+		//		accumulate=new double[5][5];
 
 		globalstrat = "";
 		//globalfilename = "";
@@ -206,25 +235,25 @@ public class Main extends JFrame
 		//answer = new int[5][5];
 
 		//current known (flipped over) board
-//		knownBoard = new int[5][5];
-//		for (int i = 0; i < 5; ++i) {
-//			for (int j = 0; j < 5; ++j){
-//				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
-//			}
-//		}
+		//		knownBoard = new int[5][5];
+		//		for (int i = 0; i < 5; ++i) {
+		//			for (int j = 0; j < 5; ++j){
+		//				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
+		//			}
+		//		}
 
-//		//current voltorb probabilities
-//		currentVProbabilities = new double[5][5];
-//		//current scoring probabilites
-//		currentSProbabilities = new double[5][5];
-//		//current one-tile probabilites
-//		currentOProbabilities = new double[5][5];
+		//		//current voltorb probabilities
+		//		currentVProbabilities = new double[5][5];
+		//		//current scoring probabilites
+		//		currentSProbabilities = new double[5][5];
+		//		//current one-tile probabilites
+		//		currentOProbabilities = new double[5][5];
 
 		Cols=new JTextField[5];
 		Rows=new JTextField[5];
 		Vcols=new JTextField[5];
 		Vrows=new JTextField[5];
-//		place=new boolean[5];
+		//		place=new boolean[5];
 		probabilities=new JLabel[5][5];
 
 		for(int i=0;i<SIZE;i++)
@@ -242,16 +271,16 @@ public class Main extends JFrame
 			Vcols[i].setBounds((i*40)+50, 160, 20, 20);
 			Rows[i].setBounds(230, (i*20)+60, 20, 20);
 			Vrows[i].setBounds(250, (i*20)+60, 20, 20);
-//			columns[i]=-1;
-//			vcolumns[i]=-1;
-//			rows[i]=-1;
-//			vrows[i]=-1;
+			//			columns[i]=-1;
+			//			vcolumns[i]=-1;
+			//			rows[i]=-1;
+			//			vrows[i]=-1;
 			//Setup for loop to initalize 2-D arrays inside existing for loop. Lane, you could possilby use this for loop to add scanned characters in
 			for(int j=0;j<SIZE;j++)
 			{
-//				accumulate[i][j]=0;
-//				nextValue[i][j]=0;
-//				values[i][j]=0;
+				//				accumulate[i][j]=0;
+				//				nextValue[i][j]=0;
+				//				values[i][j]=0;
 				showValues[i][j]=new JTextField();
 				add(showValues[i][j]);
 				showValues[i][j].setBounds((j*40)+30,(i*20)+60, 40, 20);
@@ -296,11 +325,12 @@ public class Main extends JFrame
 
 
 		/*
-			* Evin's Multithreading corner
-			*
-			*
-		*/
+		 * Evin's Multithreading corner
+		 *
+		 *
+		 */
 		// https://www.geeksforgeeks.org/multithreading-in-java/
+		/*
 		try {
             // Displaying the thread that is running
             System.out.println(
@@ -311,9 +341,10 @@ public class Main extends JFrame
             // Throwing an exception
             System.out.println("Exception is caught");
         }
+		 */
 
-		
 		do {
+			/*
 		if(globalstrat.equals("")) {
 			//Use GUI if no command line input
 			if( args == "" ) {
@@ -328,19 +359,44 @@ public class Main extends JFrame
 
 			a = choosestrategy(strategy);
 			ticker.tick();
-			
-			
+
+
 		}
-		
-		ticker.tick();
-		
-		//Global Execution
+			 */
+
+			//Do GMAT
+			if(globalstrat.equals("") ) {
+
+				if( args == "" ) {
+					strategy = ap.nextString("What strategy would you like to implement? (Note, type -auto afterwards to auto run a board");
+				}
+				else {
+					strategy = args;
+				}
+				//Do GMAT
+				if(strategy.contains("-GMAT")){
+
+					play(a, gmatflag);
+					ticker.tick();
+					reset();
+					ticker.tick();
+
+
+				}
+
+				ticker.tick();
+
+				//Global Execution
+				/*
 			play(a);
 			ticker.tick();
 			reset();
 			ticker.tick();
+				 */
 
-		/*
+			}
+
+			/*
 
 		int n = 4; // Number of threads because Lane and I have puny CPUs
         for (int i = 0; i < n; i++) {
@@ -348,32 +404,32 @@ public class Main extends JFrame
                 = new MultithreadingDemo();
             object.start();
         }
-		
-		*/
-		
-		
-		System.out.print(simCounter + " = " + totalSims);
-		ticker.tick();
-		
+
+			 */
+
+
+			System.out.print(simCounter + " = " + totalSims);
+			ticker.tick();
+
 		} while(simCounter < totalSims );
-		
+
 		csvstats(stats);
-		
+
 		//export ticks
 
 		//auto starts - no need to press start
 		//play();
-		
+
 		long endTime = System.currentTimeMillis();
-		
+
 		long duration =  endTime - startTime;
-		
+
 		FileWriter myWriter;
-		
+
 		//String s = "strategy, size, time (ns), ticks\n";
-		
+
 		String s = logger.getAlgo() + ", " + totalSims + ", " + duration + "," + ticker.getTickCount() + ","  + "\n";
-		
+
 		try {
 			myWriter = new FileWriter("timing.csv", true);
 			System.out.print(s);
@@ -384,15 +440,15 @@ public class Main extends JFrame
 			e.printStackTrace();
 		}
 
-		
+
 
 
 	}
 
 	public String globalconfig(String strategy) {
-				
+
 		Algorithm a;
-		
+
 		if(strategy.contains("-global")) {
 
 			String tempstrat = strategy;
@@ -404,7 +460,7 @@ public class Main extends JFrame
 			globalstrat = tempstrat.replace("-global", "");
 
 			runningGlobal = true;
-			
+
 			return slice;
 
 
@@ -412,7 +468,7 @@ public class Main extends JFrame
 		else {
 			return null;
 		}
-		
+
 	}
 	public class actions implements ActionListener
 	{
@@ -442,7 +498,9 @@ public class Main extends JFrame
 	/**
 	 * 
 	 */
-	public void play(Algorithm a) {
+	public void play(Algorithm a, boolean gmat) {
+
+		ticker = new Ticker();
 		//1. Input. For the time being this is just a board coordinate to play at. Using input for now, but an algorithm auto-input
 		//is doable in the future
 		// This method could also be abstract if we ever decided to refactor this to OOP due to multiple methods of input.
@@ -470,52 +528,57 @@ public class Main extends JFrame
 
 		logger.setAlgorithm(loggerAlgo);
 
-		setNumbers();
+		setNumbers(gmat);
 		startCalculating();	
 		ticker.tick();
+
+		if(a == null) {
+			a = new MinRisk();
+		}
 
 		//Run auto if desired 
 		//Loop until a game over/tie
 
-		if(strategy.contains("-auto")) {
-			ticker.tick();
+		//if(strategy.contains("-auto")) {
+		ticker.tick();
 
 
-			//keep running until you can
-			while(true) {
+		//keep running until you can
+		while(true) {
 
 
-				int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
+			int[] solution = a.choosetile(currentVProbabilities, currentOProbabilities, currentSProbabilities, knownBoard);
 
-				if(solution != null) {
-					xcoord = solution[0];
-					ycoord = solution[1];
-					ticker.tick();
+			if(solution != null) {
+				xcoord = solution[0];
+				ycoord = solution[1];
+				ticker.tick();
 
-					//If a flip isn't successful, stop
-					//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
-					int tilevalue = flip(xcoord, ycoord);
-					ticker.tick();
-					if(tilevalue != 0) {
-						
-						return;
-					}
+				//If a flip isn't successful, stop
+				//Note: A switch statement could be put here if you want to do stuff like log files or do something depending on flip outcomes
+				int tilevalue = flip(xcoord, ycoord);
+				ticker.tick();
+				if(tilevalue != 0) {
 
-				}
-				else {
-					ticker.tick();
-					//Cannot find a safe solution - withdraw
-					cleanup(false, false, true);
-					//fix returning later
 					return;
 				}
 
-
+			}
+			else {
+				ticker.tick();
+				//Cannot find a safe solution - withdraw
+				cleanup(false, false, true);
+				//fix returning later
+				return;
 			}
 
 
 		}
 
+
+		//}
+
+		/*
 		//If none of those flags are present, run normal
 		else {
 			ticker.tick();
@@ -543,9 +606,10 @@ public class Main extends JFrame
 
 
 		}
+		 */
 
 
-		return;
+		//return;
 	}
 
 	public void csvstats(LinkedList<String> list) {
@@ -634,7 +698,7 @@ public class Main extends JFrame
 					gameover = true;
 					alldone = false;
 					break;
-					
+
 				}
 
 				//should it be flipped over?
@@ -651,8 +715,9 @@ public class Main extends JFrame
 		//Game over is #1 Priority - check first
 		if(gameover) {
 			ticker.tick();
-			
+
 			score = 0;
+
 
 			int flippedTile = answer[xcoord][ycoord];
 			logger.log(flippedTile, getBoardState());
@@ -667,9 +732,13 @@ public class Main extends JFrame
 			ticker.tick();
 			int flippedTile = answer[xcoord][ycoord];
 			score *= flippedTile;
+			numflipped++;
 			logger.log(flippedTile, getBoardState());
 
 			logger.setExit(1, score);
+
+			//reset score
+			score = 0;
 
 			cleanup(true, false, false);
 
@@ -679,7 +748,14 @@ public class Main extends JFrame
 			ticker.tick();
 			prettyprint();
 			int flippedTile = answer[xcoord][ycoord];
-			score *= flippedTile;
+			if(score == 0) {
+				score += flippedTile;
+
+			}
+			else {
+				score *= flippedTile;
+			}
+			numflipped++;
 			logger.log(flippedTile, getBoardState());
 			return 0;
 		}
@@ -928,7 +1004,7 @@ public class Main extends JFrame
 				}
 			}
 		}
-		
+
 		for(int k=0;k<numberOfFinalStates;k++)
 		{
 			add=true;
@@ -976,8 +1052,8 @@ public class Main extends JFrame
 						accumulated[1][i][j]++;
 					if(values[i][j]==2||values[i][j]==3)
 						accumulated[2][i][j]++;
-					
-					
+
+
 					ticker.tick();
 				}
 			}
@@ -993,10 +1069,10 @@ public class Main extends JFrame
 				accumulated[0][i][j]=Math.round(accumulated[0][i][j]/alpha*100)/100.0;
 				accumulated[1][i][j]=Math.round(accumulated[1][i][j]/alpha*100)/100.0;
 				accumulated[2][i][j]=Math.round(accumulated[2][i][j]/alpha*100)/100.0;
-//				if(accumulated[0][i][j]>maxvoltorb&&showValues[i][j].getText().equals(""))
-//					maxvoltorb=accumulated[0][i][j];
-//				if(accumulated[2][i][j]>maxscore&&showValues[i][j].getText().equals(""))
-//					maxscore=accumulated[2][i][j];
+				//				if(accumulated[0][i][j]>maxvoltorb&&showValues[i][j].getText().equals(""))
+				//					maxvoltorb=accumulated[0][i][j];
+				//				if(accumulated[2][i][j]>maxscore&&showValues[i][j].getText().equals(""))
+				//					maxscore=accumulated[2][i][j];
 				//probabilities[i][j].setText("<"+Math.round(accumulated[0][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[1][i][j]/alpha*100)/100.0+" , "+Math.round(accumulated[2][i][j]/alpha*100)/100.0+">\t");
 				ticker.tick();
 			}
@@ -1005,18 +1081,18 @@ public class Main extends JFrame
 		{
 			for(int j=0;j<SIZE;j++)
 			{
-//				if(accumulated[0][i][j]==maxvoltorb&&showValues[i][j].getText().equals(""))
-//					probabilities[i][j].setForeground(Color.red);
-//				else if(accumulated[2][i][j]==maxscore&&showValues[i][j].getText().equals(""))
-//					probabilities[i][j].setForeground(Color.blue);
-//				else
-//					probabilities[i][j].setForeground(Color.black);
-				
-//				probabilities[i][j].setText("<"+accumulated[0][i][j]+" , "+accumulated[1][i][j]+" , "+accumulated[2][i][j]+">\t");
+				//				if(accumulated[0][i][j]==maxvoltorb&&showValues[i][j].getText().equals(""))
+				//					probabilities[i][j].setForeground(Color.red);
+				//				else if(accumulated[2][i][j]==maxscore&&showValues[i][j].getText().equals(""))
+				//					probabilities[i][j].setForeground(Color.blue);
+				//				else
+				//					probabilities[i][j].setForeground(Color.black);
+
+				//				probabilities[i][j].setText("<"+accumulated[0][i][j]+" , "+accumulated[1][i][j]+" , "+accumulated[2][i][j]+">\t");
 				currentVProbabilities[i][j] = accumulated[0][i][j];
 				currentOProbabilities[i][j] = accumulated[1][i][j];
 				currentSProbabilities[i][j] = accumulated[2][i][j];
-				
+
 				ticker.tick();
 			}
 		}
@@ -1039,10 +1115,10 @@ public class Main extends JFrame
 		states.clear();
 		for(int i=0;i<SIZE;i++)
 		{
-//			Cols[i].setText("");
-//			Rows[i].setText("");
-//			Vcols[i].setText("");
-//			Vrows[i].setText("");
+			//			Cols[i].setText("");
+			//			Rows[i].setText("");
+			//			Vcols[i].setText("");
+			//			Vrows[i].setText("");
 			place[i]=false;
 			columns[i]=-1;
 			vcolumns[i]=-1;
@@ -1054,9 +1130,9 @@ public class Main extends JFrame
 				accumulate[i][j]=0;
 				nextValue[i][j]=0;
 				values[i][j]=0;
-//				showValues[i][j].setText("");	
-//				probabilities[i][j].setForeground(Color.black);
-//				probabilities[i][j].setText("");
+				//				showValues[i][j].setText("");	
+				//				probabilities[i][j].setForeground(Color.black);
+				//				probabilities[i][j].setText("");
 
 				//added
 				knownBoard[i][j] = COVERED; //flag for unknown, will print as a blank/covered space
@@ -1075,7 +1151,7 @@ public class Main extends JFrame
 		//Recursion bad
 		return;
 	}
-	
+
 	/**
 	 * do definitions of arrays etc that depend on size
 	 */
@@ -1118,36 +1194,36 @@ public class Main extends JFrame
 				values[i][j]=0;
 			}
 		}
-		
+
 		//syntax weird https://www.geeksforgeeks.org/array-of-arraylist-in-java/ 
 		// these will be lists of the possible permutations (boolean arrays) that show the voltorb positions given the number of voltorbs (index in big array)
 		permutations = new ArrayList[SIZE+1];
-        for (int i = 0; i < permutations.length; i++) {
-            permutations[i] = new ArrayList<boolean[]>();
-        }
-        
-        permutationSetup(SIZE, new boolean[SIZE], 0);
-        
-        sortPermutations();
-        //printPermutations();
+		for (int i = 0; i < permutations.length; i++) {
+			permutations[i] = new ArrayList<boolean[]>();
+		}
+
+		permutationSetup(SIZE, new boolean[SIZE], 0);
+
+		sortPermutations();
+		//printPermutations();
 	}
-	
+
 	/**
 	 * method to print out permutations (use for debugging)
 	 */
 	private void printPermutations() {
 		for (int i = 0; i < permutations.length; i++) {
-            for (int j = 0; j < permutations[i].size(); j++) {
-                for (int k = 0; k < permutations[i].get(j).length; k++) {
-                	System.out.print(permutations[i].get(j)[k]);
-                }
-                System.out.println();
-            }
-            System.out.println();
-            System.out.println();
-        }
+			for (int j = 0; j < permutations[i].size(); j++) {
+				for (int k = 0; k < permutations[i].get(j).length; k++) {
+					System.out.print(permutations[i].get(j)[k]);
+				}
+				System.out.println();
+			}
+			System.out.println();
+			System.out.println();
+		}
 	}
-	
+
 	/**
 	 * recursive method for getting all permutations of the voltorb boolean arrays
 	 * @param n size (could probably not be a parameter ngl)
@@ -1156,24 +1232,24 @@ public class Main extends JFrame
 	 */
 	private void permutationSetup (int n, boolean arr[], int i)
 	{
-	    if (i == n) {
-	    	addToPermutations(arr);
-	        return;
-	    }
-	  
-	    // First assign "0" at ith position
-	    // and try for all other permutations
-	    // for remaining positions
-	    arr[i] = false;
-	    permutationSetup (n, arr, i + 1);
-	  
-	    // And then assign "1" at ith position
-	    // and try for all other permutations
-	    // for remaining positions
-	    arr[i] = true;
-	    permutationSetup (n, arr, i + 1);
+		if (i == n) {
+			addToPermutations(arr);
+			return;
+		}
+
+		// First assign "0" at ith position
+		// and try for all other permutations
+		// for remaining positions
+		arr[i] = false;
+		permutationSetup (n, arr, i + 1);
+
+		// And then assign "1" at ith position
+		// and try for all other permutations
+		// for remaining positions
+		arr[i] = true;
+		permutationSetup (n, arr, i + 1);
 	}
-	
+
 	/**
 	 * helper for permutationSetup, adds array to the correct arraylist based on number of voltorbs
 	 * @param arr array to add
@@ -1185,39 +1261,41 @@ public class Main extends JFrame
 				numTrue++;
 			}
 		}
-		
+
 		boolean[] copy = arr.clone();
 		permutations[numTrue].add(copy);
 	}
-	
+
+	class SortFalseFirst implements Comparator<boolean[]> {
+		// Used for sorting in ascending order of
+		// name
+		public int compare(boolean[] a, boolean[] b)
+		{
+			for (int i = a.length-1; i>=0; i--) {
+				if (a[i]!=b[i]) {
+					if (a[i]) {
+						return 1;
+					}
+					return -1;
+				}
+			}
+			return 0;
+		}
+	}
+
 	private void sortPermutations() {
 		for (int i = 0; i < permutations.length; i++) {
 			Collections.sort(permutations[i], new SortFalseFirst());
 		}
 	}
-	
-	class SortFalseFirst implements Comparator<boolean[]> {
-	    // Used for sorting in ascending order of
-	    // name
-	    public int compare(boolean[] a, boolean[] b)
-	    {
-	    	for (int i = a.length-1; i>=0; i--) {
-	    		if (a[i]!=b[i]) {
-	    			if (a[i]) {
-	    				return 1;
-	    			}
-	    			return -1;
-	    		}
-	    	}
-	        return 0;
-	    }
-	}
-	
+
+
+
 	/**
 	 *  
 	 * 
 	 */
-	public void setNumbers()
+	public void setNumbers(boolean gmat)
 	{
 
 		/* ArgsProcessor file opening functionality is taken from Prof Cosgrove's 131 changes. He's the best
@@ -1225,12 +1303,14 @@ public class Main extends JFrame
 		 * Modified by Lane Bohrer for use here
 		 * */
 
-		if(runningGlobal) {
+		if(!gmat) {
 
 			//thank you Internet very cool https://www.geeksforgeeks.org/file-listfiles-method-in-java-with-examples/
 
-			File parentFile = new File("support_src/boards/resources"); 
+			File parentFile = new File("../support_src/boards/resources"); 
 			ticker.tick();
+
+			System.out.println(parentFile.getAbsolutePath());
 
 			FileFilter filter = new FileFilter() { 
 
@@ -1250,9 +1330,9 @@ public class Main extends JFrame
 
 
 			files = parentFile.listFiles(filter); 
-			
+
 			//System.out.println("files" + files);
-			
+
 			totalSims = files.length;
 
 			Arrays.parallelSort(files);
@@ -1269,6 +1349,8 @@ public class Main extends JFrame
 			runningGlobal = false;
 
 		} else {
+
+			/*
 			try {
 				in = new Scanner(files[simCounter]);
 				ticker.tick();
@@ -1277,8 +1359,61 @@ public class Main extends JFrame
 				System.out.println("oopsies");
 				ticker.tick();
 			}
+			 */
+
+			//GMAT style dynamic generation
+			System.out.println("Making a new board of 1, 6, 5");
+			MakeBoard m = new MakeBoard();
+			//quantity,level, size
+			int batch = m.makeboard(1, 6, 5);
+
+
+			File parentFile = new File("support_src/boards/resources"); 
+			ticker.tick();
+
+			System.out.println(parentFile.getAbsolutePath());
+
+			FileFilter filter = new FileFilter() { 
+
+				public boolean accept(File parentFile) 
+				{ 
+
+					ticker.tick();
+
+					//for batch #, could do something like
+					return parentFile.getName().contains( ("-"+(batch-1)+"-") );
+					//return true;
+
+				} 
+			}; 
+			// System.out.println(parentFile.listFiles(filter));
+			//File[] newfiles = parentFile.listFiles(filter);
+
+
+			files = parentFile.listFiles(filter); 
+
+			System.out.print("files" + files[0]);
+
+			totalSims = files.length;
+
+			Arrays.parallelSort(files);
+			ticker.tick();
+
+
+			try {
+				in = new Scanner(files[0]);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				System.out.println("oopsies");
+				ticker.tick();
+			}
+			ticker.tick();
+
+
+
 
 		}
+
 
 		/*NEW text file setup:
 		 * Size(int)
@@ -1287,8 +1422,13 @@ public class Main extends JFrame
 		 * */
 
 
+		//GMAT style dynamic regeneration
+
+
+
+
 		SIZE = in.nextInt(); //not used yet but will let us do nxn
-		
+
 		createArrays();
 
 		for (int i = 0; i < SIZE; ++i) {
@@ -1356,13 +1496,13 @@ public class Main extends JFrame
 			}
 		}
 	}
-	
+
 	/**
 	 * Recursive method to find Voltorb Placements
 	 * @param numCombinations
 	 */
 	private void findVoltorbPlacements(int[] numCombinations, int iterator) {
-		
+
 		//what is the base case!
 		if (iterator == SIZE) { //or SIZE, depends on including testCols in the last call or separate
 			//do something?
@@ -1378,7 +1518,7 @@ public class Main extends JFrame
 			}
 			return;
 		}
-		
+
 		//what is the recursive substructure!
 		for(int first=0;first<numCombinations[iterator];first++) {
 			createPlacement(vrows[iterator],first,place);
@@ -1392,9 +1532,9 @@ public class Main extends JFrame
 
 				ticker.tick();
 			}
-		
+
 			findVoltorbPlacements(numCombinations, iterator + 1);
-			
+
 		}
 	}
 
@@ -1403,7 +1543,7 @@ public class Main extends JFrame
 	 * recursive method for finding possible states, calls its helper
 	 */
 	private void findAllPossibleStates(){
-		
+
 		possibleStatesCount = 0;
 
 		int[] max = new int[SIZE];
@@ -1418,18 +1558,18 @@ public class Main extends JFrame
 			ticker.tick();
 		}
 
-		
+
 		while(countforV>0){
 			values=states.pop();
 			copyMatrix(values,nextValue);
-			
+
 			possibleStatesRecursive(max,min, nextValue, 0);
-			
+
 			ticker.tick();
 			countforV--;
 		}
 	}
-	
+
 	/**
 	 * Recursive helper for findAllPossibleStates
 	 * @param max array of max vals
@@ -1438,7 +1578,7 @@ public class Main extends JFrame
 	 * @param iterator recursive iterator
 	 */
 	private void possibleStatesRecursive(int[] max, int[] min, int[][] nextValue, int iterator) {
-		
+
 		//base! case!
 		if (iterator == SIZE) {
 			if(testCols(nextValue))
@@ -1452,14 +1592,14 @@ public class Main extends JFrame
 			}
 			return;
 		}
-		
+
 		int counter;
 		ticker.tick();
 		for(int firstouter=min[iterator];firstouter<=max[iterator];firstouter++)
 		{
 			for(int first=0;first<getNumCombinations(vrows[iterator], firstouter);first++)
 			{
-				
+
 				generate(firstouter,vrows[iterator],first,place);
 				counter=0;
 				ticker.tick();
@@ -1482,7 +1622,7 @@ public class Main extends JFrame
 			}
 		}
 	}
-	
+
 	/**
 	 * Method called to figure out NumberOfFinalStates, will call a recursive helper
 	 */
@@ -1492,28 +1632,28 @@ public class Main extends JFrame
 		int numCom[] =new int[SIZE];
 		for(int i=0;i<SIZE;i++)
 			numCom[i]=0; ticker.tick();
-			
-		while(possibleStatesCount>0){
-			//prep work
-			for(int i=0;i<SIZE;i++) {
-				numCom[i]=0;
-				ticker.tick();
-			}
-			values=states.pop();
-			changeToValues(values,numCom); //gets... number of.. something in each row. voltorbs maybe?
-			for (int i = 0; i < SIZE; ++i) {
-				nums[i] = getNumberOnOff(numCom[i]); //2^numCom[i]
-				ticker.tick();
-			}
-			
-			
-			computeFinalStatesRecursive(nums, numCom,  0);
-			//computeFinalStatesIterative(nums, numCom);
 
-			possibleStatesCount--;
-		}
+			while(possibleStatesCount>0){
+				//prep work
+				for(int i=0;i<SIZE;i++) {
+					numCom[i]=0;
+					ticker.tick();
+				}
+				values=states.pop();
+				changeToValues(values,numCom); //gets... number of.. something in each row. voltorbs maybe?
+				for (int i = 0; i < SIZE; ++i) {
+					nums[i] = getNumberOnOff(numCom[i]); //2^numCom[i]
+					ticker.tick();
+				}
+
+
+				computeFinalStatesRecursive(nums, numCom,  0);
+				//computeFinalStatesIterative(nums, numCom);
+
+				possibleStatesCount--;
+			}
 	}
-	
+
 	/**
 	 * Recursive helper for computeFinalStates
 	 * @param nums array created in computeFinalStates
@@ -1563,24 +1703,24 @@ public class Main extends JFrame
 					return;
 				else
 					skip = true;
-				
+
 				/* 
 				 	find a way to speed this up? used to be:
 					if(outOfBounds(x,x))
 						break;
 					else
 						continue;
-				*/
+				 */
 			}
 
 			//recurse
 			if (!skip) {
-			computeFinalStatesRecursive(nums, numCom, iterator+1);
+				computeFinalStatesRecursive(nums, numCom, iterator+1);
 			}
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -1599,7 +1739,7 @@ public class Main extends JFrame
 
 		//new
 		findVoltorbPlacements(numCombinations, 0);
-		
+
 		///end of finding voltorbs////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
 		System.out.println("Number of possible states before adding cards: "+countforV);
@@ -1616,13 +1756,13 @@ public class Main extends JFrame
 		}
 		//start of finding all possible assignments///////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////
-		
+
 
 		ticker.tick();
 
 		//new
 		findAllPossibleStates();		
-		
+
 
 		System.out.println("New number of states  "+possibleStatesCount);
 		System.out.println("Probability of Scoring:");
@@ -1641,13 +1781,13 @@ public class Main extends JFrame
 
 		//////now to actually compute real states
 		////////////////////////////////////////////////////////////////////////////////////////////////
-		
+
 		numberOfFinalStates=0;
 
 		//new
 		computeFinalStates();
 		//comebackhere
-		
+
 
 		System.out.println("Final States "+numberOfFinalStates);
 
@@ -1660,44 +1800,44 @@ public class Main extends JFrame
 				for(int k=0;k<SIZE;k++)
 					accumulated[i][j][k]=0; ticker.tick();
 
-		for(int k=0;k<numberOfFinalStates;k++)
-		{
-			values=states.get(k);
-			for(int i=0;i<SIZE;i++)
-			{
-				for(int j=0;j<SIZE;j++)
-				{
-					ticker.tick();
-					if(values[i][j]==0)
-						accumulated[0][i][j]++;
-					if(values[i][j]==1)
-						accumulated[1][i][j]++;
-					if(values[i][j]==2||values[i][j]==3)
-						accumulated[2][i][j]++;
-				}
-			}
-		}
-		double alpha;
-		for(int i=0;i<SIZE;i++)
-		{
-			for(int j=0;j<SIZE;j++)
-			{
-				ticker.tick();
-				alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
+					for(int k=0;k<numberOfFinalStates;k++)
+					{
+						values=states.get(k);
+						for(int i=0;i<SIZE;i++)
+						{
+							for(int j=0;j<SIZE;j++)
+							{
+								ticker.tick();
+								if(values[i][j]==0)
+									accumulated[0][i][j]++;
+								if(values[i][j]==1)
+									accumulated[1][i][j]++;
+								if(values[i][j]==2||values[i][j]==3)
+									accumulated[2][i][j]++;
+							}
+						}
+					}
+					double alpha;
+					for(int i=0;i<SIZE;i++)
+					{
+						for(int j=0;j<SIZE;j++)
+						{
+							ticker.tick();
+							alpha=(accumulated[0][i][j]+accumulated[1][i][j]+accumulated[2][i][j]);
 
-				currentVProbabilities[i][j] = Math.round(accumulated[0][i][j]/alpha*100)/100.0;
-				currentOProbabilities[i][j] = Math.round(accumulated[1][i][j]/alpha*100)/100.0;
-				currentSProbabilities[i][j] = Math.round(accumulated[2][i][j]/alpha*100)/100.0;
-			}
-		}
-		numStates.setText("Number of Possible States "+numberOfFinalStates);
+							currentVProbabilities[i][j] = Math.round(accumulated[0][i][j]/alpha*100)/100.0;
+							currentOProbabilities[i][j] = Math.round(accumulated[1][i][j]/alpha*100)/100.0;
+							currentSProbabilities[i][j] = Math.round(accumulated[2][i][j]/alpha*100)/100.0;
+						}
+					}
+					numStates.setText("Number of Possible States "+numberOfFinalStates);
 
-		prettyprint();
-		System.out.println("\n");
+					prettyprint();
+					System.out.println("\n");
 
 	}
-	
-	
+
+
 	/**
 	 * @param values
 	 * @return
@@ -1716,11 +1856,11 @@ public class Main extends JFrame
 			return false;
 		else
 			return true;
-		
+
 		//ticker.tick();
 
 	}
-	
+
 	/**
 	 * @param values
 	 * @param num
@@ -1742,7 +1882,7 @@ public class Main extends JFrame
 			}
 		}
 	}
-	
+
 	/**
 	 * @param values
 	 * @param num
@@ -1759,11 +1899,11 @@ public class Main extends JFrame
 		}
 		if(maxrows>rows[num])
 			return true;
-		
+
 		ticker.tick();
 		return false;
 	}
-	
+
 	/**
 	 * @param values
 	 * @param num
@@ -1808,14 +1948,14 @@ public class Main extends JFrame
 		}
 		return true;  
 	}
-	
+
 	/**
 	 * @param values
 	 * @return
 	 */
 	public boolean testCols(int values[][])
 	{
-		
+
 		int[] max = new int[SIZE];
 		int[] min = new int[SIZE];
 
@@ -1828,13 +1968,13 @@ public class Main extends JFrame
 			ticker.tick();
 		}
 
-		
+
 		for (int i = 0; i < SIZE; ++i){
-		int count2 = 0;
+			int count2 = 0;
 			for(int j=0;j<SIZE;j++){
 				if(values[j][i]==5)
 					count2++;
-				
+
 				ticker.tick();
 			}
 			if(count2<min[i]||count2>max[i])
@@ -1857,12 +1997,12 @@ public class Main extends JFrame
 			{
 				if(values[i][j]==0)
 					accumulate[i][j]++;
-				
+
 				ticker.tick();
 			}
 		}
 	}
-	
+
 	/**
 	 * @param values
 	 */
@@ -1874,12 +2014,12 @@ public class Main extends JFrame
 			{
 				if(values[i][j]==5) // flag value = 5? for a voltorb i am pretty sure
 					accumulate[i][j]++;
-				
+
 				ticker.tick();
 			}
 		}
 	}
-	
+
 	/**
 	 * @param values
 	 * @return
@@ -1894,13 +2034,13 @@ public class Main extends JFrame
 			{
 				if(values[j][i]==0)
 					count++;
-				
+
 				ticker.tick();
 			}
 			if(count!=vcolumns[i])
 				return false;
-			
-			
+
+
 			ticker.tick();
 
 		}
@@ -1916,10 +2056,10 @@ public class Main extends JFrame
 	public void createPlacement(int numMines,int whichOne,boolean place[])	{
 
 		setPlacedNew(place, permutations[numMines].get(whichOne));
-		
+
 		ticker.tick();
 	}
-	
+
 	/**
 	 * @param b0
 	 * @param b1
@@ -1931,16 +2071,16 @@ public class Main extends JFrame
 	public void setPlaced(boolean b0,boolean b1,boolean b2,boolean b3,boolean b4,boolean place[])
 	{
 		ticker.tick();
-		
+
 		place[0]=b0;
 		place[1]=b1;
 		place[2]=b2;
 		place[3]=b3;
 		place[4]=b4;
-		
+
 
 	}
-	
+
 	/**
 	 * @param place place array
 	 * @param current current array to transfer in
@@ -1950,8 +2090,8 @@ public class Main extends JFrame
 			place[i] = current[i];
 		}
 	}
-	
-	
+
+
 	/**
 	 * @param in
 	 * @param out
@@ -1967,7 +2107,7 @@ public class Main extends JFrame
 			}
 		}
 	}
-	
+
 	/**
 	 * @param num
 	 * @return
@@ -1976,8 +2116,8 @@ public class Main extends JFrame
 		ticker.tick();
 		return (int)Math.pow(2, num);
 	}
-	
-	
+
+
 	private void printBoolArr(boolean[] a) {
 		for (int i = 0; i < a.length; i++) {
 			System.out.print(a[i] + " ");
@@ -1993,17 +2133,17 @@ public class Main extends JFrame
 		//curr iterates 0 to num.
 		//does this iterate through the first "num" permutations?
 		//could sort the array(list)s somehow and use that?
-		
+
 		//actually i think it does the permutations with (possible) trues only in the first num=2^x places?
 		//can work with that in a similar way as the other method
 		//could pass in numComs instead of nums? that would avoid taking a log oofity
-		
-	//	boolean[] newChoice = null;
-		
+
+		//	boolean[] newChoice = null;
+
 		int localCount = 0;
 		for (int i = 0; i <= exp; i++) {
 			for (int j = 0; j < ncr(exp,i); j++) {
-				
+
 				if (localCount == curr) {
 					setPlacedNew(place,permutations[i].get(j));
 					return;
@@ -2012,13 +2152,13 @@ public class Main extends JFrame
 				localCount++;
 			}
 		}
-		
-		
-		
-		
-	//	System.out.print("\tnum: "+num+", aka 2^"+exp+", curr: " +curr+"\t");
-//		printBoolArr(newChoice);
-//		System.out.println();
+
+
+
+
+		//	System.out.print("\tnum: "+num+", aka 2^"+exp+", curr: " +curr+"\t");
+		//		printBoolArr(newChoice);
+		//		System.out.println();
 		/*
 		if(num==1) {
 //			System.out.print("new: ");
@@ -2332,9 +2472,9 @@ public class Main extends JFrame
 				break;
 			}
 		}*/
-		
+
 	}
-	
+
 	/**
 	 * @param numV
 	 * @param numScoring
@@ -2342,16 +2482,16 @@ public class Main extends JFrame
 	 * @param place
 	 */
 	public void generate(int numV,int numScoring,int index,boolean place[])	{
-		
+		//System.out.println("numV: " + numV + "permutations length: " + permutations[numV].size() );
 		if(numV==0) {
 			setPlacedNew(place,permutations[numV].get(0));
 			return;
 		}
 		//System.out.println("index: "+ index + "\tfor len: "+permutations[numV].size()+"\t should have: "+getNumCombinations(numScoring, numV));
 		setPlacedNew(place,permutations[numV].get(index));		
-		
+
 	}
-	
+
 	/**
 	 * @param numScoring number of scoring tiles
 	 * @param numVoltorbs number of voltorbs
@@ -2369,7 +2509,7 @@ public class Main extends JFrame
 
 		if (n == 0) 
 			return 1; 
-		
+
 		return n*factorial(n-1); 
 	} 
 
@@ -2383,7 +2523,7 @@ public class Main extends JFrame
 		int num = factorial(n);
 		int denom = (factorial(k))*(factorial(n-k));
 		return (num/denom);
-		
+
 	}
 
 

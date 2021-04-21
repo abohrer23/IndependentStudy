@@ -73,7 +73,7 @@ public class MoveLogger {
 	}
 	
 	public void setExit(int s, int score) {
-		score = score;
+		this.score = score;
 		exitStatus = s;
 		turnCounter++; //fixes an off-by-one error
 	}

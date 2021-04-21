@@ -1365,7 +1365,7 @@ public class Main extends JFrame
 			System.out.println("Making a new board of 1, 6, 5");
 			MakeBoard m = new MakeBoard();
 			//quantity,level, size
-			int batch = m.makeboard(1, 6, 5);
+			int batch = m.makeboard(1, 6, 6);
 
 
 			File parentFile = new File("support_src/boards/resources"); 

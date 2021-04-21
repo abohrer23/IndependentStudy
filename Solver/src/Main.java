@@ -1104,7 +1104,7 @@ public class Main extends JFrame
 	 */
 	public void reset()
 	{
-		logger.consoleprint();
+		//logger.consoleprint();
 		///logger.createCSV();
 		//logger.createTXT();
 

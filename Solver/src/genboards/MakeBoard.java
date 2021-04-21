@@ -229,11 +229,10 @@ public class MakeBoard {
 
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
 		MakeBoard m = new MakeBoard();
 		//quantity,level, size
-		m.makeboard(2, 1, 6);
+		m.makeboard(2, 1, 8);
 
 	}
 

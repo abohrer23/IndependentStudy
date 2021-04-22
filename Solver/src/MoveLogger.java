@@ -34,7 +34,9 @@ public class MoveLogger {
 	
 	private int fileNumber;
 	
-	public String getAlgo() {return algo;}
+	public String getAlgo() {
+		return algo;
+	}
 	
 	
 	public MoveLogger(int fileNumber) {
@@ -78,8 +80,13 @@ public class MoveLogger {
 		turnCounter++; //fixes an off-by-one error
 	}
 	
+	/**
+	 *  Sets the logger's algorithm as a (parsing only the first word to clear out any hanging flags)
+	 * @param a
+	 */
 	public void setAlgorithm(String a) {
-		algo = a;
+		String[] arr = a.split(" ");
+		algo = arr[0];
 	}
 
 	

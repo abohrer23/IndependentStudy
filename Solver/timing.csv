@@ -1,88 +1,309 @@
-null, 10, 151,42,
-null, 10, 132,42,
-null, 10, 138,42,
-null, 9, 160,38,
-null, 9, 601,38,
-null, 9, 439,38,
-null, 9, 600,38,
-null, 9, 730,38,
-null, 9, 318,38,
-null, 9, 25358,38,
-null, 9, 525,38,
-null, 9, 1182,38,
-null, 9, 873,38,
-null, 9, 979,38,
-null, 9, 949,38,
-null, 9, 433,38,
-null, 9, 662,38,
-null, 9, 793,38,
-null, 9, 628,38,
-null, 9, 496,38,
-null, 9, 572,38,
-null, 9, 485,38,
-null, 9, 531,38,
-null, 9, 584,38,
-null, 9, 497,38,
-null, 9, 583,38,
-null, 9, 823,38,
-null, 9, 458,38,
-null, 9, 513,38,
-null, 9, 503,38,
-null, 9, 810,38,
-null, 9, 1009,38,
-null, 9, 697,38,
-null, 9, 959,38,
-null, 9, 845,38,
-null, 2, 370,10,
-null, 2, 320,10,
-null, 2, 306,10,
-null, 2, 286,10,
-null, 2, 490,10,
-null, 2, 335,10,
-null, 2, 257,10,
-null, 2, 423,10,
-null, 2, 408,10,
-null, 2, 321,10,
-null, 2, 1092,10,
-null, 2, 291,10,
-null, 2, 1738,10,
-null, 2, 2351,10,
-null, 2, 1832,10,
-null, 2, 2160,10,
-null, 2, 2277,10,
-null, 2, 2256,10,
-null, 2, 1058,10,
-null, 2, 785,10,
-null, 2, 874,10,
-null, 2, 5870,10,
-null, 2, 545,10,
-null, 2, 652,10,
-null, 2, 2705,10,
-null, 2, 3871,10,
-null, 2, 580,10,
-null, 2, 734,10,
-null, 2, 3361,10,
-null, 2, 14837,10,
-null, 2, 16387,10,
-null, 9, 5821,38,
-null, 9, 510,38,
-null, 2, 174,10,
-null, 2, 578,10,
-null, 2, 719,10,
-null, 2, 214,10,
-null, 9, 533,38,
-null, 2, 245,10,
-null, 9, 770,38,
-null, 9, 664,38,
-null, 1, 2355,6,
-null, 2, 1908,10,
-null, 1, 69715,6,
-null, 1, 1905,6,
-null, 2, 1650,10,
-null, 2, 1620,10,
-null, 2, 87537,10,
-null, 2, 1675,10,
-null, 1, 2194,6,
-null, 1, 3748,6,
-null, 1, 2493,6,
-null, 1, 4084,6,
+strategy, board num, time (ns), ticks
+minrisk,0,45,3339
+minrisk,1,20,976
+minrisk,2,20,1763
+minrisk,3,15,625
+minrisk,4,10,1124
+minrisk,5,10,608
+minrisk,6,10,616
+minrisk,7,15,915
+minrisk,8,15,802
+minrisk,9,10,964
+minrisk,10,15,681
+minrisk,11,10,703
+minrisk,12,10,1302
+minrisk,13,15,589
+minrisk,14,10,964
+minrisk,15,15,790
+minrisk,16,10,930
+minrisk,17,10,1302
+minrisk,18,10,816
+minrisk,19,15,996
+minrisk,20,10,807
+minrisk,21,20,4084
+minrisk,22,10,605
+minrisk,23,15,1527
+minrisk,24,20,894
+minrisk,25,15,788
+minrisk,26,15,2058
+minrisk,27,15,1302
+minrisk,28,15,1142
+minrisk,29,15,806
+minrisk,30,15,772
+minrisk,31,15,964
+minrisk,32,20,984
+minrisk,33,20,916
+minrisk,34,10,1486
+minrisk,35,10,589
+minrisk,36,10,930
+minrisk,37,15,805
+minrisk,38,10,775
+minrisk,39,15,984
+minrisk,40,15,3450
+minrisk,41,10,635
+minrisk,42,33,996
+minrisk,43,12,897
+minrisk,44,15,718
+minrisk,45,10,577
+minrisk,46,10,1094
+minrisk,47,20,631
+minrisk,48,10,589
+minrisk,49,15,900
+minrisk,50,10,984
+minrisk,51,15,1749
+minrisk,52,15,528
+minrisk,53,10,456
+minrisk,54,10,773
+minrisk,55,15,775
+minrisk,56,5,1016
+minrisk,57,10,804
+minrisk,58,20,701
+minrisk,59,10,863
+minrisk,60,10,1354
+minrisk,61,10,651
+minrisk,62,10,681
+minrisk,63,22,904
+minrisk,64,18,797
+minrisk,65,19,597
+minrisk,66,11,1837
+minrisk,67,15,984
+minrisk,68,15,3769
+minrisk,69,15,840
+minrisk,70,10,1288
+minrisk,71,10,609
+minrisk,72,15,2624
+minrisk,73,10,976
+minrisk,74,15,907
+minrisk,75,10,1064
+minrisk,76,10,602
+minrisk,77,10,900
+minrisk,78,15,905
+minrisk,79,15,704
+minrisk,80,15,741
+minrisk,81,10,668
+minrisk,82,15,946
+minrisk,83,10,787
+minrisk,84,15,1288
+minrisk,85,10,824
+minrisk,86,20,2748
+minrisk,87,10,1222
+minrisk,88,15,770
+minrisk,89,10,589
+minrisk,90,10,718
+minrisk,91,15,908
+minrisk,92,15,4341
+minrisk,93,10,697
+minrisk,94,10,790
+minrisk,95,15,1464
+minrisk,96,10,976
+minrisk,97,10,668
+minrisk,98,15,911
+minrisk,99,10,888
+,,,
+strategy, board num, time (ns), ticks
+minrisk,0,43,7247
+minrisk,1,20,2363
+minrisk,2,20,6859
+minrisk,3,17,40773
+minrisk,4,8,912
+minrisk,5,15,1823
+minrisk,6,20,14239
+minrisk,7,15,49463
+minrisk,8,15,1725
+minrisk,9,10,3033
+minrisk,10,25,14330
+minrisk,11,15,7089
+minrisk,12,15,2276
+minrisk,13,20,71134
+minrisk,14,20,3850
+minrisk,15,22,46082
+minrisk,16,23,30546
+minrisk,17,20,33050
+minrisk,18,25,9066
+minrisk,19,15,12556
+minrisk,20,25,281311
+minrisk,21,15,18198
+minrisk,22,20,5266
+minrisk,23,10,4500
+minrisk,24,15,10967
+minrisk,25,20,19032
+minrisk,26,12,13503
+minrisk,27,18,7851
+minrisk,28,15,4292
+minrisk,29,15,6471
+minrisk,30,20,7480
+minrisk,31,20,9183
+minrisk,32,12,5003
+minrisk,33,23,6972
+minrisk,34,20,8153
+minrisk,35,20,2859
+minrisk,36,10,13348
+minrisk,37,20,6981
+minrisk,38,15,21736
+minrisk,39,20,98436
+minrisk,40,15,11661
+minrisk,41,15,14120
+minrisk,42,30,2017
+minrisk,43,12,27570
+minrisk,44,23,14891
+minrisk,45,20,6180
+minrisk,46,15,8440
+minrisk,47,20,52201
+minrisk,48,10,5138
+minrisk,49,15,11350
+minrisk,50,10,2324
+minrisk,51,20,10872
+minrisk,52,15,52257
+minrisk,53,15,42101
+minrisk,54,15,81578
+minrisk,55,15,19032
+minrisk,56,15,7999
+minrisk,57,15,6681
+minrisk,58,15,4337
+minrisk,59,20,46052
+minrisk,60,15,2072
+minrisk,61,15,5403
+minrisk,62,13,3562
+minrisk,63,17,21795
+minrisk,64,10,2973
+minrisk,65,15,7177
+minrisk,66,15,22088
+minrisk,67,10,11241
+minrisk,68,15,9990
+minrisk,69,18,37232
+minrisk,70,12,6766
+minrisk,71,10,3994
+minrisk,72,15,10084
+minrisk,73,10,3419
+minrisk,74,15,4177
+minrisk,75,10,9320
+minrisk,76,10,10086
+minrisk,77,15,7085
+minrisk,78,10,12969
+minrisk,79,15,35343
+minrisk,80,15,4701
+minrisk,81,10,46132
+minrisk,82,15,10267
+minrisk,83,10,6696
+minrisk,84,15,17248
+minrisk,85,13,17310
+minrisk,86,12,19414
+minrisk,87,10,33853
+minrisk,88,15,4929
+minrisk,89,10,9101
+minrisk,90,20,7362
+minrisk,91,15,2178
+minrisk,92,18,9518
+minrisk,93,12,8569
+minrisk,94,15,13603
+minrisk,95,10,7343
+minrisk,96,20,3987
+minrisk,97,20,3613
+minrisk,98,20,185783
+minrisk,99,20,140658
+,,,
+strategy, board num, time (ns), ticks
+minrisk,0,510,69883830
+minrisk,1,50,449098
+minrisk,2,60,851340
+minrisk,3,40,201990
+minrisk,4,326,51098001
+minrisk,5,19,40539
+minrisk,6,30,1397598
+minrisk,7,25,401061
+minrisk,8,52,1567168
+minrisk,9,365,47985671
+minrisk,10,25,1672577
+minrisk,11,40,5592876
+minrisk,12,40,4764557
+minrisk,13,40,4184665
+minrisk,14,45,4389493
+minrisk,15,25,662159
+minrisk,16,240,47877721
+minrisk,17,20,492367
+minrisk,18,25,348266
+minrisk,19,30,1611709
+minrisk,20,35,709392
+minrisk,21,30,378223
+minrisk,22,25,134765
+minrisk,23,164,26033420
+minrisk,24,151,31868738
+minrisk,25,20,1718241
+minrisk,26,15,481566
+minrisk,27,1030,133198942
+minrisk,28,25,1131287
+minrisk,29,30,2939342
+minrisk,30,35,4635569
+minrisk,31,25,4066529
+minrisk,32,20,570003
+minrisk,33,15,307561
+minrisk,34,270,66772485
+minrisk,35,20,73979
+minrisk,36,15,341748
+minrisk,37,15,121864
+minrisk,38,185,39389312
+minrisk,39,25,49013
+minrisk,40,15,32715
+minrisk,41,325,64774376
+minrisk,42,90,22051699
+minrisk,43,220,46362566
+minrisk,44,15,405223
+minrisk,45,30,1057808
+minrisk,46,50,6459332
+minrisk,47,95,16641581
+minrisk,48,20,694735
+minrisk,49,240,38650252
+minrisk,50,20,225240
+minrisk,51,25,231815
+minrisk,52,30,2622564
+minrisk,53,35,2681518
+minrisk,54,385,70181547
+minrisk,55,15,263160
+minrisk,56,20,893120
+minrisk,57,20,1153926
+minrisk,58,30,4272027
+minrisk,59,440,104089786
+minrisk,60,130,28359599
+minrisk,61,30,4248525
+minrisk,62,155,31096277
+minrisk,63,85,17565768
+minrisk,64,100,26969271
+minrisk,65,30,801379
+minrisk,66,20,270496
+minrisk,67,20,2838543
+minrisk,68,16,748967
+minrisk,69,34,1471492
+minrisk,70,20,1301389
+minrisk,71,20,2061766
+minrisk,72,15,117255
+minrisk,73,15,1401985
+minrisk,74,20,264718
+minrisk,75,30,1737849
+minrisk,76,25,3709883
+minrisk,77,45,8922675
+minrisk,78,35,2604287
+minrisk,79,65,8649278
+minrisk,80,13,485159
+minrisk,81,27,745659
+minrisk,82,25,1089692
+minrisk,83,20,972520
+minrisk,84,50,5883511
+minrisk,85,505,118800376
+minrisk,86,25,1240188
+minrisk,87,15,125798
+minrisk,88,35,4536914
+minrisk,89,75,11803829
+minrisk,90,45,5921159
+minrisk,91,25,300934
+minrisk,92,100,20983891
+minrisk,93,160,36954422
+minrisk,94,20,476425
+minrisk,95,40,4032851
+minrisk,96,15,434026
+minrisk,97,25,1724103
+minrisk,98,125,27274671
+minrisk,99,85,19134871
+  ,,,
+strategy, board num, time (ns), ticks
+minrisk,0,565,25698636
+minrisk,1,1626,164704095

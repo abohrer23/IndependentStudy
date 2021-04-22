@@ -28,5 +28,10 @@ final public class Ticker {
 	final public long getTickCount() {
 		return this.tickCount;
 	}
+	
+	//added to allow for resetting to zero and having multiple runs without recreating - Lane
+	final public void resetTicker() {
+		tickCount = 0;
+	}
 
 }

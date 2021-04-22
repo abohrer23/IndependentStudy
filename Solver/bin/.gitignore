@@ -12,8 +12,10 @@
 /StdIn.class
 /Strategy.class
 /VoltorbTimer.class
-/boards/
-/cse131/
-/genboards/
-/timing/
+/Main$2.class
 /Main$SortFalseFirst.class
+/boards/
+/genboards/
+/src/
+/support_src/
+/timing/
